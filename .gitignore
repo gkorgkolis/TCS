@@ -1,0 +1,88 @@
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.ckpt
+
+# Packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+
+# Python-specific files
+.Python
+.python-version
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+.env/
+env.bak/
+venv.bak/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Other
+*.log
+*.pot
+__pycache__/
+*.py[cod]
+code/_py_cache__/*.pyc
+code/.vscode/launch.json
+
+# OS generated files 
+.DS_Store
+.DS_Store?
+._*
+.Trash
+ehumbs.db
+Thumbs.db
+
+# Let git ignore these as they > 100MB to push on the remote repo
+code/data/single/extra/test/simple_test.p
+code/data/single/extra/train/simple_train.p
+code/data/single/extra/val/simple_val.p 
+code/data/
+code/TimeGAN/
+code/CausalTime/outputs/
+code/CausalTime/outputsfull/
+code/CausalTime/outputsmasked/
+code/cd_methods/CausalPretraining/res/
+*/_custom_generator.ipynb
+
+code/tests.ipynb
+code/notebooks/resimulation_tests.ipynb
+code/notebooks/PCMCI_generate_and_test.ipynb
+
+code/notebooks/log/events.out.tfevents.*
+code/notebooks/log/
+code/notebooks/outputs/
+code/notebooks/outputsfull/
+code/notebooks/outputsmasked
+code/notebooks/outputs/air_quality/log/
+
+# data/
+# data/single/
+data/simulated/
+data/simulated_non_padded/
+data/labels/
+data/labels_non_padded/
+data/subsamples/
+data/metrics/

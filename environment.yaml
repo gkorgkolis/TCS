@@ -1,0 +1,12 @@
+# environment.yaml
+
+name: TCS
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10.2
+  - anaconda
+  - pip
+  - pip:
+    - --requirement requirements.txt
