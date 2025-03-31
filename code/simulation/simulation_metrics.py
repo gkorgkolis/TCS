@@ -12,7 +12,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from tqdm import tqdm
 
-from simulation.detection_lstm import ClassifierLSTM, ClassifierLSTM_V1, ClassifierLSTM_V2
+from simulation.detection_lstm import (ClassifierLSTM, ClassifierLSTM_V1,
+                                       ClassifierLSTM_V2)
 
 # from sdmetrics.timeseries import LSTMDetection
 
