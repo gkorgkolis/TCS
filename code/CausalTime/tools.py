@@ -12,6 +12,8 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from simulation.simulation_metrics import (lr_detection, lstm_detection,
+                                           mmd_th, mmd_torch, svc_detection)
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
@@ -19,8 +21,6 @@ from CausalTime.dataloader import load_data_h5py
 from CausalTime.generate import generate
 from CausalTime.models import NF_ResidualTransformerModel, Residual_model
 from CausalTime.train import train
-from simulation.simulation_metrics import (lr_detection, lstm_detection,
-                                           mmd_th, mmd_torch, svc_detection)
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
