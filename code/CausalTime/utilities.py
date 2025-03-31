@@ -6,16 +6,16 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-from simulation.detection_lstm import ClassifierLSTM
-from simulation.simulation_metrics import mmd_torch
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
-from utils import df_to_tensor, get_device
 
 from CausalTime.dataloader import load_data_h5py
 from CausalTime.generate import generate
-from CausalTime.models import (NF_ResidualTransformerModel, Residual_model)
+from CausalTime.models import NF_ResidualTransformerModel, Residual_model
 from CausalTime.train import train
+from simulation.detection_lstm import ClassifierLSTM
+from simulation.simulation_metrics import mmd_torch
+from utils import df_to_tensor, get_device
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
