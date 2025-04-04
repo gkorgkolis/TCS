@@ -8,7 +8,7 @@ from utils import _from_full_to_cp
 
 from simulation.simulation_utils import simulate
 from simulation.simulation_metrics import run_detection_metrics, run_detection_metrics_XY, prepare_det_data
-from simulation.simulation_configs import cd_config as CD_CONFIGS, pred_config as PRED_CONFIGS
+from simulation.simulation_configs import cd_config as CD_CONFIGS, pred_config as PRED_CONFIGS, noise_config as NOISE_CONFIGS
 
 def get_optimal_sim(
         true_data: pd.DataFrame, 
@@ -58,7 +58,7 @@ def get_optimal_sim(
                 "o": z_approximation
             } for cd_method in list(CD_CONFIGS.values()) 
             for fc_method in list(PRED_CONFIGS.values())
-            for z_approximation in ["spline", "est"]
+            for z_approximation in list(NOISE_CONFIGS.values())
         ]
 
     if verbose:
@@ -252,7 +252,7 @@ def get_optimal_sim_XY(
                 "o": z_approximation
             } for cd_method in list(CD_CONFIGS.values()) 
             for fc_method in list(PRED_CONFIGS.values())
-            for z_approximation in ["spline", "est"]
+            for z_approximation in list(NOISE_CONFIGS.values())
         ]
 
     if verbose:
@@ -426,7 +426,7 @@ def get_optimal_sim_XY_dual(
                 "o": z_approximation
             } for cd_method in list(CD_CONFIGS.values()) 
             for fc_method in list(PRED_CONFIGS.values())
-            for z_approximation in ["spline", "est"]
+            for z_approximation in list(NOISE_CONFIGS.values())
         ]
 
     if verbose:

@@ -262,12 +262,20 @@ def _sim_prepare_data(
                 adj_cp, adj_pd = safe_cd_task(true_data=true_data, cd_method=estimate_with_DYNOTEARS, cd_kwargs=cd_kwargs, verbose=verbose)
             else:
                 adj_cp, adj_pd = safe_cd_task(true_data=true_data, cd_method=estimate_with_CP, cd_kwargs=cd_kwargs, verbose=verbose)
+        # NOTE: used exclusively in the dense graph experiment
         elif cd_method=="DENSE":
             if cd_kwargs is None:
                 cd_kwargs = {}
             adj_cp = torch.ones(size=[true_data.shape[1], true_data.shape[1], 3])  # lags are 3 as MAX_LAG=3
             adj_pd = _from_cp_to_full(adj_cp)       # fix regular order later on as an intergrated step
             adj_pd = adj_pd.loc[regular_order_pd(adj_pd), regular_order_pd(adj_pd)]
+        # NOTE: used exclusively in the oracle graph experiment
+        elif cd_method=="ORACLE":
+            if "oracle" not in cd_kwargs.keys():
+                raise ValueError("cd_kwargs should contain the oracle.")
+            adj_pd = cd_kwargs["oracle"]
+            adj_pd = adj_pd.loc[regular_order_pd(adj_pd), regular_order_pd(adj_pd)]
+            adj_cp = _from_full_to_cp(adj_pd)
         else:
             if cd_kwargs is None:
                 cd_kwargs = {
