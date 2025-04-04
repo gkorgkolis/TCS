@@ -8,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 import torch
 from tqdm import trange
+
 from utils import (_edges_for_causal_stationarity, _from_cp_to_full,
                    _from_full_to_cp, _to_cp_ready, group_lagged_nodes,
                    regular_order_pd)

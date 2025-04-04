@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats
 
+
 def Delong_test(true, prob_A, prob_B):
     """
     Perform DeLong's test for comparing the AUCs of two models.

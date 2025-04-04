@@ -1,4 +1,5 @@
 import warnings
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import random
@@ -20,8 +21,9 @@ from statsmodels.tsa.stattools import adfuller
 from TCDF.forecaster import TCDForecaster
 from tempogen.temporal_causal_structure import TempCausalStructure
 from tempogen.temporal_scm import TempSCM
-from utils import (_from_full_to_cp, _from_cp_to_full, estimate_with_CP, estimate_with_PCMCI,
-                   group_lagged_nodes, r2_from_scratch, regular_order_pd)
+from utils import (_from_cp_to_full, _from_full_to_cp, estimate_with_CP,
+                   estimate_with_PCMCI, group_lagged_nodes, r2_from_scratch,
+                   regular_order_pd)
 
 from simulation.simulation_configs import cd_config as CD_CONFIGS
 

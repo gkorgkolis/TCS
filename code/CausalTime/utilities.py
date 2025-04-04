@@ -14,7 +14,7 @@ from utils import df_to_tensor, get_device
 
 from CausalTime.dataloader import load_data_h5py
 from CausalTime.generate import generate
-from CausalTime.models import (NF_ResidualTransformerModel, Residual_model)
+from CausalTime.models import NF_ResidualTransformerModel, Residual_model
 from CausalTime.train import train
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
