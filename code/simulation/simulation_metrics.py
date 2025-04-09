@@ -5,13 +5,13 @@ import time
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn as nn
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from tqdm import tqdm
 
-from simulation.detection_lstm import (ClassifierLSTM, ClassifierLSTM_V1,
-                                       ClassifierLSTM_V2)
+from simulation.detection_lstm import ClassifierLSTM, ClassifierLSTM_V2
 
 
 ###############################################################################################################
@@ -914,9 +914,9 @@ def run_detection_metrics_XY(
 
 """ ___________________________________________ MMD Torch  ___________________________________________ """
 
-class RBF(torch.nn.Module):
+class RBF(nn.Module):
 
-    def __init__(self, n_kernels=5, mul_factor=2.0, bandwidth=None):
+    def __init__(self, n_kernels: int=5, mul_factor: float=2.0, bandwidth=None):
         super().__init__()
         # self.bandwidth_multipliers = mul_factor ** (torch.arange(n_kernels) - n_kernels // 2)      # original
         self.bandwidth_multipliers = torch.tensor([0.01, 0.1, 1, 10, 100])                                    # as in sam
@@ -933,7 +933,7 @@ class RBF(torch.nn.Module):
         return torch.exp(-L2_distances[None, ...] / (self.get_bandwidth(L2_distances) * self.bandwidth_multipliers)[:, None, None]).sum(dim=0)
 
 
-class MMDLossTH(torch.nn.Module):
+class MMDLossTH(nn.Module):
 
     def __init__(self, kernel=RBF()):
         super().__init__()
@@ -949,7 +949,7 @@ class MMDLossTH(torch.nn.Module):
         return XX - 2 * XY + YY
 
 
-def mmd_th(real, synthetic, batch_size=200):
+def mmd_th(real: pd.DataFrame, synthetic: pd.DataFrame, batch_size=200):
     """ 
     Computes the Maximum Mean Discrepancy distance of the real and synthetic samples.
     The bandwidth multiplies are set to: [0.01, 0.1, 1, 10, 100].
@@ -987,7 +987,7 @@ def mmd_th(real, synthetic, batch_size=200):
 
 """ ___________________________________________ MMD Torch 2  ___________________________________________ """
 
-class MMD_loss(torch.nn.Module):
+class MMD_loss(nn.Module):
     """
     Taken from https://github.com/ZongxianLee/MMD_Loss.Pytorch/blob/master/mmd_loss.py.
     """
@@ -1023,7 +1023,7 @@ class MMD_loss(torch.nn.Module):
         return loss
     
 
-def mmd_torch(real, synthetic, batch_size=500):
+def mmd_torch(real, synthetic, batch_size: int=500) -> float:
     """ 
     Computes the Maximum Mean Discrepancy distance of the real and synthetic samples.
     The bandwidth multipliers are set to: [0.01, 0.1, 1, 10, 100].
