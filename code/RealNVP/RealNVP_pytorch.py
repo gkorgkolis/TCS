@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+import torch.nn as nn
 import torch.distributions as dist
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -87,24 +87,24 @@ class RealNVPSimulator:
         plt.show()
 
 
-class Coupling(torch.nn.Module):
+class Coupling(nn.Module):
     """Coupling layer for RealNVP."""
     def __init__(self, input_dim, output_dim=256, reg=0.01):
         super(Coupling, self).__init__()
-        self.scale = torch.nn.Sequential(
-            torch.nn.Linear(input_dim, output_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(output_dim, output_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(output_dim, input_dim),
-            torch.nn.Tanh(),
+        self.scale = nn.Sequential(
+            nn.Linear(input_dim, output_dim),
+            nn.ReLU(),
+            nn.Linear(output_dim, output_dim),
+            nn.ReLU(),
+            nn.Linear(output_dim, input_dim),
+            nn.Tanh(),
         )
-        self.translate = torch.nn.Sequential(
-            torch.nn.Linear(input_dim, output_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(output_dim, output_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(output_dim, input_dim),
+        self.translate = nn.Sequential(
+            nn.Linear(input_dim, output_dim),
+            nn.ReLU(),
+            nn.Linear(output_dim, output_dim),
+            nn.ReLU(),
+            nn.Linear(output_dim, input_dim),
         )
 
     def forward(self, x, mask):
@@ -114,7 +114,7 @@ class Coupling(torch.nn.Module):
         return scale, translate
 
 
-class RealNVP(torch.nn.Module):
+class RealNVP(nn.Module):
     def __init__(self, input_dim, num_coupling_layers=6, latent_dim=1):
         super(RealNVP, self).__init__()
 
@@ -125,7 +125,7 @@ class RealNVP(torch.nn.Module):
         print(f"Latent dim: {latent_dim}")
 
         # Define a series of coupling layers
-        self.coupling_layers = torch.nn.ModuleList(
+        self.coupling_layers = nn.ModuleList(
             [Coupling(input_dim) for _ in range(num_coupling_layers)]
         )
 
