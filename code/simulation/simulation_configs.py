@@ -38,10 +38,10 @@ cd_config = {
     #         "density": [2, 10]
     #     },
     # },
-    # 'PCMCI_1': {
-    #     "cd_method": "PCMCI",
-    #     "cd_kwargs": None,
-    # },
+    'PCMCI_1': {
+        "cd_method": "PCMCI",
+        "cd_kwargs": None,
+    },
     # 'PCMCI_2': {
     #     "cd_method": "PCMCI",
     #     "cd_kwargs": {
@@ -134,6 +134,6 @@ noise_config = {
     "noise_1": {"noise_approximation": "est"}, 
     # "noise_2": {"noise_approximation": "normal"}, 
     # "noise_3": {"noise_approximation": "uniform"},
-    # "noise_4": {"noise_approximation": "spline"}, 
+    "noise_4": {"noise_approximation": "spline"}, 
     # "noise_5": {"noise_approximation": "nvp"}
 }

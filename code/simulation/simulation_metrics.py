@@ -5,8 +5,6 @@ import time
 import numpy as np
 import pandas as pd
 import torch
-from sdmetrics.single_table import LogisticDetection, SVCDetection
-from sdv.metadata import Metadata, SingleTableMetadata
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
@@ -15,109 +13,10 @@ from tqdm import tqdm
 from simulation.detection_lstm import (ClassifierLSTM, ClassifierLSTM_V1,
                                        ClassifierLSTM_V2)
 
-# from sdmetrics.timeseries import LSTMDetection
-
 
 ###############################################################################################################
 ################################################## Detection ##################################################
 ###############################################################################################################
-
-""" ___________________________________________ SVD Detection ___________________________________________ """
-
-def detection(
-        real: pd.DataFrame, 
-        synthetic: pd.DataFrame, 
-        model: str
-) -> int:
-    """
-    Wrapper for SDMetrics single-table Detection metrics.
-     - https://github.com/sdv-dev/SDMetrics/tree/main/sdmetrics/single_table/detection
-
-    From SDMetrics: 
-        - Creates a single, augmented table that has all the rows of real data and all the rows of synthetic data. 
-          Adds an extra column to keep track of whether each original row is real or synthetic. 
-        - Split the augmented data to create a training and validation sets. 
-        - Chooses and trains a machine learning model on the training split. The model will predict whether each row 
-          is real or synthetic (ie predict the extra column that was created in step #1)
-        - Validate the model on the validation set
-        - Repeat steps #2-4 multiple times
-
-        The final score is based on the average ROC AUC score [1] across all the cross validation splits.
-
-        Can either be used w/ sk-learn's LogisticRegression or SVC classifiers.
-
-    Reasons for being in Beta (SDMetrics):
-        - The score heavily depends on underlying algorithm used to model the data. 
-          If the dataset is not suited for a particular machine learning method, then the detection results may not be valid. 
-        - A score of 1 may indicate high quality but it could also be a clue that the synthetic data is leaking privacy 
-          (for example, if the synthetic data is copying the rows in the real data).
-    
-    Args
-    ----
-    - real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    - synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
-    - model (str) : the model used for efficacy, either 'LR' or 'SVC'
-
-    Return
-    ------
-    - score (float) : 1-(max(ROC AUC, 0.5)*2-1), belongs in [0, 1]. If close to 1, the ML model catorch.ot distinguish 
-                    real from synthetic data. If the score is close to 0, the ML model can perfectly dustinguish synthetic from real data.    
-    """
-    metadata = SingleTableMetadata()
-    metadata.detect_from_dataframe(data=real)
-
-    if model=='LR':
-        return LogisticDetection.compute(real_data=real, synthetic_data=synthetic, metadata=metadata)
-    elif model=='SVC':
-        return SVCDetection.compute(real_data=real, synthetic_data=synthetic, metadata=metadata)
-    else:
-        raise AttributeError("The only supported types of detection classifiers are 'LR' or 'SVC'.")
-    
-
-def lr_detection(
-        real: pd.DataFrame, 
-        synthetic: pd.DataFrame
-):
-    """ 
-    Wrapper for SDMetrics detection with Logistic Regression. 
-    - https://github.com/sdv-dev/SDMetrics/tree/main/sdmetrics/single_table/detection
-    
-    Args
-    -----
-    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
-
-    Return
-    ------
-    score (float) : 1-(max(ROC AUC, 0.5)*2-1), belongs in [0, 1]. If close to 1, the ML model cannot distinguish real 
-                from synthetic data. If the score is close to 0, the ML model can perfectly dustinguish synthetic from real data.
-    """
-
-    return detection(real, synthetic, model='LR')
-
-
-def svc_detection(
-        real: pd.DataFrame, 
-        synthetic: pd.DataFrame
-):
-    """ 
-    Wrapper for SDMetrics detection with SVCs. 
-    - https://github.com/sdv-dev/SDMetrics/tree/main/sdmetrics/single_table/detection
-    
-    Args
-    ----
-    - real: a Pandas DataFrame containing the real data
-    - synthetic: a Pandas DataFrame containing the synthetic data
-
-    Return
-    ------
-    - score (float) : 1-(max(ROC AUC, 0.5)*2-1), belongs in [0, 1]. If close to 1, the ML model cannot distinguish real 
-                from synthetic data. If the score is close to 0, the ML model can perfectly dustinguish synthetic from real data.
-    """
-
-    return detection(real, synthetic, model='SVC')
-
-
 
 """ ___________________________________________ LSTM Detection ___________________________________________ """
 
@@ -407,8 +306,30 @@ def lstm_detection_XY(
 
 def prepare_det_data(
         real : pd.DataFrame, 
-        synthetic : pd.DataFrame
+        synthetic : pd.DataFrame, 
+        split : float = 0.75
 ) -> tuple:
+    """ 
+    Creates the classification dataset for detection. Namely, it performs the following operations: 
+    - feature renaming
+    - sample labeling
+    - merging
+    - shuffling & splitting
+    - scaling
+
+    Args
+    ----
+    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
+    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
+
+    Return
+    ------
+    data_train_np (numpy.array) : the training data as a numpy array 
+    label_train (numpy.array) : the training labels as a numpy array
+    data_test_np (numpy.array) : the testing data as a numpy array
+    label_test (numpy.array) : the testing labels as a numpy array
+    """
     # data
     COL_NAMES = list(string.ascii_uppercase) + ["".join(a) for a in list(itertools.permutations(list(string.ascii_uppercase), r=2))]
     real_data = real.copy().rename(columns=dict(zip(real.columns, COL_NAMES[:real.shape[1]])))
@@ -424,7 +345,7 @@ def prepare_det_data(
     merged_set = pd.concat([real_set, synthetic_set], axis=0).reset_index(drop=True)
 
     # Sample and shuffle the training and test sets 
-    merged_train = merged_set.sample(frac=0.75).dropna().sample(frac=1)
+    merged_train = merged_set.sample(frac=split).dropna().sample(frac=1)
     merged_test = merged_set[~merged_set.isin(merged_train)].dropna().sample(frac=1)
 
     # Separate again features from labels
@@ -456,21 +377,21 @@ def svm_detection(
 
     Args
     ----
-    - real : a Pandas DataFrame containing the real data
-    - synthetic : a Pandas DataFrame containing the synthetic data 
-    - split : the length of the training set as a percentage of the merged set length; (default = 0.75)
-    - C : the SVC's regularization factor; check sklearn's SVC implementation for more details
-    - kernel : kernel used by the SVC; check sklearn's SVC implementation for more details
-    - degree : the degree of the polynomial in case of 'poly' kernel; check sklearn's SVC implementation for more details
-    - gamma : the gamma parameter, in case of 'poly', 'rbf' or 'sigmoid' kernel; check sklearn's SVC implementation for more details
+    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
+    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
+    C (float) : the SVC's regularization factor; check sklearn's SVC implementation for more details
+    kernel (str) : kernel used by the SVC; check sklearn's SVC implementation for more details
+    degree (int) : the degree of the polynomial in case of 'poly' kernel; check sklearn's SVC implementation for more details
+    gamma (str) : the gamma parameter, in case of 'poly', 'rbf' or 'sigmoid' kernel; check sklearn's SVC implementation for more details
 
     Return
     ------
-    - auc : the computed auc, also based on the sklearn implementation
-    - probs : the probabilites per sample predicted by the classifier
+    auc (float) : the computed auc, also based on the sklearn implementation
+    probs (list) : the probabilites per sample predicted by the classifier
     """
 
-    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real, synthetic=synthetic)
+    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real, synthetic=synthetic, split=split)
 
     # Instantiate the SVC model
     clf = SVC(
@@ -502,25 +423,24 @@ def svm_det_train(
 ):
     """ 
     Detection test w/ SVM-based classifiers (SVCs) for real & synthetic datasets. Based on the sklearn's SVC implementation: 
-    https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
+    https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html. Only the training section. Returns the trained classifier.
 
     Args
     ----
-    - real : a Pandas DataFrame containing the real data
-    - synthetic : a Pandas DataFrame containing the synthetic data 
-    - split : the length of the training set as a percentage of the merged set length; (default = 0.75)
-    - C : the SVC's regularization factor; check sklearn's SVC implementation for more details
-    - kernel : kernel used by the SVC; check sklearn's SVC implementation for more details
-    - degree : the degree of the polynomial in case of 'poly' kernel; check sklearn's SVC implementation for more details
-    - gamma : the gamma parameter, in case of 'poly', 'rbf' or 'sigmoid' kernel; check sklearn's SVC implementation for more details
+    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
+    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
+    C (float) : the SVC's regularization factor; check sklearn's SVC implementation for more details
+    kernel (str) : kernel used by the SVC; check sklearn's SVC implementation for more details
+    degree (int) : the degree of the polynomial in case of 'poly' kernel; check sklearn's SVC implementation for more details
+    gamma (str) : the gamma parameter, in case of 'poly', 'rbf' or 'sigmoid' kernel; check sklearn's SVC implementation for more details
 
     Return
     ------
-    clf : sklearn.svm.SVC
-        The fitted classifier
+    clf (sklearn.svm.SVC) : the fitted classifier
     """
 
-    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real, synthetic=synthetic)
+    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real, synthetic=synthetic, split=split)
 
     # Instantiate the SVC model
     clf = SVC(
@@ -540,13 +460,30 @@ def svm_det_train(
 def svm_det_predict(
         classifier : SVC,
         real_data: pd.DataFrame, 
-        generate_data: pd.DataFrame
+        generate_data: pd.DataFrame, 
+        split : float = 0.75
 ):
     """ 
-    ...
+    Detection test w/ SVM-based classifiers (SVCs) for real & synthetic datasets. Based on the sklearn's SVC implementation: 
+    https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html. Only the testing section. 
+    Returns the AUC score, the predicted probabilities and the corresponding test labels.
+
+    Args
+    ----
+    clf (sklearn.svm.SVC) : the fitted classifier
+    real_data (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    generate_data (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
+    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
+
+    Return
+    ------
+    auc (float) : the auc score
+    test_probs (numpy.array) : the predicted probabilities per test sample
+    test_Y (numpy.array) : the corresponding labels per test sample
     """
 
-    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real_data, synthetic=generate_data)
+    # Split data to train and test. Only the test data are used here. 
+    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real_data, synthetic=generate_data, split=split)
     
     # Predicted probabilities
     preds_test = classifier.predict_proba(X=data_test_np)[:, 1]
@@ -565,6 +502,28 @@ def svm_detection_XY(
         degree: int = 3, 
         gamma: any = "scale"
 ):
+    """ 
+    Detection test w/ SVM-based classifiers (SVCs) for real & synthetic datasets. Based on the sklearn's SVC implementation: 
+    https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html. No internal data preparation, thus **train_X**, 
+    **train_Y**, **test_X** and **test_Y** are requested as arguments. 
+
+    Args
+    ----
+    train_X (numpy.array) : the training data as a numpy array 
+    train_Y (numpy.array) : the training labels as a numpy array
+    test_X (numpy.array) : the testing data as a numpy array
+    test_Y (numpy.array) : the testing labels as a numpy array 
+    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
+    C (float) : the SVC's regularization factor; check sklearn's SVC implementation for more details
+    kernel (str) : kernel used by the SVC; check sklearn's SVC implementation for more details
+    degree (int) : the degree of the polynomial in case of 'poly' kernel; check sklearn's SVC implementation for more details
+    gamma (str) : the gamma parameter, in case of 'poly', 'rbf' or 'sigmoid' kernel; check sklearn's SVC implementation for more details
+
+    Return
+    ------
+    auc (float) : the computed auc, also based on the sklearn implementation
+    probs (list) : the probabilites per sample predicted by the classifier
+    """
     # Instantiate the SVC model
     clf = SVC(
         C=C,
@@ -592,6 +551,19 @@ def det_train(
         synthetic : pd.DataFrame, 
         args : dict
 ):
+    """
+    Wrapper function for training a detector. Differentiates between LSTM and SVC classifiers based on the provided arguments.
+
+    Args
+    ----
+    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
+    args (dict) : the arguments of the classifier
+
+    Return
+    ------
+    clf (sklearn.svm.SVC or ClassifierLSTM) : the fitted classifier
+    """
     if "batch_size" in args.keys():
         clf = lstm_det_train(real=real, synthetic=synthetic, **args)
     else:
@@ -600,11 +572,27 @@ def det_train(
 
 
 def det_predict(
-        classifier,
+        classifier: object,
         real_data : pd.DataFrame,
         generate_data : pd.DataFrame,
         args : dict
-):
+) -> tuple:
+    """
+    Wrapper function for predicting w/ a detector. Differentiates between LSTM and SVC classifiers based on the provided arguments.
+
+    Args
+    ----
+    clf (sklearn.svm.SVC or ClassifierLSTM) : the fitted classifier
+    real_data (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    synthetic_data (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
+    args (dict) : the arguments of the classifier
+
+    Return
+    ------
+    auc (float) : the auc score
+    test_probs (numpy.array) : the predicted probabilities per test sample
+    test_Y (numpy.array) : the corresponding labels per test sample
+    """
     if "batch_size" in args.keys():
         return lstm_det_predict(classifier=classifier, real_data=real_data.values, generate_data=generate_data.values)
     else:
@@ -616,28 +604,29 @@ def get_optimal_config(
         synthetic: pd.DataFrame, 
         detection: callable, 
         search_space: dict, 
-        sparsity: bool = False,
         verbose: bool = False
 ):
-    """ 
+    """
+    **NOTE**: Not used anymore. Please check *get_optimal_config_XY*. Kept for now for legacy / transition reasons.
+
     Args
     ----
-    - real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    - synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
-    - detection (callable) : the detection metric to be fine-tuned
-    - search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
+    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
+    detection (callable) : the detection metric to be fine-tuned
+    search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument. 
                             E.g.: 
                                 search_space = {
                                     "C": [1.0, 0.75, 0.5], 
                                     "gamma": ["auto", "scale"]
                                 }
-    - verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
 
     Return
     ------
-    - auc (float) : the highest AUC achieved throughout the cartesian product of the search space
-    - config (dict) : the optimal configuration, i.e., the one that returns the highest AUC
+    auc (float) : the highest AUC achieved throughout the cartesian product of the search space
+    config (dict) : the optimal configuration, i.e., the one that returns the highest AUC
     """
     start_time = time.time()
 
@@ -661,20 +650,7 @@ def get_optimal_config(
         results["labels"].append(labels)
         results["auc"].append(auc)
 
-    # if not sparsity:
     idx = np.argmax(results["auc"])
-    # else:
-    #     # implement sparsity penalty
-        
-    #     # - preprocess real data: id, train & test
-
-    #     # - get probs from optimal classifiers 
-
-    #     # - identify statistically equivalent classifier AUCs
-
-    #     # - penalize density
-
-    #     pass
 
     elapsed_time = round(time.time() - start_time, 2)
     print(f"LOG: Optimal Detection Config: {detection.__name__}: {results['auc'][idx]} (auc) || configs: {len(configs)} || elapsed_time: {elapsed_time} (s)")
@@ -695,9 +671,9 @@ def run_detection_metrics(
 
     Args
     ----
-    - real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    - synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
-    - svm_search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
+    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
+    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
+    svm_search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument; 
                             E.g.: 
                                 search_space = {
@@ -706,25 +682,30 @@ def run_detection_metrics(
                                 }
                             if None, it uses a predefined space that aims for a wide search but with reasonable running times;
                             for more details, please check the source code
-    - lstm_search_space (dict) : same as for the SVM detection, but with the appropriate arguments; 
+    lstm_search_space (dict) : same as for the SVM detection, but with the appropriate arguments; 
                             for more details, please check the source code 
-    - verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+
+    Return
+    ------
+    res (dict) : detection output as a dictionary with the following fields: 
+        - "auc": the optimal detector's AUC score
+        - "config": the optimal detector's configuration
+        - "detector": the trained optimal detector instance
 
     """
     if svm_search_space is None:
         svm_search_space = {
-            "C" : [1.0, 0.75, 0.5,0.25],
-            "kernel" : ["linear", "poly", "rbf"],
+            "C" : [1.0, 0.5],
+            "kernel" : ["poly", "rbf"],
             "degree" : [3],
             "gamma" : ["auto", "scale"],
         }
 
     if lstm_search_space is None:
-        # [int(min([1000, real.shape[0]])//(10*i)) for i in range(1, 8, 4)]
-        # [int(min([1024, real.shape[0]])//(8*i)) for i in range(1, 5, 3)]
         lstm_search_space = {
             "batch_size" : [32, None], 
-            "hidden_size" : [128, 256],
+            "hidden_size" : [128],
             "num_layers" : [2],
             "dropout" : [0.1],
             "seq_len" : [32, None],
@@ -770,16 +751,17 @@ def get_optimal_config_XY(
         test_Y : np.array, 
         detection: callable, 
         search_space: dict, 
-        sparsity: bool = False,
         verbose: bool = False
 ):
     """ 
+    Finds the optimal detector on the provided argument search space, for the provided training and testing data.  
+
     Args
     ----
-    train_X (numpy.ndarray) : ...
-    train_Y (numpy.ndarray) : ... 
-    test_X (numpy.ndarray) : ...
-    test_Y (numpy.ndarray) : ... 
+    train_X (numpy.array) : the training data as a numpy array 
+    train_Y (numpy.array) : the training labels as a numpy array
+    test_X (numpy.array) : the testing data as a numpy array
+    test_Y (numpy.array) : the testing labels as a numpy array  
     detection (callable) : the detection metric to be fine-tuned
     search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument. 
@@ -793,6 +775,8 @@ def get_optimal_config_XY(
     Return
     ------
     auc (float) : the highest AUC achieved throughout the cartesian product of the search space
+    probs (numpy.array) : the classifier's predicted probabilities on the test samples
+    labels (numpy.array) : the corresponding labels of the test samples 
     config (dict) : the optimal configuration, i.e., the one that returns the highest AUC
     """
     start_time = time.time()
@@ -842,10 +826,10 @@ def run_detection_metrics_XY(
 
     Args
     ----
-    train_X (numpy.ndarray) : ...
-    train_Y (numpy.ndarray) : ... 
-    test_X (numpy.ndarray) : ...
-    test_Y (numpy.ndarray) : ...
+    train_X (numpy.array) : the training data as a numpy array 
+    train_Y (numpy.array) : the training labels as a numpy array
+    test_X (numpy.array) : the testing data as a numpy array
+    test_Y (numpy.array) : the testing labels as a numpy array
     svm_search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument; 
                             E.g.: 
@@ -855,9 +839,16 @@ def run_detection_metrics_XY(
                                 }
                             if None, it uses a predefined space that aims for a wide search but with reasonable running times;
                             for more details, please check the source code
-    lstm_search_space (dict) : same as for the SVM detection, but with the appropriate arguments; 
+    lstm_search_space (dict) : same as for the SVM detection, but with the corresponding ClassifierLSTM arguments; 
                             for more details, please check the source code 
     verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+
+    Return
+    ------
+    res (dict) : detection output as a dictionary with the following fields: 
+        - "auc": the optimal detector's AUC score
+        - "config": the optimal detector's configuration
+        - "detector": the trained optimal detector instance
 
     """
     if svm_search_space is None:
@@ -869,11 +860,9 @@ def run_detection_metrics_XY(
         }
 
     if lstm_search_space is None:
-        # [int(min([1000, real.shape[0]])//(10*i)) for i in range(1, 8, 4)]
-        # [int(min([1024, real.shape[0]])//(8*i)) for i in range(1, 5, 3)]
         lstm_search_space = {
             "batch_size" : [32, None], 
-            "hidden_size" : [128, 256],
+            "hidden_size" : [128],
             "num_layers" : [2],
             "dropout" : [0.1],
             "seq_len" : [32, None],

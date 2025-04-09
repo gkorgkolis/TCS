@@ -1,21 +1,12 @@
 import itertools
-import math
-import os
+
 import string
 import sys
-from os.path import dirname as opd
-from os.path import join as opj
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from simulation.simulation_metrics import (lr_detection, lstm_detection,
-                                           mmd_th, mmd_torch, svc_detection)
 from torch.utils.tensorboard import SummaryWriter
-from tqdm import tqdm
 
 from CausalTime.dataloader import load_data_h5py
 from CausalTime.generate import generate
@@ -196,59 +187,3 @@ def preprocess(generated_data, ori_data, seq_length=5):
         raise TypeError(f'TypeError: {e}')
 
     return generated_data, ori_data
-
-
-def get_metric_results(real, synthetic, filename):
-    """
-    ...
-    """
-    results_ct = {}
-
-    mmd_score_1_ct = mmd_th(real=real, synthetic=synthetic)
-    mmd_score_2_ct = mmd_torch(real=real, synthetic=synthetic)
-    mmd_scores_ct = {
-        "mmd_1": round(mmd_score_1_ct, 3),
-        "mmd_2": round(mmd_score_2_ct, 3), 
-    }
-
-    det_lr_svd_score_ct = lr_detection(real=real, synthetic=synthetic)
-    det_lr_auc_score_ct = (2 - det_lr_svd_score_ct) / 2
-    det_lr_rt_score_ct = det_lr_auc_score_ct - 0.5
-
-    det_svc_svd_score_ct = svc_detection(real=real, synthetic=synthetic)
-    det_svc_auc_score_ct = (2 - det_svc_svd_score_ct) / 2
-    det_svc_rt_score_ct = det_svc_auc_score_ct - 0.5
-
-    det_lstm_auc_score_ct = lstm_detection(real=real, synthetic=synthetic, 
-                                        batch_size=int(0.25*len(real)), seq_len=None)
-    det_lstm_svd_score_ct = 1 - (det_lstm_auc_score_ct * 2 - 1)
-    det_lstm_rt_score_ct = det_lstm_auc_score_ct - 0.5
-
-    detection_scores_ct = {
-        'lr': {
-            'auc': round(det_lr_auc_score_ct, 3),
-            'rt': round(det_lr_rt_score_ct, 3),
-            'svd': round(det_lr_svd_score_ct, 3)
-        }, 
-        'svc': {
-            'auc': round(det_svc_auc_score_ct, 3),
-            'rt': round(det_svc_rt_score_ct, 3),
-            'svd': round(det_svc_svd_score_ct, 3)
-        }, 
-        'lstm': {
-            'auc': round(det_lstm_auc_score_ct, 3),
-            'rt': round(det_lstm_rt_score_ct, 3),
-            'svd': round(det_lstm_svd_score_ct, 3)
-        }
-    }
-
-    res = {
-        'filepath': filename,
-        'scm': 'No SCM for CausalTime', 
-        'r2_scores': 'No R2 scores for CausalTime', 
-        'mmd': mmd_scores_ct, 
-        'detection_scores': detection_scores_ct,
-        # 'kolmogorov': stat_and_p_ct
-    }
-
-    return res
