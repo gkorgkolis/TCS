@@ -24,18 +24,14 @@ from yaml import safe_load
 # from pathlib import Path
 
 
-
-
 def timing(f):
     @wraps(f)
-    def wrap(*args, **kw):
-        ts = time()
-        result = f(*args, **kw)
-        te = time()
-        # print('took: %2.4f sec' % \
-        #  (te-ts))
-        return result, te - ts
-
+    def wrap(*args, **kwargs):
+        tic = time.time()
+        res = f(**args, **kwargs)
+        tac = time.time()
+        print(f'function {f.__name__} took {tac-tic:2.4f} seconds')
+        return res
     return wrap
 
 

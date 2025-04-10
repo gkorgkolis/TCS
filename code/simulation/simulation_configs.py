@@ -1,4 +1,7 @@
-""" Dictionaries containing configurations. Consider using .YAML or .JSON files in the future. """
+"""
+Dictionaries containing configurations. Please modify depending on your setup or preferences
+Considering using .YAML or .JSON files instead of this one in the future. 
+"""
 
 
 cd_config = {
