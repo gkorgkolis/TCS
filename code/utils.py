@@ -802,12 +802,12 @@ def lagged_batch_corr(points: torch.Tensor, max_lags: int):
     
     Args 
     ----
-        - points (torch.Tensor) : should have dimension (B, time, var)
+    points (torch.Tensor) : the tensor should have dimension (B, time, var)
+    max_lags (int) : the number of maximum lags
     
     Return
     ------
-        - corr (torch.Tensor) : the lagged covariance matrix, of dimensions (B, D, D)
-    roll to calculate lagged cov: 
+    corr (torch.Tensor) : the lagged covariance matrix, of dimensions (B, D, D); **roll to calculate lagged cov** 
     """
     B, N, D = points.size()
 
@@ -851,15 +851,15 @@ def r2_from_scratch(
 
     Args
     ----
-        - ys_hat (torch.Tensor) : 1D-tensor of the predictions
-        - ys (torch.Tensor) : 1D-tensor of the true values
-        - oos (bool) : out-of-sample protocol
-        - Y_train (torch.Tensor) : the training targets
-        - prev (bool) : target of the previous timestep as the trivial predictor
+    ys_hat (torch.Tensor) : 1D-tensor of the predictions
+    ys (torch.Tensor) : 1D-tensor of the true values
+    oos (bool) : out-of-sample protocol
+    Y_train (torch.Tensor) : the training targets
+    prev (bool) : target of the previous timestep as the trivial predictor
     
     Return
     ------
-        - r2 (torch.Tensor) the R2 score
+    r2 (torch.Tensorloat) : the R2 score
     """
     if not isinstance(ys_hat, torch.Tensor):
         ys_hat = torch.tensor(ys_hat)
@@ -891,12 +891,12 @@ def read_to_csv(
 
     Args
     ----
-    - data_path (pathlib.Path) : the path to the data
-    - column_names (list) : a list containing the names of the columns to be assigned to the data 
+    data_path (pathlib.Path) : the path to the data
+    column_names (list) : a list containing the names of the columns to be assigned to the data 
 
     Return
     ------
-    - data_pd (pandas.DataFrame) : the data as a pandas.DataFrame object
+    data_pd (pandas.DataFrame) : the data as a pandas.DataFrame object
     """
     if column_names is None:
         column_names = list(string.ascii_uppercase) + ["".join(a) 
@@ -926,23 +926,22 @@ def read_to_csv(
 
     return true_data
 
+
 def check_non_stationarity(df: pd.DataFrame, verbose: bool=False):
     """
     Given a time-series sample, checks for non-stationarity using the Augmented Dickey-Fuller test.
     
-    Args:
-       df (pd.DataFrame) : multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size 
-       verbose (bool) : whether to print which feature is non-stationary (default: False)
+    Args
+    ----
+    df (pd.DataFrame) : multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size 
+    verbose (bool) : whether to print which feature is non-stationary (default: False)
     
-    Returns:
-       bool
-       `True` if there exists a non-stationary feature, `False` otherwise.    
+    Returns
+    -------
+    out (bool) : `True` if there exists a non-stationary feature, `False` otherwise.    
     """
     # Hyperparameters
     a_fuller = 0.05
-    a_kolmogorov = 0.05
-
-    stat_and_p = {}
 
     # 1. Per column checks
     for col in df.columns:
@@ -955,18 +954,18 @@ def check_non_stationarity(df: pd.DataFrame, verbose: bool=False):
             return True
     return False 
 
+
 def to_stationary_with_finite_differences(df: pd.DataFrame, order: int=1):
     """
     Converts the given (non-stationary) time-series sample to stationary using finite differences of order 'order'.
 
     Args:
-       df (pd.DataFrame): multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size,
+       df (pandas.DataFrame): multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size,
          where at least one feature is non-stationary.
        order (int): order of finite differences to take (default: `1`)
 
     Returns:
-       pd.DataFrame
-        Finite-differenced pandas DataFrame of the non-stationary multivariate time-series
+       out (pandas.DataFrame) : Finite-differenced dataframe of the non-stationary multivariate time-series
     """
     if check_non_stationarity(df) == False:
         warnings.warn("Provided time-series sample is stationary. No finite differencing is applied.")
@@ -981,16 +980,15 @@ def convert_data_to_stationary(df: pd.DataFrame, order: int=1, verbose=False):
     Converts a dataset containing non-stationary features to a stationary one using finite differences. In case all features
     are stationary, the dataset is not modified and returned by the method as it is.
 
-    Args:
+    Args
+    ----
+    df (pandas.DataFrame) : The data sample of shape `(n,d)` where `n` is the sample size and `d` the feature size
+    order (int) : The order to account for in the finite-differences method (default: 1)
+    verbose (bool) : Whether to print process messages (default: `False`).
 
-       df (pd.DataFrame): The data sample of shape `(n,d)` where `n` is the sample size and `d` the feature size
-       order (int): The order to account for in the finite-differences method (default: 1)
-       verbose (bool): Whether to print process messages (default: `False`).
-
-    Returns:
-
-       pd.DataFrame
-         The stationary-transformed dataset    
+    Returns
+    -------
+    out (pandas.DataFrame) : The stationary-transformed dataset    
     """
     if check_non_stationarity(df, verbose=verbose):
         diff_df = to_stationary_with_finite_differences(df, order=order)

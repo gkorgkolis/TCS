@@ -2,7 +2,7 @@ import lightning.pytorch as pl
 import torch
 import torch.nn as nn
 import torch.optim as opt
-from softadapt import LossWeightedSoftAdapt
+# from softadapt import LossWeightedSoftAdapt
 from torchmetrics import MeanAbsoluteError, MeanSquaredError
 
 from cd_methods.CausalPretraining.helpers.tools import (
@@ -343,11 +343,6 @@ class Architecture_PL(pl.LightningModule):
 
     def test_step(self, batch, _):
         self.non_train_step(batch, name="test")
-
-    # if we want norms at some point
-    # def on_before_optimizer_step(self, optimizer):
-    # norms1 = grad_norm(self.model.rnn, norm_type=2)
-    # self.log_dict(norms1)
 
     def configure_optimizers(self):
         optim = opt.AdamW(
