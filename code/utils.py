@@ -15,7 +15,6 @@ import torchmetrics
 from statsmodels.tsa.stattools import adfuller
 from tigramite import data_processing as pp
 from tigramite.independence_tests.parcorr_wls import ParCorr
-#from tigramite.independence_tests.gpdc import GPDC
 from tigramite.pcmci import PCMCI
 
 from cd_methods.CausalPretraining.helpers.tools import *
@@ -282,7 +281,7 @@ def _from_cp_to_full(adj_cp: torch.Tensor, node_names: str=None) -> pd.DataFrame
     return temp_adj_pd
 
 
-def _from_cp_to_effects(adj_cp: torch.Tensor, effects_distribution=None):
+def _from_cp_to_effects(adj_cp: torch.Tensor, effects_distribution=None) -> torch.Tensor:
     """
     Adds causal effects to a CP-style lagged adjacency matrix. 
     It currently runs on a completely randomized setup; option for a specific causal effect input matrix should be provided.  
@@ -502,7 +501,7 @@ def estimate_with_PCMCI(true_data: pd.DataFrame, n_lags: int=None, n_reps: int=N
     
     Returns
     ------- 
-        (adj_cp, adj_pd) (tuple) : the same CP-formated output as *run_inv_pcmci*, together with the full-time graph representation.
+        - (adj_cp, adj_pd) (tuple) : the same CP-formated output as *run_inv_pcmci*, together with the full-time graph representation.
     """
     # Check args and adjust
     if n_lags is None: 
@@ -542,8 +541,7 @@ def estimate_with_CP(
     Default models used are extended to a maximum of 12 variables a 3 lags, trained on custom 
     synthetic data (instead of those referenced in the original publication). 
 
-    [1]: Stein, G., Shadaydeh, M. and Denzler, J., 2024. Embracing the black box: Heading towards 
-    foundation models for causal discovery from time series data. arXiv preprint arXiv:2402.09305. 
+
     
     Args
     ----
@@ -560,7 +558,11 @@ def estimate_with_CP(
     
     Returns
     ------- 
-        (adj_cp, adj_pd) (tuple) : the same CP-formated output as in, together with the full-time graph representation.
+        - (adj_cp, adj_pd) (tuple) : the same CP-formated output as in, together with the full-time graph representation.
+
+    Notes
+    -----
+        [1]: Stein, G., Shadaydeh, M. and Denzler, J., 2024. Embracing the black box: Heading towards foundation models for causal discovery from time series data. arXiv preprint arXiv:2402.09305. 
     """
     if thresholded is None: 
         thresholded = True
@@ -568,7 +570,6 @@ def estimate_with_CP(
         threshold = 0.05
     if isinstance(density, list):
         density = np.random.choice(range(density[0], density[1]))
-    # print(f"DEBUGGING: density: {density}")
 
     if model is None:
         model = Architecture_PL.load_from_checkpoint("../cd_methods/CausalPretraining/res/deep_CI_RH_12_3_merged_290k.ckpt")
@@ -646,9 +647,6 @@ def estimate_with_CP(
 
         pred[pred < threshold] = 0
         pred[pred >= threshold] = 1
-        # print(f"DEBUGGING: threshold: {threshold}")
-
-    # print(f"DEBUGGING: pred sum: {pred[0].sum()}")
 
     adj_cp = pred[0].detach().numpy()
     adj_pd = _from_cp_to_full(adj_cp=adj_cp)
@@ -672,26 +670,25 @@ def estimate_with_CP(
             break   # to avoid having empty intermediate time slices
     adj_pd = adj_pd.loc[nodes_to_retain, nodes_to_retain]
     adj_cp = _from_full_to_cp(adj_pd)
-    # print(f"DEBUGGING: shape after post-processing: {adj_pd.shape}")
 
     return adj_cp, adj_pd
 
 
-def timeseries_to_stationary(data_pd: pd.DataFrame, n_shift: int, columns_to_diff: list, diffs: int=1):
+def timeseries_to_stationary(data_pd: pd.DataFrame, n_shift: int, columns_to_diff: list, diffs: int=1) -> pd.DataFrame:
     '''
     Converts a non-stationary time-series to a stationary 
     time-series using finite order differencing
 
     Parameters
     ----------
-        data_pd : (pandas dataframe): time-series dataset
-        n_shift (int) : shift for differencing
-        columns_to_diff (list): list of column names to convert to stationary
-        order (int): order of differences to take; either first (1) or second (2) order. Defaults to 1.
+        - data_pd : (pandas dataframe): time-series dataset
+        - n_shift (int) : shift for differencing
+        - columns_to_diff (list): list of column names to convert to stationary
+        - order (int): order of differences to take; either first (1) or second (2) order. Defaults to 1.
 
     Returns
     -------
-        data_pd (pandas dataframe): stationary time-series dataset
+        - data_pd (pandas dataframe): stationary time-series dataset
     '''
 
     data_pd_diff = data_pd.copy()
@@ -835,7 +832,7 @@ def lagged_batch_corr(points: torch.Tensor, max_lags: int):
         )
         * std.permute((0, 2, 1))
     )
-    # we can remove backwards in time links. (keep only the original values)
+    # remove backward in time edges (keep only the original values)
     return corr[:, :D, D:]  # (B, D, D)
 
 

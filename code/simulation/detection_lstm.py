@@ -5,7 +5,7 @@ from sklearn.metrics import roc_auc_score
 
 """
 Code taken from https://github.com/jarrycyx/UNN/blob/main/CausalTime/test.py#L159.
-Slightly modified, for recreation and comparisson purposes.  
+Slightly modified, for recreation and comparison purposes.  
 """
 
 """  

@@ -36,7 +36,6 @@ ii. Remove a node
     - Added edges should not create a circle - Not Implemented
 """
 import itertools
-import os
 import string
 import time
 from copy import deepcopy
@@ -44,7 +43,6 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import torch
-# from tempogen.functional_utils import _torch_identity
 from tempogen.temporal_causal_structure import TempCausalStructure
 from tempogen.temporal_scm import TempSCM
 from tqdm import trange
