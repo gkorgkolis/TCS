@@ -1,8 +1,20 @@
+"""
+Part of the TCDF method, taken explicitly from https://github.com/M-Nauta/TCDF.
+
+References
+----------
+- [*] : Nauta, M.; Bucur, D.; Seifert, C. Causal Discovery with Attention-Based Convolutional Neural Networks. 
+       Mach. Learn. Knowl. Extr. 2019, 1, 312-340. https://doi.org/10.3390/make1010019
+"""
+
 import torch
 
 
 class Chomp1d(torch.nn.Module):
-    """PyTorch does not offer native support for causal convolutions, so it is implemented (with some inefficiency) by simply using a standard convolution with zero padding on both sides, and chopping off the end of the sequence."""
+    """
+    PyTorch does not offer native support for causal convolutions, so it is implemented (with some inefficiency) by simply 
+    using a standard convolution with zero padding on both sides, and chopping off the end of the sequence.
+    """
     def __init__(self, chomp_size):
         super(Chomp1d, self).__init__()
         self.chomp_size = chomp_size

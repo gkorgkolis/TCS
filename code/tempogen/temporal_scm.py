@@ -46,23 +46,24 @@ class TempSCM:
         """
         Initializes a TempSCM object. 
 
-        Args:
-            - causal_structure (TempCausalStructure) : overrules the random graph generation process and explicitly defines 
+        Args
+        ----
+        causal_structure (TempCausalStructure) : overrules the random graph generation process and explicitly defines 
                             the structure; specific to TempCausalStructure;
-            - method (str) : specifies the method that creates the random graph; supported methods are *C* for a custom Erdos-Renyi 
+        method (str) : specifies the method that creates the random graph; supported methods are *C* for a custom Erdos-Renyi 
                     like approach, *ER* for an approach based on the Erdos-Renyi implementation of NetworkX, and *BA* for an approach 
                     based on the Barabasi-Albert implementation of NetworkX.
-            - n_vars (int) : the number of variables for the random generation of the structure
-            - n_lags (int) : the number of lags for the random generation of the structure
-            - node_names (list) : the names of the nodes for the causal structure; 
+        n_vars (int) : the number of variables for the random generation of the structure
+        n_lags (int) : the number of lags for the random generation of the structure
+        node_names (list) : the names of the nodes for the causal structure; 
                                   if not provided, it follows an alphabetic order (capped at 26)
-            - p_edge (float) : the global probability for edge creation; specific to *C* and *ER* methods
-            - m (int) : the average number of edges to be added; specific to the *BA* method
-            - seed (int) : the seed for the internal random generators; specific to the *BA* method
-            - initial_graph (nx.DiGraph) : the starting point of the random generation; specific to the *BA* method
-            - funcs (any) : ...
-            - z_distributions (any) : ...
-            - z_types (any) : ...
+        p_edge (float) : the global probability for edge creation; specific to *C* and *ER* methods
+        m (int) : the average number of edges to be added; specific to the *BA* method
+        seed (int) : the seed for the internal random generators; specific to the *BA* method
+        initial_graph (nx.DiGraph) : the starting point of the random generation; specific to the *BA* method
+        funcs (any) : the functional dependencies; specific to node parameterizarion
+        z_distributions (any) : the noise distribution; specific to node parameterizarion
+        z_types (any) : the noise type; specific to node parameterizarion
         """
         # set-up the causal structure of the SCM
         if causal_structure is None:
@@ -118,19 +119,19 @@ class TempSCM:
     
         Args
         ---- 
-            - with_effect_size (bool) : default to false. If true, multiplies each fetched parent values with 
+        with_effect_size (bool) : default to false. If true, multiplies each fetched parent values with 
               its corresponding effect size 
-            - clipping (bool) : if true, clips the values to a specific range
-            - interventional (dict) : dictionary of the form {scm.node_name: value} specifying the intervention values for the nodes.
-              If int or float, performs the specified intervention for all time-steps. 
-              If numpy.ndarray of length n_samples, performs the specified interventions for each time-step. An numpy.nan value
-              denotes that no intervention is taking place.  
-              - If *int* or *float*, performs the specified intervention for all time-steps. 
-              - If *numpy.ndarray*, then performs the specified interventions for each time-step. 
-                An *numpy.nan* value denotes that no intervention is taking place.  
-            - intervention_type (str) : 'hard' or 'soft'. For hard interventions, the intervention value is being explicitely set. For
+        clipping (bool) : if true, clips the values to a specific range
+        interventional (dict) : dictionary of the form {scm.node_name - value} specifying the intervention values for the nodes.
+                If int or float, performs the specified intervention for all time-steps. 
+                If numpy.ndarray of length n_samples, performs the specified interventions for each time-step. An numpy.nan value
+                denotes that no intervention is taking place.  
+                If *int* or *float*, performs the specified intervention for all time-steps. 
+                If *numpy.ndarray*, then performs the specified interventions for each time-step. 
+                A *numpy.nan* value denotes that no intervention is taking place.  
+        intervention_type (str) : 'hard' or 'soft'. For hard interventions, the intervention value is being explicitely set. For
               soft interventions, the intervention value is added to the existing time-series value at each timestep. 
-            - verbose (bool) : if true, prints the progress of the generation, including intervention details
+        verbose (bool) : if true, prints the progress of the generation, including intervention details
         Examples:
         --------
             >>> scm.generate_time_series(n_samples=5, verbose=True, clipping=False, 
@@ -213,21 +214,21 @@ class TempSCM:
 
         Args
         ----
-        - n_samples (int) : the length of the generated dataset  
-        - warmup_steps (int) : number of excess forward steps to perform at start, and then discard them; this is done as 
-        the initialization is peformed through pure noise, which is not representative of the time-series and degraded the 
-        quality of the casual; TODO: determine through plots, statistical measures etc a reasonable default warmup-step
-        - with_effect_size (bool) : default to false. If true, multiplies each fetched parent values with 
+        n_samples (int) : the length of the generated dataset  
+        warmup_steps (int) : number of excess forward steps to perform at start, and then discard them; this is done as 
+                    the initialization is peformed through pure noise, which is not representative of the time-series and degraded the 
+                    quality of the casual; TODO - determine through plots, statistical measures etc a reasonable default warmup-step
+                    with_effect_size (bool) : default to false. If true, multiplies each fetched parent values with 
                     its corresponding effect size 
-        - clipping (bool) : if true, clips the values to a specific range
-        - intervention_type (str) : the type of intervention to be performed; Soft or Hard.
-        - interventional (dict): Dictionary of the form {node_name: value} specifying the intervention values for the nodes.
+        clipping (bool) : if true, clips the values to a specific range
+        intervention_type (str) : the type of intervention to be performed; Soft or Hard.
+        interventional (dict): Dictionary of the form {node_name: value} specifying the intervention values for the nodes.
             Can either be a single value or a numpy array of values, with the same length as the number of samples.
-        - verbose (bool) : if true, print the progress of the generation
+        verbose (bool) : if true, print the progress of the generation
 
         Return
-        ------ 
-        - time_series (pandas.DataFrame) :the time-series data
+        ------
+        time_series (pandas.DataFrame) :the time-series data
         """
         for _ in trange(warmup_steps + n_samples):
 

@@ -54,20 +54,21 @@ class TempCausalStructure:
             initial_graph=None      # ...
     ) -> None:
         """
-        Args:
-            - causal_structure (pd.DataFrame) : a Pandas adjacency matrix of a full time DAG; 
-                                               if not provided, the causal structure is randomly generated
-            - method (str) : how to create the random graph; supported methods are *C* for a custom Erdos-Renyi like approach, 
+        Args
+        ----
+        causal_structure (pd.DataFrame) : a Pandas adjacency matrix of a full time DAG; 
+                                            if not provided, the causal structure is randomly generated
+        method (str) : how to create the random graph; supported methods are *C* for a custom Erdos-Renyi like approach, 
                       *ER* for an approach based on the Erdos-Renyi implementation of NetworkX, and *BA* for an approach 
                       based on the Barabasi-Albert implementation of NetworkX.
-            - n_vars (int) : the number of variables for the random generation of the structure
-            - n_lags (int) : the number of lags for the random generation of the structure
-            - node_names (list) : the names of the nodes for the causal structure; 
+        n_vars (int) : the number of variables for the random generation of the structure
+        n_lags (int) : the number of lags for the random generation of the structure
+        node_names (list) : the names of the nodes for the causal structure; 
                                   if not provided, it consists of alphabetic characters in alphabetic order (capped at 26)
-            - p_edge (float) : the global probability for edge creation; specific to *C* and *ER* methods
-            - m (int) : the number of edges to attch from  new node to existing nodes; specific to the *BA* method
-            - seed (int): the seed for the internal random generators; specific to the *BA* method
-            - initial_graph (nx.DiGraph) : the starting point of the random generation; specific to the *BA* method 
+        p_edge (float) : the global probability for edge creation; specific to *C* and *ER* methods
+        m (int) : the number of edges to attch from  new node to existing nodes; specific to the *BA* method
+        seed (int) : the seed for the internal random generators; specific to the *BA* method
+        initial_graph (nx.DiGraph) : the starting point of the random generation; specific to the *BA* method 
         """
 
         # the causal structure is a pd.DataFrame, which is initialized either as an Erdos-Renyi (C, ER) or a Barabasi-Albert (BA)

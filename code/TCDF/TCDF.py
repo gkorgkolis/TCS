@@ -1,3 +1,12 @@
+"""
+Part of the TCDF method, taken explicitly from https://github.com/M-Nauta/TCDF.
+
+References
+----------
+- [*] : Nauta, M.; Bucur, D.; Seifert, C. Causal Discovery with Attention-Based Convolutional Neural Networks. 
+       Mach. Learn. Knowl. Extr. 2019, 1, 312-340. https://doi.org/10.3390/make1010019
+"""
+
 import copy
 import heapq
 import random

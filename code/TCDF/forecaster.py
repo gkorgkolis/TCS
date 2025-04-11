@@ -1,5 +1,3 @@
-import argparse
-
 import numpy as np
 import torch
 from tqdm import trange
@@ -16,22 +14,22 @@ class TCDForecaster:
 
     Args 
     ----
-    - target_idx (int) : the column index of the target variable in the input data ...
+    target_idx (int) : the column index of the target variable in the input data ...
 
-    - num_levels (int) : the number of hidden layer blocks used; for details of what specific operations a block 
+    num_levels (int) : the number of hidden layer blocks used; for details of what specific operations a block 
                             consists of, check the class definitions in [*]; defaults to 0
-    - kernel_size (int) : the size of the kernel in the 1-D convolution operation performed; defaults to 2; 
+    kernel_size (int) : the size of the kernel in the 1-D convolution operation performed; defaults to 2; 
                             according to the original authors [*], ideally it should bear the same value as the 
                             dilation coefficient argument 
-    - dilation_c (int) : the dilation coefficient in the 1-D convolution operation performed; defaults to 2; 
+    dilation_c (int) : the dilation coefficient in the 1-D convolution operation performed; defaults to 2; 
                         according to the original authors [*], ideally it should bear the same value as the 
                         kernel size argument 
-    - cuda (bool) : whether to use CPU or GPU as the main device for Torch tensor computations; defaults to False
-    - epochs (int) : the number of training epochs; the default value is 1000
-    - lr (float) : the learnig rate used in the Gradient Descent-based optimizer; the default value is 0.01
-    - optimizer_name (str) : the name of the optimizer, as used in torch; the default value is 'Adam'
-    - split (float) : the splitting percentage of the training subset
-    - seed (int) : the seed given to the random number generators that are used internally; for recreation purposes 
+    cuda (bool) : whether to use CPU or GPU as the main device for Torch tensor computations; defaults to False
+    epochs (int) : the number of training epochs; the default value is 1000
+    lr (float) : the learnig rate used in the Gradient Descent-based optimizer; the default value is 0.01
+    optimizer_name (str) : the name of the optimizer, as used in torch; the default value is 'Adam'
+    split (float) : the splitting percentage of the training subset
+    seed (int) : the seed given to the random number generators that are used internally; for recreation purposes 
     
     Notes
     ---
@@ -94,20 +92,20 @@ class TCDForecaster:
 
         Args
         ----
-        - X (torch.Tensor) : the input data as a tensor
-        - y (torch.Tensor) : the target data as a tensor
-        - num_levels (int) : the number of hidden layer blocks used; for details of what specific operations a block 
+        X (torch.Tensor) : the input data as a tensor
+        y (torch.Tensor) : the target data as a tensor
+        num_levels (int) : the number of hidden layer blocks used; for details of what specific operations a block 
                                 consists of, check the class definitions in [*]; defaults to 0
-        - kernel_size (int) : the size of the kernel in the 1-D convolution operation performed; defaults to 2; 
+        kernel_size (int) : the size of the kernel in the 1-D convolution operation performed; defaults to 2; 
                                 according to the original authors [*], ideally it should bear the same value as the 
                                 dilation coefficient argument 
-        - dilation_c (int) : the dilation coefficient in the 1-D convolution operation performed; defaults to 2; 
+        dilation_c (int) : the dilation coefficient in the 1-D convolution operation performed; defaults to 2; 
                             according to the original authors [*], ideally it should bear the same value as the 
                             kernel size argument 
-        - cuda (bool) : whether to use CPU or GPU as the main device for Torch tensor computations; defaults to False
-        - epochs (int) : the number of training epochs; the default value is 1000
-        - lr (float) : the learnig rate used in the Gradient Descent-based optimizer; the default value is 0.01
-        - optimizer_name (str) : the name of the optimizer, as used in torch; the default value is 'Adam'
+        cuda (bool) : whether to use CPU or GPU as the main device for Torch tensor computations; defaults to False
+        epochs (int) : the number of training epochs; the default value is 1000
+        lr (float) : the learnig rate used in the Gradient Descent-based optimizer; the default value is 0.01
+        optimizer_name (str) : the name of the optimizer, as used in torch; the default value is 'Adam'
         """
         input_size = X.shape[1]
 
@@ -169,11 +167,11 @@ class TCDForecaster:
 
         Args
         ----
-        - X (torch.Tensor) : the input data as a tensor
+        X (torch.Tensor) : the input data as a tensor
 
         Return
         ------
-        - preds (numpy.array) : the predictions of the model
+        preds (numpy.array) : the predictions of the model
         """
         X_test, _ = self._prepare_data(X=X, y=X)
         X_test, _ = self._normalize_test_data(X_test=X_test, Y_test=X_test)
@@ -194,13 +192,13 @@ class TCDForecaster:
 
         Args
         ----
-            - X (numpy.array) : the input data as an array
-            - y (numpy.array) : the target data as an array
+        X (numpy.array) : the input data as an array
+        y (numpy.array) : the target data as an array
 
         Returns
         -------
-            - X_torch (torch.Tensor) : the transformed input data as a tensor
-            - y_torch (torch.Tensor) : the transformed target data as a tensor 
+        X_torch (torch.Tensor) : the transformed input data as a tensor
+        y_torch (torch.Tensor) : the transformed target data as a tensor 
         """
         data_x = X.copy().astype('float32').transpose()    
         data_y = y.copy().astype('float32').transpose()
@@ -223,13 +221,13 @@ class TCDForecaster:
 
         Args
         ----
-            - X_train (torch.Tensor) : the input training subset of the data
-            - Y_train (torch.Tensor) : the target training subset of the data
+        X_train (torch.Tensor) : the input training subset of the data
+        Y_train (torch.Tensor) : the target training subset of the data
         
         Return
         ------
-            - X_train_norm (torch.Tensor) : the input training subset of the data
-            - Y_train_norm (torch.Tensor) : the target training subset of the data
+        X_train_norm (torch.Tensor) : the input training subset of the data
+        Y_train_norm (torch.Tensor) : the target training subset of the data
         """
         self.X_scaling_mean = X_train.mean(dim=2, keepdim=True)
         self.X_scaling_std = X_train.std(dim=2, unbiased=False, keepdim=True)
@@ -251,13 +249,13 @@ class TCDForecaster:
 
         Args
         ----
-            - X_test (torch.Tensor) : the input testing subset of the data
-            - Y_test (torch.Tensor) : the target testing subset of the data
+        X_test (torch.Tensor) : the input testing subset of the data
+        Y_test (torch.Tensor) : the target testing subset of the data
 
         Return
         ------
-            - X_test_norm (torch.Tensor) : the input testing subset of the data
-            - Y_test_norm (torch.Tensor) : the target testing subset of the data
+        X_test_norm (torch.Tensor) : the input testing subset of the data
+        Y_test_norm (torch.Tensor) : the target testing subset of the data
         """
         # print(f"        -- DEBUGGING: X_train_shape: {X_test.shape}, X_mean: {self.X_scaling_mean.shape}, X_std: {self.X_scaling_std.shape}")
         # print(f"        -- DEBUGGING: Y_train_shape: {Y_test.shape}, Y_mean: {self.Y_scaling_mean.shape}, Y_std: {self.Y_scaling_std.shape}")
@@ -274,11 +272,11 @@ class TCDForecaster:
 
         Args
         ----
-            - Y_pred (numpy.array) : the input testing subset of the data
+        Y_pred (numpy.array) : the input testing subset of the data
 
         Return
         ------
-            - Y_pred_de (numpy.array) : the de-normalized predictions
+        Y_pred_de (numpy.array) : the de-normalized predictions
         """
         Y_pred = Y_pred * self.Y_scaling_std.numpy() + self.Y_scaling_mean.numpy()
         return Y_pred

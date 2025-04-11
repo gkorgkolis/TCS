@@ -78,15 +78,15 @@ class TempNode:
         Initializes a TempNode object.
 
         Args:
-            - causal_structure (TempCausalStructure) : the causal structure to which the temp node belongs; 
+        causal_structure (TempCausalStructure) : the causal structure to which the temp node belongs; 
                             used to derive structural ingormation;
-            - name (str) : the name of the node in the causal structure;
-            - func (any) : the functionaldependency of the node; usually a torch function; default to torch.nn.Linear layer;
+        name (str) : the name of the node in the causal structure;
+        func (any) : the functionaldependency of the node; usually a torch function; default to torch.nn.Linear layer;
                            each provided function should receive as input a list with the parent values and output a scalar value;
                            (a torch.tensor object of shape [1]);
-            - z_distribution (torch.distributions) : the noise distribution of the node; should be torch.distributions instance;
+        z_distribution (torch.distributions) : the noise distribution of the node; should be torch.distributions instance;
                             defults to *torch.distributions.uniform.Uniform(low=-0.5, high=0.5)*;
-            - z_type (str) : the type of the noise application; currenly supporting *additive* and *multiplicative*; defaults to *additive*; 
+        z_type (str) : the type of the noise application; currenly supporting *additive* and *multiplicative*; defaults to *additive*; 
         """
         # -- graph --
         self.causal_structure = causal_structure
@@ -120,11 +120,13 @@ class TempNode:
         If the node has no parents, it requires no input arguments - it simply samples from its noise distribution.
         If the node has one or more parents, it adds its parent values of the corresponding lag w/ the sampled noise, as described in [*].
 
-        Args:
-            - parent_values (list) : a list w/ the node's parent values at their corresponding time-step, can be an empty list.
+        Args
+        ----
+        parent_values (list) : a list w/ the node's parent values at their corresponding time-step, can be an empty list.
 
-        Out:
-            - the node's value at this current time-step.
+        Return
+        ------
+        val (torch.Tensor) : the node's value at this current time-step.
         """
         # -- sample noise (scalar) from the node's noise distribution --
         self.z = self.z_distribution.sample()
