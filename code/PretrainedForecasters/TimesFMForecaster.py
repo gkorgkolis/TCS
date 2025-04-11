@@ -14,15 +14,15 @@ class TimesFMForecaster:
 
     Args
     ----
-    - backend (str) : the backend device used for computations; defaults to "gpu"
-    - per_core_batch_size (int) : the batch size used per core; defaults to 32
-    - context_len (int) : the context length of the model; should be a multiple of the input_patch_len, i.e., 32; 
+    backend (str) : the backend device used for computations; defaults to "gpu"
+    per_core_batch_size (int) : the batch size used per core; defaults to 32
+    context_len (int) : the context length of the model; should be a multiple of the input_patch_len, i.e., 32; 
                           a different one may be used during inference; defaults to 512
-    - horizon_len (int) : the horizon length of the model; defaults to 128
-    - input_patch_len (int) : the input patch length; defaults to 32
-    - output_patch_len (int) : the output patch length; defaults to 128
-    - num_layers (int) : the number of decoder-only layers; defaults to 20
-    - model_dims (int) : the model's inner dimension; defaults to 1280 .
+    horizon_len (int) : the horizon length of the model; defaults to 128
+    input_patch_len (int) : the input patch length; defaults to 32
+    output_patch_len (int) : the output patch length; defaults to 128
+    num_layers (int) : the number of decoder-only layers; defaults to 20
+    model_dims (int) : the model's inner dimension; defaults to 1280 .
 
     Notes
     ----
@@ -32,6 +32,8 @@ class TimesFMForecaster:
     def __init__(
             self,
     ):
+        """ 
+        """
         self.model = timesfm.TimesFm(
             hparams=timesfm.TimesFmHparams(
                 backend="gpu",
@@ -61,11 +63,11 @@ class TimesFMForecaster:
 
         Args
         ----
-        - X (numpy.ndarray) : the input data as a NumPy array
+        X (numpy.ndarray) : the input data as a NumPy array
 
         Return
         ------
-        - preds (numpy.array) : the predictions of the model
+        preds (numpy.array) : the predictions of the model
         """
         # X_train, Y_train = self._normalize_train_data(X_train=X_train, Y_train=Y_train)
         self.covariates = X_train.copy()
@@ -83,15 +85,13 @@ class TimesFMForecaster:
             verbose: bool = False
     ):
         
-        # X_test, _ = self._normalize_test_data(X_test=X_test, Y_test=X_test)
-
         self.horizon_len = min([len(X_test), horizon_len])
 
         predictions = []
 
         if len(X_test) < horizon_len:
 
-            # JUST ONE ITERATION
+            # just one pass
 
             self.covariates = np.concatenate([self.covariates, X_test[:self.horizon_len, :]], axis=0)
 
@@ -103,9 +103,6 @@ class TimesFMForecaster:
                 horizon_len=self.horizon_len
             )
 
-            # according to our setup, this should always be equal to zero
-            # way slower, and according to TimesFM, way ineffective due to bias introduction - please keep in mind and consider updating
-            
             start_time = time.time()
             
             cov_forecast, ols_forecast = self.model.forecast_with_covariates(  
@@ -136,6 +133,8 @@ class TimesFMForecaster:
             # BATCHED APPROACH
 
             def batch(iterable, n=1):
+                """
+                """
                 l = len(iterable)
                 for ndx in range(0, l, n):
                     yield iterable[ndx:min(ndx + n, l)] 
@@ -155,9 +154,6 @@ class TimesFMForecaster:
                     context_len=120,
                     horizon_len=self.horizon_len
                 )
-
-                # for k, v in example.items():
-                #     print(f"{k} -> {len(v)} * {len(v[0])}")
                 
                 start_time = time.time()
                 
@@ -194,7 +190,7 @@ class TimesFMForecaster:
         self,
         target_data: np.array,
         parent_data: np.array,
-        batch_size: int,
+        # batch_size: int,
         context_len: int, 
         horizon_len: int,
     ):
@@ -203,17 +199,17 @@ class TimesFMForecaster:
 
         Args
         ----
-        - parent_data (numpy.ndarray) : an numpy.ndarray w/ the parent values
-        - target_data (numpy.array) : an numpy.array w/ the target values
-        - batch_size (int) : the batch_size of the predictor; should be set according to the length of the input data
-        - context_len: (int) : the context length as described in TimesFM documentation;
-        - horizon_len: (int) : the horizon length as described in TimesFM documentation; 
+        parent_data (numpy.ndarray) : an numpy.ndarray w/ the parent values
+        target_data (numpy.array) : an numpy.array w/ the target values
+        # batch_size (int) : the batch_size of the predictor; should be set according to the length of the input data
+        context_len: (int) : the context length as described in TimesFM documentation;
+        horizon_len: (int) : the horizon length as described in TimesFM documentation; 
                              should be set as the maximum horizon length needed
 
         Return
         ------
-        - a dictionary with the necessary values
-        # - a callable data_fn function that yields the input data & covariates to be fed to the TimesFM model 
+        res (dict) : a dictionary with the necessary values
+        # fn (function) : a callable data_fn function that yields the input data & covariates to be fed to the TimesFM model 
         """
         examples = defaultdict(list)
 

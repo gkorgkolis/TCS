@@ -16,10 +16,11 @@ class RealNVPSimulator:
     This class works as a wrapper around the RealNVP model, bringing its usage closer to the already existing simulators.
     To instantiate the model, the following arguments should or may be provided:
 
-    Args:
-        - dataset: the data to be simulated, in a Pandas DataFrame format. 
-        - output_dim (optional): the hidden / latent space dimension of the Coupling MLPs; defaults to 256.
-        - reg (optional): the regularization paramater of the L2 norm layer; defaults to 0.01. 
+    Args
+    ----
+    dataset (pandas.DataFrame) : the data to be simulated, in a Pandas DataFrame format. 
+    output_dim (int) : the hidden / latent space dimension of the Coupling MLPs; defaults to 256.
+    reg (float) : the regularization paramater of the L2 norm layer; defaults to 0.01. 
     """
     def __init__(self, dataset, output_dim=256, reg=0.01):
         self.dataset = dataset
@@ -36,9 +37,9 @@ class RealNVPSimulator:
 
         Args
         ----
-            - epochs (optional): the number of training epochs; defaults to 100.
-            - batch_size (optional): the training batch_size; defaults to 256.
-            - learning_rate (optional): the training learning_rate; defaults to 1e-4.
+        epochs (int) : the number of training epochs; (default = 100)
+        batch_size (optional) : the training batch_size; (default = 256)
+        learning_rate (optional) : the training learning_rate; (default = 1e-4)
         """
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
         dataloader = DataLoader(TensorDataset(self.data), batch_size=batch_size, shuffle=True)
@@ -62,7 +63,7 @@ class RealNVPSimulator:
         
         Return
         ------
-            - df (pandas.dataframe) : the simulated data, inverse-transformed
+        df (pandas.DataFrame) : the simulated data, inverse-transformed
         """
         self.model.eval()
         z = self.model.sample_latent(len(self.data))
@@ -72,13 +73,20 @@ class RealNVPSimulator:
 
 
     def predict(self):
-        """Generates new data samples using the trained model."""
+        """
+        Generates new data samples using the trained model.
+        
+        Return
+        ------
+        df (pandas.DataFrame) : the simulated data, inverse-transformed
+        """
         return self.simulate()  # Alias for simulate
 
 
     def evaluate(self):
         """ 
-        Visualizations that help in the model's evaluation. Only available for 1-D data as KDE plots and 2-D data as scatter plots 
+        Visualizations that help in the model's evaluation. 
+        Only available for 1-D data as KDE plots and 2-D data as scatter plots 
         """
         sns.kdeplot(self.data[:, 0].numpy(), label="Inference data space")
         simulated_data = self.simulate()
@@ -88,7 +96,8 @@ class RealNVPSimulator:
 
 
 class Coupling(nn.Module):
-    """Coupling layer for RealNVP."""
+    """
+    """
     def __init__(self, input_dim, output_dim=256, reg=0.01):
         super(Coupling, self).__init__()
         self.scale = nn.Sequential(
@@ -115,6 +124,8 @@ class Coupling(nn.Module):
 
 
 class RealNVP(nn.Module):
+    """ 
+    """
     def __init__(self, input_dim, num_coupling_layers=6, latent_dim=1):
         super(RealNVP, self).__init__()
 
@@ -138,6 +149,8 @@ class RealNVP(nn.Module):
         )
 
     def forward(self, x, reverse=False):
+        """
+        """
         log_det_jacobian = 0
 
         # Reverse the order of operations during inference
@@ -152,11 +165,15 @@ class RealNVP(nn.Module):
         return x, log_det_jacobian
 
     def log_loss(self, x):
+        """
+        """
         z, log_det_jacobian = self(x)
         log_prob_z = self.distribution.log_prob(z)
         return -(log_prob_z + log_det_jacobian).mean()
 
     def training_step(self, x, optimizer):
+        """
+        """
         optimizer.zero_grad()
         loss = self.log_loss(x)
         loss.backward()
@@ -164,6 +181,8 @@ class RealNVP(nn.Module):
         return loss.item()
 
     def sample(self, num_samples):
+        """
+        """
         # sample from latent space
         z = self.distribution.sample((num_samples,))
         # reverse flow from latent space
@@ -171,14 +190,19 @@ class RealNVP(nn.Module):
         return x
 
     def sample_latent(self, num_samples):
+        """
+        """
         return self.distribution.sample((num_samples,))
 
     def infer(self, z):
+        """
+        """
         x, _ = self(z, reverse=True)
         return x
 
     def predict(self, num_samples):
-        """Generates new data samples using the trained model."""
+        """
+        """
         z = self.sample_latent(num_samples)  # Sample from latent space
         x = self.infer(z)  # Reverse flow to get data samples
         return x

@@ -60,6 +60,7 @@ code/data/single/extra/test/simple_test.p
 code/data/single/extra/train/simple_train.p
 code/data/single/extra/val/simple_val.p 
 code/data/
+code/PretrainedForecasters
 code/TimeGAN/
 code/CausalTime/outputs/
 code/CausalTime/outputsfull/

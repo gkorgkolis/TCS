@@ -10,11 +10,16 @@ Slightly modified, for recreation and comparison purposes.
 
 """  
 _______________________________________________ Vesion 0 _______________________________________________ 
-- As implemented in its original version.
+- As implemented in its original version in CausalTime.
+- Kept for running CausalTime.
 """
 
 
 class ClassifierLSTM(torch.nn.Module):
+    """
+    The implementation of an LSTM-based discriminator as it is found in CausalTime; 
+    used exclusively for calling it.
+    """
     def __init__(self, input_size, output_size, hidden_size, num_layers, dropout):
         super(ClassifierLSTM, self).__init__()
         self.lstm = torch.nn.LSTM(input_size, hidden_size, num_layers, dropout=dropout, batch_first=True)
@@ -24,6 +29,8 @@ class ClassifierLSTM(torch.nn.Module):
 
 
     def forward(self, x):
+        """
+        """
         out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         out = self.sigmoid(out)
@@ -32,8 +39,9 @@ class ClassifierLSTM(torch.nn.Module):
 
     def train_classifier(
             self, real_data, generate_data, seq_len, device, batch_size, num_epochs=10, learning_rate=0.001
-            # summary_writer
     ):
+        """
+        """
         if len(real_data.shape) == 2:
             real_data = torch.Tensor(real_data)
             real_data = real_data.unfold(0, seq_len, 1)
@@ -84,9 +92,6 @@ class ClassifierLSTM(torch.nn.Module):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                # if i % 10 == 0:
-                #     print(f"Epoch {epoch+1}/{num_epochs}, Batch {i+1}/{len(train_loader)}, Loss: {loss.item():.6f}")
-                #     # summary_writer.add_scalar('train_loss', loss.item(), epoch*len(train_loader)+i)
             self.eval()
             with torch.no_grad():
                 for i, (X, y) in enumerate(test_loader):
@@ -95,11 +100,11 @@ class ClassifierLSTM(torch.nn.Module):
                     y = y.cuda()
                     y_pred = self(X)
                     loss = criterion(y_pred.squeeze(), y)
-                    # summary_writer.add_scalar('test_loss', loss.item(), epoch*len(test_loader)+i)
-        # torch.save(self.state_dict(), '/ssd/0/wzq/unnset/unnset/classifier.pth')
 
 
     def test_by_classify(self, generate_data, device, batch_size, verbose=False):
+        """
+        """
         if len(generate_data.shape) == 2:
             generate_data = torch.Tensor(generate_data)
             generate_data = generate_data.unfold(0, self.seq_len, 1)
@@ -155,8 +160,6 @@ class ClassifierLSTM(torch.nn.Module):
         if verbose:
             print('Test accuracy: ', accuracy)
             print('Test auc: ', auc_score)
-        # summary_writer.add_scalar('Test accuracy', accuracy)
-        # summary_writer.add_scalar('Test auc', auc_score)
         return auc_score, y_pred_list, y_list
     
 
@@ -166,168 +169,8 @@ class ClassifierLSTM(torch.nn.Module):
         real_label = torch.ones(real_data.shape[0])
         real_test = torch.utils.data.TensorDataset(real_data, real_label)
         self.test_data = real_test
-
         return self.test_by_classify(generate_data, device, batch_size)
     
-
-"""  
-_______________________________________________ Vesion 1 _______________________________________________ 
-- Loss is computed on a separate validation set, to avoid overfitting.
-"""
-
-
-class ClassifierLSTM_V1(torch.nn.Module):
-    def __init__(self, input_size, output_size, hidden_size, num_layers, dropout):
-        super(ClassifierLSTM_V1, self).__init__()
-        self.lstm = torch.nn.LSTM(input_size, hidden_size, num_layers, dropout=dropout, batch_first=True)
-        self.fc = torch.nn.Linear(hidden_size, output_size)
-        self.sigmoid = torch.nn.Sigmoid()
-        self.test_data = None
-
-
-    def forward(self, x):
-        out, _ = self.lstm(x)
-        out = self.fc(out[:, -1, :])
-        out = self.sigmoid(out)
-        return out
-
-
-    def train_classifier(
-            self, real_data, generate_data, seq_len, device, batch_size, num_epochs=10, learning_rate=0.001
-            # summary_writer
-    ):
-        if len(real_data.shape) == 2:
-            real_data = torch.Tensor(real_data)
-            real_data = real_data.unfold(0, seq_len, 1)
-        elif len(real_data.shape) == 3:
-            real_data_list = []
-            for i in range(real_data.shape[0]):
-                real_data_list.append(torch.Tensor(real_data[i]).unfold(0, seq_len, 1))
-            real_data = torch.cat(real_data_list)
-        if len(generate_data.shape) == 3:
-            generate_data_list = []
-            for i in range(generate_data.shape[0]):
-                generate_data_list.append(torch.Tensor(generate_data[i]).unfold(0, seq_len, 1))
-            generate_data = torch.cat(generate_data_list)
-        elif len(generate_data.shape) == 2:
-            generate_data = torch.Tensor(generate_data).unfold(0, seq_len, 1)
-
-        real_label = torch.ones(real_data.shape[0])
-        generate_label = torch.zeros(generate_data.shape[0])
-        real_set = torch.utils.data.TensorDataset(real_data, real_label)
-        generate_set = torch.utils.data.TensorDataset(generate_data, generate_label)
-
-        # print(len(real_label) + len(generate_label)) #
-        # print(real_label.shape, generate_label.shape) #
-        
-        train_size = int(0.75 * len(real_set))
-        val_size = int(0.25 * train_size)
-        test_size = len(real_set) - train_size
-        # real_train, real_test = torch.utils.data.random_split(real_set, [train_size, test_size])
-        real_train, real_val, real_test = torch.utils.data.random_split(real_set, [train_size - val_size, val_size, test_size])
-        train_size = int(0.75 * len(generate_set))
-        test_size = len(generate_set) - train_size
-        # generate_train, generate_test = torch.utils.data.random_split(generate_set, [train_size, test_size])
-        generate_train, generate_val, generate_test = torch.utils.data.random_split(generate_set, [train_size - val_size, val_size, test_size])
-        
-        train_dataset = torch.utils.data.ConcatDataset([real_train, generate_train])
-        test_dataset = torch.utils.data.ConcatDataset([real_val, generate_val])
-        
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
-        self.test_data = real_test
-        self.seq_len = seq_len
-        
-        self = self.to(device)
-        criterion = torch.nn.BCELoss()
-        optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
-        for epoch in range(num_epochs):
-            self.train()
-            for i, (X, y) in enumerate(train_loader):
-                X = X.permute(0, 2, 1).to(device)
-                X = X.cuda()
-                y = y.cuda()
-                y_pred = self(X)
-                loss = criterion(y_pred.squeeze(), y)
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-                # if i % 10 == 0:
-                #     print(f"Epoch {epoch+1}/{num_epochs}, Batch {i+1}/{len(train_loader)}, Loss: {loss.item():.6f}")
-                #     # summary_writer.add_scalar('train_loss', loss.item(), epoch*len(train_loader)+i)
-            self.eval()
-            with torch.no_grad():
-                for i, (X, y) in enumerate(test_loader):
-                    X = X.permute(0, 2, 1).to(device)
-                    X = X.cuda()
-                    y = y.cuda()
-                    y_pred = self(X)
-                    loss = criterion(y_pred.squeeze(), y)
-                    # summary_writer.add_scalar('test_loss', loss.item(), epoch*len(test_loader)+i)
-        # torch.save(self.state_dict(), '/ssd/0/wzq/unnset/unnset/classifier.pth')
-
-
-    def test_by_classify(self, generate_data, device, batch_size, verbose=False):
-        if len(generate_data.shape) == 2:
-            generate_data = torch.Tensor(generate_data)
-            generate_data = generate_data.unfold(0, self.seq_len, 1)
-            generate_label = torch.zeros(generate_data.shape[0])
-        elif len(generate_data.shape) == 3:
-            generate_data_list = []
-            for i in range(generate_data.shape[0]):
-                generate_data_list.append(torch.Tensor(generate_data[i]).unfold(0, self.seq_len, 1))
-            generate_data = torch.cat(generate_data_list)
-            generate_label = torch.zeros(generate_data.shape[0])
-        dataset = torch.utils.data.TensorDataset(generate_data, generate_label)
-        test_size = len(self.test_data)
-        # print(f"test_size : {test_size}")
-        batch_size = batch_size
-        dataset, _ = torch.utils.data.random_split(dataset, [test_size, len(dataset) - test_size])
-        # print(f"\nDEB: {test_size, len(dataset)}\n")
-        test_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        real_data_loader = torch.utils.data.DataLoader(self.test_data, batch_size=batch_size, shuffle=True)
-        self = self.to(device)
-        self.eval()
-        acc = []
-        y_pred_list = []
-        y_list = []
-        with torch.no_grad():
-            for i, (X, y) in enumerate(test_loader):
-                X = X.permute(0, 2, 1).to(device)
-                X = X.cuda()
-                y = y.cuda()
-                y_pred = self(X)
-                y_pred = y_pred.cpu().detach().numpy()
-                y = y.cpu().detach().numpy()
-                y_pred_list.append(y_pred.squeeze())
-                y_list.append(y.squeeze())
-                y_pred = np.where(y_pred > 0.3, 1, 0)
-                accuracy = np.mean(y_pred == y)
-                acc.append(accuracy)
-                
-            for i, (X, y) in enumerate(real_data_loader):
-                X = X.permute(0, 2, 1).to(device)
-                X = X.cuda()
-                y = y.cuda()
-                y_pred = self(X)
-                y_pred = y_pred.cpu().detach().numpy()
-                y = y.cpu().detach().numpy()
-                y_pred_list.append(y_pred.squeeze())
-                y_list.append(y.squeeze())
-                y_pred = np.where(y_pred > 0.3, 1, 0)
-                accuracy = np.mean(y_pred == y)
-                acc.append(accuracy)
-        accuracy = np.mean(acc)
-        y_pred_list = np.concatenate(y_pred_list)
-        y_list = np.concatenate(y_list)
-        auc_score = roc_auc_score(y_list, y_pred_list)
-        if verbose:
-            print('Test accuracy: ', accuracy)
-            print('Test auc: ', auc_score)
-        # summary_writer.add_scalar('Test accuracy', accuracy)
-        # summary_writer.add_scalar('Test auc', auc_score)
-        return auc_score, y_pred_list, y_list
-
 
 """  
 _______________________________________________ Vesion 2 _______________________________________________ 
@@ -338,7 +181,12 @@ _______________________________________________ Vesion 2 _______________________
 
 
 class ClassifierLSTM_V2(torch.nn.Module):
+    """ 
+    Modification of the CausalTime LSTM-based configurator, that utilizes train & test splits.
+    """
     def __init__(self, input_size, output_size, hidden_size, num_layers, dropout):
+        """
+        """
         super(ClassifierLSTM_V2, self).__init__()
         self.lstm = torch.nn.LSTM(input_size, hidden_size, num_layers, dropout=dropout, batch_first=True)
         self.fc = torch.nn.Linear(hidden_size, output_size)
@@ -347,6 +195,8 @@ class ClassifierLSTM_V2(torch.nn.Module):
 
 
     def forward(self, x):
+        """
+        """
         out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         out = self.sigmoid(out)
@@ -356,6 +206,8 @@ class ClassifierLSTM_V2(torch.nn.Module):
     def train_classifier(
             self, train_X, train_Y, seq_len, device, batch_size, num_epochs=10, learning_rate=0.001
     ):
+        """
+        """
         # check input dimensions
         assert len(train_X.shape)==2, ValueError("input train_X data must be tabular (2D)")
         assert len(train_Y.shape)==1, ValueError("input train_Y data must be (1D)")
@@ -376,11 +228,8 @@ class ClassifierLSTM_V2(torch.nn.Module):
         self.seq_len = seq_len
 
         # create dataloaders
-        # train_len = int(0.75 * len(train_X))
         train_len = int(0.75 * (len(train_X) - len(train_X) % batch_size)) 
         val_len = int((0.25 * len(train_X)) - (0.25 * len(train_X)) % batch_size)
-        # train_dataset = torch.utils.data.TensorDataset(train_X, train_Y)
-        # test_dataset = torch.utils.data.TensorDataset(test_X, test_Y)
         train_dataset = torch.utils.data.TensorDataset(train_X[:train_len].clone(), train_Y[:train_len].clone())
         test_dataset = torch.utils.data.TensorDataset(train_X[-val_len:].clone(), train_Y[-val_len:].clone())
         
@@ -397,7 +246,6 @@ class ClassifierLSTM_V2(torch.nn.Module):
                 X = X.cuda()
                 y = y.cuda()
                 y_pred = self(X)
-                # print(f"TRAIN: y_pred: {y_pred.squeeze().shape} | y : {y.shape}")
                 loss = criterion(y_pred.squeeze(), y)
                 optimizer.zero_grad()
                 loss.backward()

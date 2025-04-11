@@ -60,8 +60,8 @@ def lstm_detection(
 
     Return
     ------
-    - auc (float) : the typical AUC score.
-    - probs : the probabilites per sample predicted by the classifier
+    auc (float) : the typical AUC score.
+    probs : the probabilites per sample predicted by the classifier
     """
 
     train_len = int(0.75*real.shape[0])
@@ -86,147 +86,6 @@ def lstm_detection(
     return classifier.test_by_classify(generate_data=synthetic.values, batch_size=batch_size, device=device, verbose=False)
 
 
-def lstm_det_train(
-        real: pd.DataFrame, 
-        synthetic: pd.DataFrame,
-        batch_size: int = None, 
-        hidden_size: int = 128,
-        num_layers: int = 2,
-        dropout: float = 0.1,
-        seq_len: int = None,
-        num_epochs: int = 10,
-        learning_rate: int = 0.0001, 
-        device: object = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-):
-    """
-    Train the LSTM classifier, as done in https://github.com/jarrycyx/UNN/blob/main/CausalTime/test.py#L159.
-    For recreation and comparisson purposes.
-
-    Args
-    ----
-    real : pd.DataFrame
-        a dataframe containing the real data
-    synthetic : pd.DataFrame
-        a dataframe containing the synthetic data 
-    batch_size : int
-        the batch size used for the training and inference of the LSTM model; (default = int(len(real)/4))
-    hidden_size : int 
-        the size of each LSTM hidden layer; (default = 128)
-    num_layers : int
-        the number of hidden layers; (default = 2)
-    seq_len : int
-        the legth of the prepared input sequences for the model training; (default = int(len(real)/4))
-    learning_rate : float
-        the learning rate for the LSTM model training; (default = 0.0001)
-    num_epochs : int
-        the number of training epochs; (default = 10)
-    device : str
-        the device to be used for training and where the torch tensors are being stored; 
-        automatically checks for cuda support, and if not available it assigns the CPU
-
-    Return
-    ------
-    classifier : obj (ClassifierLSTM)
-        The classifier object.
-    """
-
-    train_len = int(0.75*real.shape[0])
-
-    if seq_len is None:
-        seq_len = int((real.shape[0] - train_len)/4)
-
-    if batch_size is None:
-        batch_size = int((real.shape[0] - train_len)/4)
-
-    # There is internal splitting in detection_lstm.py
-    
-    input_size = real.shape[1]
-
-    classifier = ClassifierLSTM(input_size=input_size, output_size=1,  
-                          hidden_size=hidden_size, num_layers=num_layers, dropout=dropout)
-    classifier.train_classifier(
-        real_data=real.values, 
-        generate_data=synthetic.values, 
-        batch_size=batch_size, device=device, seq_len=seq_len, num_epochs=num_epochs, learning_rate=learning_rate, 
-        # summary_writer=summary_writer
-    )
-    return classifier
-
-
-def lstm_det_predict(
-        classifier : ClassifierLSTM,
-        generate_data : pd.DataFrame, 
-        real_data : pd.DataFrame, 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu"), 
-        batch_size : int = None, 
-        seq_len : int = None
-):
-    """
-    ...
-    """
-
-    train_len = int(0.75*real_data.shape[0])
-    if seq_len is None:
-        seq_len = int((real_data.shape[0] - train_len)/4)
-    if batch_size is None:
-        batch_size = int((real_data.shape[0] - train_len)/4)
-
-    if len(real_data.shape) == 2:
-        real_data = torch.Tensor(real_data).unfold(0, seq_len, 1)
-    real_label = torch.ones(real_data.shape[0])
-    real_test = torch.utils.data.TensorDataset(real_data, real_label)
-    classifier.test_data = real_test
-
-    return classifier.test_by_classify(generate_data, device, batch_size)
-
-
-def lstm_test_probs(
-        real: pd.DataFrame, 
-        synthetic: pd.DataFrame,
-        real_test: np.ndarray,
-        generate_test: np.ndarray,
-        batch_size: int = None, 
-        hidden_size: int = 128,
-        num_layers: int = 2,
-        dropout: float = 0.1,
-        seq_len: int = None,
-        num_epochs: int = 10,
-        learning_rate: int = 0.0001, 
-        device: object = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-):
-    """
-    ...
-
-    Return
-    ------
-    - auc (float) : the typical AUC score.
-    - probs : the probabilites per sample predicted by the classifier
-    """
-
-    train_len = int(0.75*real.shape[0])
-
-    if seq_len is None:
-        seq_len = int((real.shape[0] - train_len)/4)
-
-    if batch_size is None:
-        batch_size = int((real.shape[0] - train_len)/4)
-
-    # There is internal splitting in detection_lstm.py
-    
-    input_size = real.shape[1]
-
-    classifier = ClassifierLSTM(input_size=input_size, output_size=1,  
-                          hidden_size=hidden_size, num_layers=num_layers, dropout=dropout)
-    classifier.train_classifier(
-        real_data=real.values, 
-        generate_data=synthetic.values, 
-        batch_size=batch_size, device=device, seq_len=seq_len, num_epochs=num_epochs, learning_rate=learning_rate, 
-        # summary_writer=summary_writer
-    )
-    return classifier.test_probs(generate_data=generate_test, real_data=real_test, batch_size=batch_size, 
-                                 seq_len=seq_len, device=device, verbose=False)
-
-
 def lstm_detection_XY(
         train_X : np.ndarray, 
         train_Y : np.ndarray, 
@@ -247,14 +106,10 @@ def lstm_detection_XY(
 
     Args
     ----
-    train_X : numpy.ndarray
-        ...
-    train_Y : numpy.ndarray
-        ... 
-    test_X : numpy.ndarray
-        ...
-    test_Y : numpy.ndarray
-        ... 
+    train_X (numpy.array) : the training data as a numpy array 
+    train_Y (numpy.array) : the training labels as a numpy array
+    test_X (numpy.array) : the testing data as a numpy array
+    test_Y (numpy.array) : the testing labels as a numpy array
     batch_size : int
         the batch size used for the training and inference of the LSTM model; (default = int(len(real)/4))
     hidden_size : int 
@@ -274,21 +129,17 @@ def lstm_detection_XY(
     Return
     ------
     auc (float) : the typical AUC score.
-    probs : the probabilites per sample predicted by the classifier
-    ys : the test labels using during testing 
+    probs (numpy.array) : the probabilites per sample predicted by the classifier
+    ys (numpy.array) : the test labels using during testing 
     """
 
     train_len = int(0.75*train_X.shape[0])
 
     if seq_len is None:
-        # seq_len = int(test_X.shape[0]/4)
         seq_len = int((train_X.shape[0] - train_len)/4)
 
     if batch_size is None:
-        # batch_size = int(test_X.shape[0]/4)
         batch_size = int((train_X.shape[0] - train_len)/4)
-
-    # There is internal splitting in detection_lstm.py
     
     input_size = train_X.shape[1]
 
@@ -544,59 +395,6 @@ def svm_detection_XY(
 
 
 """ ___________________________________________ Detection calls ___________________________________________ """
-
-
-def det_train(
-        real : pd.DataFrame, 
-        synthetic : pd.DataFrame, 
-        args : dict
-):
-    """
-    Wrapper function for training a detector. Differentiates between LSTM and SVC classifiers based on the provided arguments.
-
-    Args
-    ----
-    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
-    args (dict) : the arguments of the classifier
-
-    Return
-    ------
-    clf (sklearn.svm.SVC or ClassifierLSTM) : the fitted classifier
-    """
-    if "batch_size" in args.keys():
-        clf = lstm_det_train(real=real, synthetic=synthetic, **args)
-    else:
-        clf = svm_det_train(real=real, synthetic=synthetic, **args)
-    return clf
-
-
-def det_predict(
-        classifier: object,
-        real_data : pd.DataFrame,
-        generate_data : pd.DataFrame,
-        args : dict
-) -> tuple:
-    """
-    Wrapper function for predicting w/ a detector. Differentiates between LSTM and SVC classifiers based on the provided arguments.
-
-    Args
-    ----
-    clf (sklearn.svm.SVC or ClassifierLSTM) : the fitted classifier
-    real_data (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic_data (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
-    args (dict) : the arguments of the classifier
-
-    Return
-    ------
-    auc (float) : the auc score
-    test_probs (numpy.array) : the predicted probabilities per test sample
-    test_Y (numpy.array) : the corresponding labels per test sample
-    """
-    if "batch_size" in args.keys():
-        return lstm_det_predict(classifier=classifier, real_data=real_data.values, generate_data=generate_data.values)
-    else:
-        return svm_det_predict(classifier=classifier, real_data=real_data, generate_data=generate_data)
 
 
 def get_optimal_config(

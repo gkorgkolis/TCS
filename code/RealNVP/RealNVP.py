@@ -19,9 +19,9 @@ class RealNVPSimulator:
 
     Args
     ----
-        - dataset (pandas.DataFrame) : the data to be simulated. 
-        - output_dim (int): the hidden / latent space dimension of the Coupling MLPs; defaults to 256.
-        - reg (float): the regularization paramater of the L2 norm layer; defaults to 0.01. 
+    dataset (pandas.DataFrame) : the data to be simulated. 
+    output_dim (int): the hidden / latent space dimension of the Coupling MLPs; defaults to 256.
+    reg (float): the regularization paramater of the L2 norm layer; defaults to 0.01. 
     """
     def __init__(self, dataset, output_dim=256, reg=0.01):
 
@@ -47,9 +47,9 @@ class RealNVPSimulator:
 
         Args
         ----
-            - epochs (optional): the number of training epochs; defaults to 100.
-            - batch_size (optional): the training batch_size; defaults to 256.
-            - learning_rate (optional): the training learning_rate; defaults to 1e-4.
+        epochs (int) : the number of training epochs; defaults to 100.
+        batch_size (int) : the training batch_size; defaults to 256.
+        learning_rate (float) : the training learning_rate; defaults to 1e-4.
         """
         self.model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate))
         early_stopping = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=10)
@@ -64,7 +64,7 @@ class RealNVPSimulator:
         
         Return
         ------
-            - df (pandas.dataframe) : the simulated data, inverse-transformed
+        df (pandas.dataframe) : the simulated data, inverse-transformed
         """
         # From data to latent space.
         z, _ = self.model(self.normalized_data)
@@ -78,7 +78,8 @@ class RealNVPSimulator:
 
     def evaluate(self):
         """ 
-        Visualizations that help in the model's evaluation. Only available for 1-D data as KDE plots and 2-D data as scatter plots 
+        Visualizations that help in the model's evaluation. 
+        Only available for 1-D data as KDE plots and 2-D data as scatter plots 
         """
         # Evaluation 
         plt.figure(figsize=(12, 7))
@@ -96,7 +97,6 @@ class RealNVPSimulator:
         samples = self.model.distribution.sample(len(self.dataset))
         x, _ = self.model.predict(samples, verbose=0)
 
-
         if self.data.shape[1]==1:
             
             f, axes = plt.subplots(ncols=2)
@@ -111,7 +111,6 @@ class RealNVPSimulator:
             sns.kdeplot(samples, fill=True, palette="Pastel2", label='sim', ax=axes[1])
             axes[1].set(title="Inference vs Generated latent space Z")
             axes[1].legend()
-
 
         elif self.data.shape[1]==2:
 
@@ -136,6 +135,8 @@ class RealNVPSimulator:
 
 
 def Coupling(input_shape, output_dim=256, reg=0.01):
+    """
+    """
     input = tf.keras.layers.Input(shape=input_shape)
 
     t_layer_1 = tf.keras.layers.Dense(
@@ -174,6 +175,8 @@ def Coupling(input_shape, output_dim=256, reg=0.01):
 
 
 class RealNVP(tf.keras.Model):
+    """
+    """
     def __init__(self, num_coupling_layers, data=None, output_dim=256, reg=0.01):
         super().__init__()
 
@@ -200,16 +203,14 @@ class RealNVP(tf.keras.Model):
 
     @property
     def metrics(self):
-        """List of the model's metrics.
-
-        We make sure the loss tracker is listed as part of `model.metrics`
-        so that `fit()` and `evaluate()` are able to `reset()` the loss tracker
-        at the start of each epoch and at the start of an `evaluate()` call.
+        """
         """
         return [self.loss_tracker]
 
 
     def call(self, x, training=True):
+        """
+        """
         log_det_inv = 0
         direction = 1
         if training:
@@ -233,12 +234,16 @@ class RealNVP(tf.keras.Model):
     # Log likelihood of the normal distribution plus the log determinant of the jacobian.
 
     def log_loss(self, x):
+        """
+        """
         y, logdet = self(x)
         log_likelihood = self.distribution.log_prob(y) + logdet
         return -tf.reduce_mean(log_likelihood)
 
 
     def train_step(self, data):
+        """
+        """
         with tf.GradientTape() as tape:
             loss = self.log_loss(data)
         g = tape.gradient(loss, self.trainable_variables)
@@ -248,6 +253,8 @@ class RealNVP(tf.keras.Model):
 
 
     def test_step(self, data):
+        """
+        """
         loss = self.log_loss(data)
         self.loss_tracker.update_state(loss)
         return {"loss": self.loss_tracker.result()}

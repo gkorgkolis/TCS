@@ -31,6 +31,8 @@ def Delong_test(true, prob_A, prob_B):
     """
 
     def compute_midrank(x):
+        """
+        """
         J = np.argsort(x)
         Z = x[J]
         N = len(x)
@@ -47,6 +49,8 @@ def Delong_test(true, prob_A, prob_B):
         return T2
 
     def compute_ground_truth_statistics(true):
+        """
+        """
         assert np.array_equal(np.unique(true), [0, 1]), "Ground truth must be binary."
         order = (-true).argsort()
         label_1_count = int(true.sum())
