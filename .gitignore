@@ -55,6 +55,9 @@ code/.vscode/launch.json
 ehumbs.db
 Thumbs.db
 
+# Specific files
+*.simulation_extra.py
+
 # Let git ignore these as they > 100MB to push on the remote repo
 code/data/single/extra/test/simple_test.p
 code/data/single/extra/train/simple_train.p

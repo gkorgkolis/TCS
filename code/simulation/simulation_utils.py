@@ -21,8 +21,12 @@ from statsmodels.tsa.stattools import adfuller
 from TCDF.forecaster import TCDForecaster
 from tempogen.temporal_causal_structure import TempCausalStructure
 from tempogen.temporal_scm import TempSCM
-from utils import (_from_cp_to_full, _from_full_to_cp, estimate_with_CP,
-                   estimate_with_PCMCI, group_lagged_nodes, r2_from_scratch,
+from utils import (_from_cp_to_full, 
+                   _from_full_to_cp, 
+                   estimate_with_CP,
+                   estimate_with_PCMCI, 
+                   group_lagged_nodes, 
+                   r2_from_scratch,
                    regular_order_pd)
 
 from simulation.simulation_configs import cd_config as CD_CONFIGS
@@ -128,7 +132,6 @@ def simulate(
     )
     simulated_data = fit_scm.generate_time_series(n_samples=n_samples, verbose=False)
 
-    # returns (simulated_data, fit_scm, param_dict, scores)
     return simulated_data.rename(columns=let2nam), fit_scm, funcs_and_noise, scores
 
 
@@ -140,7 +143,17 @@ def safe_cd_task(
         verbose: bool = True
 ):
     """ 
-    ...
+    Performs the Causal Discovery (CD) task, with safe checks on runtime errors and prints relevant info. 
+    If the specified method fails, then the rest of the available methods are tested in succession.
+
+    Args
+    ----
+    true_data (pandas.DataFrame) : the true data
+    cd_method (function) : the specified CD method
+    cd_kwargs (dict) : the configuration of the specified CD method
+    CONFIGS (dict) : the rest of the available CD methods and their corresponding configurations 
+                    (taken by default from **simulation_configs.py**)
+    verbose (bool) : prints relevant informative statements
     """
     CD_LIST = CONFIGS.copy()
     random.shuffle(CD_LIST)
@@ -707,7 +720,6 @@ def fit_with_TimesFM(
 
         else: # -----------------------------------------------------------------------------------------------------------
 
-
             # prepare inputs of the predicted time-series
             y_ori = scaled_pd[target_node.split("_t")[0]].values.squeeze().copy()
             y = y_ori.copy()
@@ -788,6 +800,21 @@ def get_batched_data_fn(
         context_len: int = 256, 
         horizon_len: int = 128,
     ):
+    """
+    Returns an iterator that yields batched data for use in TimesFM.
+
+    Args
+    ----
+    target_data (numpy.array) : the target data
+    parent_data (numpy.array) : the parent values of the target data
+    batch_size (int) : the batch size of the TimesFM model; (default = 128)
+    context_len (int) : the context length of the TimesFM model; (default = 256)
+    horizon_len (int) : the horizon length of the TimesFM model; (default = 128)
+
+    Return
+    ------
+    fn (iterator) : an iterator that yields batched data 
+    """
     examples = defaultdict(list)
 
     num_examples = 0
@@ -825,7 +852,6 @@ class ResidualsEst(torch.distributions.distribution.Distribution):
     arg_constraints = {}
 
     def __init__(self, residuals):
-        # last dimension is for scores of plackett luce
         super(ResidualsEst, self).__init__()
         self.residuals = residuals
         self.size = [1]
@@ -878,6 +904,7 @@ class ResidualsNVP(torch.distributions.distribution.Distribution):
         self.reserve_size = reserve_size
         self.reserve = self.sample_reserve(num_samples=reserve_size)
 
+
     def sample_reserve(self, num_samples=1):
         """  
         Samples through the estimated distribution of the fitted RealNVP model.
@@ -894,6 +921,7 @@ class ResidualsNVP(torch.distributions.distribution.Distribution):
         samples, _ = self.simulator.model.predict(zs, verbose=0)
         return torch.Tensor(samples).squeeze()
     
+
     def sample(self, num_samples=1):
         """  
         Samples through the estimated distribution of the fitted RealNVP model.
@@ -914,6 +942,7 @@ class ResidualsNVP(torch.distributions.distribution.Distribution):
         else:
             return self.reserve[anchor : anchor + num_samples]
     
+
     def sample_old(self, num_samples=1):
         """  
         Samples through the estimated distribution of the fitted RealNVP model.
@@ -1009,6 +1038,8 @@ class SimEstRF:
 
 
     def __call__(self, parent_values):
+        """
+        """
         if len(parent_values)==0:
             return self.trivial_predictor.predict()
         else:

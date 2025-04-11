@@ -35,6 +35,7 @@ ii. Remove a node
 - Not Implemented: iv. Add a node and arbitrary random edges to it
     - Added edges should not create a circle - Not Implemented
 """
+
 import itertools
 import string
 import time
@@ -50,9 +51,8 @@ from utils import (_edges_for_causal_stationarity, _from_cp_to_full,
                    _from_full_to_cp, group_lagged_nodes)
 
 from simulation.simulation_configs import cd_config, noise_config, pred_config
-from simulation.simulation_utils import SimEstRF  # ResidualsNVP,
-from simulation.simulation_utils import (SimTrivialPredictor, regular_order_pd,
-                                         simulate)
+from simulation.simulation_utils import SimEstRF
+from simulation.simulation_utils import (SimTrivialPredictor, regular_order_pd, simulate)
 
 rng = np.random.default_rng()
 
@@ -63,12 +63,12 @@ def edge_cp_to_pd(edge_cp: list, n_lags: int):
 
     Args
     ----
-    - edge_cp (tuple or list) : the edge indices in the cp-representation
-    - n_lags (int) : the number of lags
+    edge_cp (tuple or list) : the edge indices in the cp-representation
+    n_lags (int) : the number of lags
 
     Return
     ------
-    - edge_pd (tuple or list) : the edge indices in pd-representation
+    edge_pd (tuple or list) : the edge indices in pd-representation
     """
     int2str = dict(zip(np.arange(26), list(string.ascii_uppercase)[:26]))
     return (f"{int2str[edge_cp[1]]}_t-{n_lags-edge_cp[2]}", f"{int2str[edge_cp[0]]}_t")
@@ -80,12 +80,12 @@ def edge_pd_to_cp(edge_pd: list, n_lags: int):
 
     Args
     ----
-    - edge_pd (tuple or list) : the edge indices in the pd-representation
-    - n_lags (int) : the number of lags
+    edge_pd (tuple or list) : the edge indices in the pd-representation
+    n_lags (int) : the number of lags
 
     Return
     ------
-    - edge_cp (tuple or list) : the edge indices in cp-representation
+    edge_cp (tuple or list) : the edge indices in cp-representation
     """
     str2int = dict(zip(list(string.ascii_uppercase)[:26], np.arange(26)))
     return (str2int[edge_pd[1].split("_t")[0]], str2int[edge_pd[0].split("_t-")[0]], int(edge_pd[0].split("_t")[-1]) + n_lags)
@@ -101,13 +101,13 @@ def random_node_subset(
 
     Args
     ----
-    - data (pandas.DataFrame) : the original DataFrame
-    - k (int) : the number of nodes contained in the subset
-    - rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding 
+    data (pandas.DataFrame) : the original DataFrame
+    k (int) : the number of nodes contained in the subset
+    rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding 
 
     Return
     ------
-    - sampled_data (pandas.DataFrame) : the sampled subset as a new DataFrame
+    sampled_data (pandas.DataFrame) : the sampled subset as a new DataFrame
     """
     # argument check
     if k>data.shape[1]:
@@ -132,20 +132,20 @@ def simulate_on_random_samples(
 
     Args
     ----
-    - data (pandas.DataFrame) : the real dataset
-    - re_kwargs (dict) : keyword arguments for the simulation method
-    - k (int) : the number of subsets; for a variety of *k* and *n*, use the *k_dict* argument
-    - n (int) : the number of datasets created for k nodes; for a variety of of *k* and *n*, use the *k_dict* argument
-    - k_dict (dict) : a dictionary containing the number of nodes sampled k and the number of datasets sampled n for each k; 
+    data (pandas.DataFrame) : the real dataset
+    re_kwargs (dict) : keyword arguments for the simulation method
+    k (int) : the number of subsets; for a variety of *k* and *n*, use the *k_dict* argument
+    n (int) : the number of datasets created for k nodes; for a variety of of *k* and *n*, use the *k_dict* argument
+    k_dict (dict) : a dictionary containing the number of nodes sampled k and the number of datasets sampled n for each k; 
                 defaults to None; if provided, it over-rules the arguments n and k
-    - save_file (pathlib.Path) : if provided, it saves the sampled datasets at the specified path; defaults to None
-    - save_prefix (str) : additional prefix to the name of the saved file; defaults to an empty string
+    save_file (pathlib.Path) : if provided, it saves the sampled datasets at the specified path; defaults to None
+    save_prefix (str) : additional prefix to the name of the saved file; defaults to an empty string
                 
     Return
     ------
-    - dataset_list (list) : the simulated datasets 
-    - sample_list (list) : the list of sample datasets created  
-    - scm_list (list): the created temporal structural causal models
+    dataset_list (list) : the simulated datasets 
+    sample_list (list) : the list of sample datasets created  
+    scm_list (list): the created temporal structural causal models
     """
     if k_dict is None:
         k_dict = {k: n}
@@ -196,19 +196,19 @@ def simulate_on_sub_samples(
 
     Args
     ----
-    - data (pandas.DataFrame) : the time-series data
-    - window (int) : the time-window length
-    - minimum (int) : the minimum number of time-steps required in the time-series data
-    - belt (bool) : if True, approaches the splitting linearly and ensures splits have no intersections
-    - n_subs (int) : only valid if belt=False; defines the number of uniform random splits  
-    - verbose (bool) : prints insights about the process
-    - re_kwargs (dict) : keyword arguments for the simulation method
+    data (pandas.DataFrame) : the time-series data
+    window (int) : the time-window length
+    minimum (int) : the minimum number of time-steps required in the time-series data
+    belt (bool) : if True, approaches the splitting linearly and ensures splits have no intersections
+    n_subs (int) : only valid if belt=False; defines the number of uniform random splits  
+    verbose (bool) : prints insights about the process
+    re_kwargs (dict) : keyword arguments for the simulation method
 
     Return
     ------
-    - dataset_list (list) : the simulated datasets 
-    - sample_list (list) : the list of sample datasets created  
-    - scm_list (list): the created temporal structural causal models 
+    dataset_list (list) : the simulated datasets 
+    sample_list (list) : the list of sample datasets created  
+    scm_list (list): the created temporal structural causal models 
     """
     if minimum<400:
         print(f"Invalid minimum number of time-steps entered ({minimum}<400). Minimum was set to 400.")
@@ -275,22 +275,22 @@ def simulate_on_configs(
 
     Args
     ----
-    - data (pandas.DataFrame) : the real dataset
-    - m (int) : the number of datasets to create; size should be less than the total number of possilbe configurations; 
+    data (pandas.DataFrame) : the real dataset
+    m (int) : the number of datasets to create; size should be less than the total number of possilbe configurations; 
                 current maximum is 504
-    - rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding
-    - pred_config (dict) : a dict w/ all possible configurations of the predictive method, as in *simulation_configs.py*;
+    rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding
+    pred_config (dict) : a dict w/ all possible configurations of the predictive method, as in *simulation_configs.py*;
                 takes its default value from *simulation_configs.py* but it can be overwritten
-    - cd_config (dict) : a dict w/ all possible configurations of the causal discovery approach, as in *simulation_configs.py*;
+    cd_config (dict) : a dict w/ all possible configurations of the causal discovery approach, as in *simulation_configs.py*;
                 takes its default value from *simulation_configs.py* but it can be overwritten
-    - noise_config (dict) : a dict w/ the possible configurations of the noise distribution estimation, as in
+    noise_config (dict) : a dict w/ the possible configurations of the noise distribution estimation, as in
                 *simulation_configs.py*; takes its default value from *simulation_configs.py* but it can be overwritten
-    - rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding
+    rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding
                 
     Return
     ------
-    - dataset_list (list) : the simulated datasets
-    - scm_list (list) : the created temporal structural causal models 
+    dataset_list (list) : the simulated datasets
+    scm_list (list) : the created temporal structural causal models 
     """
     
     # placeholders
@@ -331,19 +331,19 @@ def _sim_remove_random_edges(
 
     Args
     ----
-    - scm (TempSCM) : the fitted temporal structural causal model as a TempSCM object
-    - true_data (pandas.DataFrame) : the true data as a dataframe
-    - etr (int) : the number of edges to remove; should be less than the number of edges in the provided causal structure; 
+    scm (TempSCM) : the fitted temporal structural causal model as a TempSCM object
+    true_data (pandas.DataFrame) : the true data as a dataframe
+    etr (int) : the number of edges to remove; should be less than the number of edges in the provided causal structure; 
         if not, it is resampled to be less that the existing edges; defaults to None, in which case it is randomly sampled
-    - edge_indices (list) : the indices of the edges to be removed in a list; if provided, it by-passes the edge sampling; 
+    edge_indices (list) : the indices of the edges to be removed in a list; if provided, it by-passes the edge sampling; 
         defaults to None
-    - n_samples (int) : the number of samples to generate
-    - rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding 
+    n_samples (int) : the number of samples to generate
+    rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding 
     
     Return
     ------
-    - simulated_data (pd.DataFrame) : the newly simulated data
-    - mu_scm (TempSCM) : the newly created temporal casual structure
+    simulated_data (pd.DataFrame) : the newly simulated data
+    mu_scm (TempSCM) : the newly created temporal casual structure
     """
     
     # Do this through cp-representation instead of the nx-representation, in order to avoid using an edge used for causal sufficiency 
@@ -476,8 +476,8 @@ def extra_training_instances(
         n_subs: int = 3,
         m_cfg: int = 5,
         verbose: bool = False, 
-        rep_save : bool = False,
-        rep_save_path : str = "" 
+        # rep_save : bool = False,
+        # rep_save_path : str = "" 
 ):
     """ 
     Chain of calls: 
@@ -500,20 +500,21 @@ def extra_training_instances(
     (3): Expand SCMs
     - SCM <-- [SCM + PT(SCM)]  ||  SIM <-- [SIM + PT(SCM)] 
     --------------------------------
-    re_kwargs example: { 
-        "true_label": None,
-        "cd_method": "PCMCI", 
-        "cd_kwargs": {}, 
-        "pred_method": TCDF, 
-        "pred_kwargs": {},
-        "o_approximation": "est",
-        "noise_approximation": "est",
-        "n_samples": len(true_data), 
-        "verbose": False
-    }
+    >>> re_kwargs example = { 
+    >>>     "true_label": None,
+    >>>     "cd_method": "PCMCI", 
+    >>>     "cd_kwargs": {}, 
+    >>>     "pred_method": TCDF, 
+    >>>     "pred_kwargs": {},
+    >>>     "o_approximation": "est",
+    >>>     "noise_approximation": "est",
+    >>>     "n_samples": len(true_data), 
+    >>>     "verbose": False
+    >>> }
     """
 
     print(f"\n__________________ Data shape: {true_data.shape} __________________\n")
+
     # placeholders
     samples = [true_data]
     scms = []
@@ -543,12 +544,6 @@ def extra_training_instances(
     scms.append(fit_scm)
     # update sims
     sims.extend(splits_00)
-
-    # for pair in splits_00:
-    #     prefix = "".join([(4-len(str(jj)))*"0", str(jj)])
-    #     torch.save(pair, rep_save_path / "sims" / f"{prefix}_pair.pt")
-    #     jj += 1
-    # torch.save(fit_scm, rep_save_path / "scms" / f"{prefix}_scm.pt")
 
     elapsed_time = time.time() - start_time
     if verbose:
@@ -598,13 +593,6 @@ def extra_training_instances(
     # update sims
     sims.extend(splits_01)
 
-    # for pair in splits_01:
-    #     prefix = "".join([(4-len(str(jj)))*"0", str(jj)])
-    #     torch.save(pair, rep_save_path / "sims" / f"{prefix}_pair.pt")
-    #     jj += 1
-    # for scm in scm_list:
-    #     torch.save(scm, rep_save_path / "scms" / f"{prefix}_scm.pt")
-
     elapsed_time = time.time() - start_time
     if verbose:
         print(f"\nFinished Phase (0): Node Subsets.")
@@ -638,13 +626,6 @@ def extra_training_instances(
         # update sims
         sims.extend(splits_02)
 
-        # for pair in splits_02:
-        #     prefix = "".join([(4-len(str(jj)))*"0", str(jj)])
-        #     torch.save(pair, rep_save_path / "sims" / f"{prefix}_pair.pt")
-        #     jj += 1
-        # for scm in scm_list:
-        #     torch.save(scm, rep_save_path / "scms" / f"{prefix}_scm.pt")
-
     # update samples
     samples.extend(samples_stash)
 
@@ -671,13 +652,6 @@ def extra_training_instances(
         scms.extend(scm_list)
         # update sims
         sims.extend(splits_03)
-
-        # for pair in splits_03:
-        #     prefix = "".join([(4-len(str(jj)))*"0", str(jj)])
-        #     torch.save(pair, rep_save_path / "sims" / f"{prefix}_pair.pt")
-        #     jj += 1
-        # for scm in scm_list:
-        #     torch.save(scm, rep_save_path / "scms" / f"{prefix}_scm.pt")
 
     elapsed_time = time.time() - start_time
     if verbose:
