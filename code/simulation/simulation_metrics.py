@@ -263,86 +263,6 @@ def svm_detection(
     return roc_auc_score(y_true=label_test, y_score=preds_test), preds_test, label_test
 
 
-def svm_det_train(
-        real: pd.DataFrame, 
-        synthetic: pd.DataFrame,
-        split: float = 0.75,
-        C: float = 1.0,
-        kernel: str = "rbf", 
-        degree: int = 3, 
-        gamma: any = "scale"
-):
-    """ 
-    Detection test w/ SVM-based classifiers (SVCs) for real & synthetic datasets. Based on the sklearn's SVC implementation: 
-    https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html. Only the training section. Returns the trained classifier.
-
-    Args
-    ----
-    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
-    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
-    C (float) : the SVC's regularization factor; check sklearn's SVC implementation for more details
-    kernel (str) : kernel used by the SVC; check sklearn's SVC implementation for more details
-    degree (int) : the degree of the polynomial in case of 'poly' kernel; check sklearn's SVC implementation for more details
-    gamma (str) : the gamma parameter, in case of 'poly', 'rbf' or 'sigmoid' kernel; check sklearn's SVC implementation for more details
-
-    Return
-    ------
-    clf (sklearn.svm.SVC) : the fitted classifier
-    """
-
-    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real, synthetic=synthetic, split=split)
-
-    # Instantiate the SVC model
-    clf = SVC(
-        C=C,
-        kernel=kernel,
-        degree=degree,
-        gamma=gamma,
-        probability=True
-    )
-
-    # Fit the SVC model
-    clf.fit(X=data_train_np, y=label_train)
-
-    return clf
-
-
-def svm_det_predict(
-        classifier : SVC,
-        real_data: pd.DataFrame, 
-        generate_data: pd.DataFrame, 
-        split : float = 0.75
-):
-    """ 
-    Detection test w/ SVM-based classifiers (SVCs) for real & synthetic datasets. Based on the sklearn's SVC implementation: 
-    https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html. Only the testing section. 
-    Returns the AUC score, the predicted probabilities and the corresponding test labels.
-
-    Args
-    ----
-    clf (sklearn.svm.SVC) : the fitted classifier
-    real_data (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    generate_data (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
-    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
-
-    Return
-    ------
-    auc (float) : the auc score
-    test_probs (numpy.array) : the predicted probabilities per test sample
-    test_Y (numpy.array) : the corresponding labels per test sample
-    """
-
-    # Split data to train and test. Only the test data are used here. 
-    data_train_np, label_train, data_test_np, label_test = prepare_det_data(real=real_data, synthetic=generate_data, split=split)
-    
-    # Predicted probabilities
-    preds_test = classifier.predict_proba(X=data_test_np)[:, 1]
-
-    # Calculate ROC-AUC
-    return roc_auc_score(y_true=label_test, y_score=preds_test), preds_test, label_test
-
-
 def svm_detection_XY(
         train_X : np.array, 
         train_Y : np.array, 
@@ -391,7 +311,6 @@ def svm_detection_XY(
     preds_test = clf.predict_proba(X=test_X)[:, 1]
 
     return roc_auc_score(y_true=test_Y, y_score=preds_test), preds_test, test_Y
-
 
 
 """ ___________________________________________ Detection calls ___________________________________________ """
@@ -712,82 +631,9 @@ def run_detection_metrics_XY(
 
 """ ___________________________________________ MMD Torch  ___________________________________________ """
 
-class RBF(nn.Module):
-
-    def __init__(self, n_kernels: int=5, mul_factor: float=2.0, bandwidth=None):
-        super().__init__()
-        # self.bandwidth_multipliers = mul_factor ** (torch.arange(n_kernels) - n_kernels // 2)      # original
-        self.bandwidth_multipliers = torch.tensor([0.01, 0.1, 1, 10, 100])                                    # as in sam
-        self.bandwidth = bandwidth
-
-    def get_bandwidth(self, L2_distances):
-        if self.bandwidth is None:
-            n_samples = L2_distances.shape[0]
-            return L2_distances.data.sum() / (n_samples ** 2 - n_samples)
-        return self.bandwidth
-
-    def forward(self, X):
-        L2_distances = torch.cdist(X, X) ** 2
-        return torch.exp(-L2_distances[None, ...] / (self.get_bandwidth(L2_distances) * self.bandwidth_multipliers)[:, None, None]).sum(dim=0)
-
-
-class MMDLossTH(nn.Module):
-
-    def __init__(self, kernel=RBF()):
-        super().__init__()
-        self.kernel = kernel
-
-    def forward(self, X, Y):
-        K = self.kernel(torch.vstack([X, Y]))
-
-        X_size = X.shape[0]
-        XX = K[:X_size, :X_size].mean()
-        XY = K[:X_size, X_size:].mean()
-        YY = K[X_size:, X_size:].mean()
-        return XX - 2 * XY + YY
-
-
-def mmd_th(real: pd.DataFrame, synthetic: pd.DataFrame, batch_size=200):
-    """ 
-    Computes the Maximum Mean Discrepancy distance of the real and synthetic samples.
-    The bandwidth multiplies are set to: [0.01, 0.1, 1, 10, 100].
-
-    Args
-    ----
-    - real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    - synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
-    - batch_size (int) : the batch size, for cases where the number of samples exceeds the 2000
-
-    Return
-    ------
-    - score (float) : the MMD distance.
-    """
-    if real.shape[0]!=synthetic.shape[0]:
-        raise ValueError('real and synthetic data should have the same sample size')
-    loss = MMDLossTH()
-    if real.shape[0]<2000:
-        if not torch.is_tensor(real):
-            real = torch.tensor(real.values.astype(float))
-        if not torch.is_tensor(synthetic):
-            synthetic = torch.tensor(synthetic.values.astype(float))
-        return float(loss(real, synthetic).numpy())
-    else:
-        if real.shape[0]%batch_size!=0:
-            raise ValueError('sample size should either be less than 2000 or it should be perfectly divided by the batch size')
-        arr_1 = real.values
-        arr_2 = synthetic.values
-        batch_results = [
-            loss(torch.tensor(batch_1), torch.tensor(batch_2)).numpy() \
-            for batch_1, batch_2 in zip(np.split(arr_1, arr_1.shape[0]//batch_size), np.split(arr_2, arr_2.shape[0]//batch_size))
-        ]
-        return np.array(batch_results).mean()
-
-
-""" ___________________________________________ MMD Torch 2  ___________________________________________ """
-
 class MMD_loss(nn.Module):
     """
-    Taken from https://github.com/ZongxianLee/MMD_Loss.Pytorch/blob/master/mmd_loss.py.
+    Implementation taken from https://github.com/ZongxianLee/MMD_Loss.Pytorch/blob/master/mmd_loss.py.
     """
     def __init__(self, kernel_mul = 2.0, kernel_num = 5):
         super(MMD_loss, self).__init__()
@@ -828,13 +674,13 @@ def mmd_torch(real, synthetic, batch_size: int=500) -> float:
 
     Args
     ----
-    - real (pandas.DataFrame or np.ndarray or torch.Tensor) : The real data.
-    - synthetic (pandas.DataFrame or np.ndarray or torch.Tensor) : The synthetic data.
-    - batch_size (int) : The batch size for cases where the number of samples exceeds 2000.
+    real (pandas.DataFrame or np.ndarray or torch.Tensor) : The real data.
+    synthetic (pandas.DataFrame or np.ndarray or torch.Tensor) : The synthetic data.
+    batch_size (int) : The batch size for cases where the number of samples exceeds 2000.
 
     Returns
     -------
-    - score (float) : The MMD distance.
+    score (float) : The MMD distance.
     """
     
     if real.shape[0] != synthetic.shape[0]:
