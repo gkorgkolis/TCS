@@ -38,30 +38,30 @@ def lstm_detection(
 
     Args
     ----
-    real : pd.DataFrame
-        a dataframe containing the real data
-    synthetic : pd.DataFrame
-        a dataframe containing the synthetic data 
-    batch_size : int
-        the batch size used for the training and inference of the LSTM model; (default = int(len(real)/4))
-    hidden_size : int 
-        the size of each LSTM hidden layer; (default = 128)
-    num_layers : int
-        the number of hidden layers; (default = 2)
-    seq_len : int
-        the legth of the prepared input sequences for the model training; (default = int(len(real)/4))
+    real (pd.DataFrame)
+        Pandas DataFrame containing real data
+    synthetic (pd.DataFrame):
+        Pandas DataFrame containing synthetic data 
+    batch_size (int)
+        Batch size used for training and inference of the LSTM model; (defaults to `int(len(real)/4)`)
+    hidden_size (int)
+        Sze of each LSTM hidden layer; (defaults to `128`)
+    num_layers (int)
+        Number of hidden layers; (defaults to `2`)
+    seq_len (int)
+        Length of the prepared input sequences for model training; (defaults to `int(len(real)/4)`)
     learning_rate : float
-        the learning rate for the LSTM model training; (default = 0.0001)
-    num_epochs : int
-        the number of training epochs; (default = 10)
-    device : str
-        the device to be used for training and where the torch tensors are being stored; 
-        automatically checks for cuda support, and if not available it assigns the CPU
+        Learning rate for the LSTM model training; (defaults to `0.0001`)
+    num_epochs (int)
+        Nmber of training epochs; (defaults to `10`)
+    device (str)
+        device to be used for training and where torch tensors are being stored; 
+        automatically checks for CUDA support, and if not available assigns tensors to the CPU.
 
-    Return
+    Returns
     ------
     auc (float) : the typical AUC score.
-    probs : the probabilites per sample predicted by the classifier
+    probs (numpy.array) : the probabilites per sample predicted by the classifier
     """
 
     train_len = int(0.75*real.shape[0])
@@ -83,6 +83,7 @@ def lstm_detection(
         generate_data=synthetic.values, 
         batch_size=batch_size, device=device, seq_len=seq_len, num_epochs=num_epochs, learning_rate=learning_rate, 
     )
+
     return classifier.test_by_classify(generate_data=synthetic.values, batch_size=batch_size, device=device, verbose=False)
 
 
@@ -102,31 +103,31 @@ def lstm_detection_XY(
 ):
     """
     Wrapper for detection with LSTMs, as done in https://github.com/jarrycyx/UNN/blob/main/CausalTime/test.py#L159.
-    For recreation and comparisson purposes.
+    For recreation and comparison purposes.
 
     Args
     ----
-    train_X (numpy.array) : the training data as a numpy array 
-    train_Y (numpy.array) : the training labels as a numpy array
-    test_X (numpy.array) : the testing data as a numpy array
-    test_Y (numpy.array) : the testing labels as a numpy array
-    batch_size : int
-        the batch size used for the training and inference of the LSTM model; (default = int(len(real)/4))
-    hidden_size : int 
-        the size of each LSTM hidden layer; (default = 128)
-    num_layers : int
-        the number of hidden layers; (default = 2)
-    seq_len : int
-        the legth of the prepared input sequences for the model training; (default = int(len(real)/4))
-    learning_rate : float
-        the learning rate for the LSTM model training; (default = 0.0001)
-    num_epochs : int
-        the number of training epochs; (default = 10)
-    device : str
-        the device to be used for training and where the torch tensors are being stored; 
-        automatically checks for cuda support, and if not available it assigns the CPU
+    train_X (numpy.array) : Training data as a numpy array 
+    train_Y (numpy.array) : Training labels as a numpy array
+    test_X (numpy.array) : Test data as a numpy array
+    test_Y (numpy.array) : Test labels as a numpy array
+    batch_size (int) :
+        batch size used for the training and inference of the LSTM model; (default = `int(len(real)/4)`)
+    hidden_size (int) : 
+        Size of each LSTM hidden layer; (default = `128`)
+    num_layers (int) :
+        Number of hidden layers; (default = `2`)
+    seq_len (int) :
+        Length of the prepared input sequences for model training; (default = `int(len(real)/4)`)
+    learning_rate (float) :
+        Learning rate for the LSTM model training; (default = `0.0001`)
+    num_epochs (int) :
+        Number of training epochs; (default = `10`)
+    device (str) :
+        Device to be used for training and where torch tensors are being stored; 
+        automatically checks for CUDA support, and if not available assigns tensors to CPU.
 
-    Return
+    Returns
     ------
     auc (float) : the typical AUC score.
     probs (numpy.array) : the probabilites per sample predicted by the classifier
@@ -170,17 +171,18 @@ def prepare_det_data(
 
     Args
     ----
-    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
-    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
+    real (pd.DataFrame) : Pandas DataFrame containing the real data
+    synthetic (pd.DataFrame) : Pandas DataFrame containing the synthetic data 
+    split (float) : Length of the training set as a percentage of the merged set length; (default = `0.75`)
 
-    Return
-    ------
-    data_train_np (numpy.array) : the training data as a numpy array 
-    label_train (numpy.array) : the training labels as a numpy array
-    data_test_np (numpy.array) : the testing data as a numpy array
-    label_test (numpy.array) : the testing labels as a numpy array
+    Returns
+    ----
+    data_train_np (numpy.array) : Training data as a numpy array 
+    label_train (numpy.array) : Training labels as a numpy array
+    data_test_np (numpy.array) : Test data as a numpy array
+    label_test (numpy.array) : Test labels as a numpy array
     """
+
     # data
     COL_NAMES = list(string.ascii_uppercase) + ["".join(a) for a in list(itertools.permutations(list(string.ascii_uppercase), r=2))]
     real_data = real.copy().rename(columns=dict(zip(real.columns, COL_NAMES[:real.shape[1]])))
@@ -223,22 +225,22 @@ def svm_detection(
         gamma: any = "scale"
 ):
     """ 
-    Detection test w/ SVM-based classifiers (SVCs) for real & synthetic datasets. Based on the sklearn's SVC implementation: 
+    Detection test w/ SVM-based classifiers (SVCs) for real & synthetic datasets. Based on sklearn's SVC implementation: 
     https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
 
     Args
     ----
-    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data 
-    split (float) : the length of the training set as a percentage of the merged set length; (default = 0.75)
-    C (float) : the SVC's regularization factor; check sklearn's SVC implementation for more details
-    kernel (str) : kernel used by the SVC; check sklearn's SVC implementation for more details
-    degree (int) : the degree of the polynomial in case of 'poly' kernel; check sklearn's SVC implementation for more details
-    gamma (str) : the gamma parameter, in case of 'poly', 'rbf' or 'sigmoid' kernel; check sklearn's SVC implementation for more details
+    real (pd.DataFrame) : Pandas DataFrame containing the real data
+    synthetic (pd.DataFrame) : Pandas DataFrame containing the synthetic data 
+    split (float) : Length of the training set as a percentage of the merged set length; (default = `0.75`)
+    C (float) : SVC's regularization factor; check sklearn's SVC implementation for more details
+    kernel (str) : Kernel used by the SVC; check sklearn's SVC implementation for more details
+    degree (int) : Degree of the polynomial in case of `poly` kernel; check sklearn's SVC implementation for more details
+    gamma (str) : Gamma parameter, in case of `poly`, `rbf` or `sigmoid` kernel; check sklearn's SVC implementation for more details
 
-    Return
-    ------
-    auc (float) : the computed auc, also based on the sklearn implementation
+    Returns
+    ----
+    auc (float) : the computed AUC, also based on the sklearn implementation
     probs (list) : the probabilites per sample predicted by the classifier
     """
 
@@ -324,23 +326,23 @@ def get_optimal_config(
         verbose: bool = False
 ):
     """
-    **NOTE**: Not used anymore. Please check *get_optimal_config_XY*. Kept for now for legacy / transition reasons.
+    **NOTE**: Not used anymore. Please check `get_optimal_config_XY` Kept for now for legacy / transition reasons.
 
     Args
     ----
-    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
-    detection (callable) : the detection metric to be fine-tuned
-    search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
+    real (pd.DataFrame) : Pandas DataFrame containing the real data
+    synthetic (pd.DataFrame) : Pandas DataFrame containing the synthetic data
+    detection (callable) : Detection metric to be fine-tuned
+    search_space (dict) : Dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument. 
                             E.g.: 
                                 search_space = {
                                     "C": [1.0, 0.75, 0.5], 
                                     "gamma": ["auto", "scale"]
                                 }
-    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: `False`)
 
-    Return
+    Returns
     ------
     auc (float) : the highest AUC achieved throughout the cartesian product of the search space
     config (dict) : the optimal configuration, i.e., the one that returns the highest AUC
@@ -388,28 +390,27 @@ def run_detection_metrics(
 
     Args
     ----
-    real (pandas.DataFrame) : a Pandas DataFrame containing the real data
-    synthetic (pandas.DataFrame) : a Pandas DataFrame containing the synthetic data
-    svm_search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
+    real (pd.DataFrame) : Pandas DataFrame containing the real data
+    synthetic (pd.DataFrame) : Pandas DataFrame containing the synthetic data
+    svm_search_space (dict) : Dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument; 
                             E.g.: 
                                 search_space = {
                                     "C": [1.0, 0.75, 0.5], 
                                     "gamma": ["auto", "scale"]
                                 }
-                            if None, it uses a predefined space that aims for a wide search but with reasonable running times;
+                            if `None`, uses a predefined space that aims for a wide search but with reasonable running times;
                             for more details, please check the source code
-    lstm_search_space (dict) : same as for the SVM detection, but with the appropriate arguments; 
+    lstm_search_space (dict) : As for the SVM detection, but with the appropriate arguments; 
                             for more details, please check the source code 
-    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+    verbose (bool) : Prints info on intermediate steps, mainly used to provide insights (default: `False`)
 
-    Return
-    ------
-    res (dict) : detection output as a dictionary with the following fields: 
-        - "auc": the optimal detector's AUC score
-        - "config": the optimal detector's configuration
-        - "detector": the trained optimal detector instance
-
+    Returns
+    ----
+    res (dict) : Detection output as a dictionary with the following fields: 
+        - "auc": The optimal detector's AUC score
+        - "config": The optimal detector's configuration
+        - "detector": The trained optimal detector instance
     """
     if svm_search_space is None:
         svm_search_space = {
@@ -475,26 +476,26 @@ def get_optimal_config_XY(
 
     Args
     ----
-    train_X (numpy.array) : the training data as a numpy array 
-    train_Y (numpy.array) : the training labels as a numpy array
-    test_X (numpy.array) : the testing data as a numpy array
-    test_Y (numpy.array) : the testing labels as a numpy array  
-    detection (callable) : the detection metric to be fine-tuned
-    search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
+    train_X (numpy.array) : Training data as a numpy array 
+    train_Y (numpy.array) : Training labels as a numpy array
+    test_X (numpy.array) : Test data as a numpy array
+    test_Y (numpy.array) : Test labels as a numpy array  
+    detection (callable) : Detection metric to be fine-tuned
+    search_space (dict) : Dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument. 
                             E.g.: 
                                 search_space = {
                                     "C": [1.0, 0.75, 0.5], 
                                     "gamma": ["auto", "scale"]
                                 }
-    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: `False`)
 
-    Return
-    ------
-    auc (float) : the highest AUC achieved throughout the cartesian product of the search space
-    probs (numpy.array) : the classifier's predicted probabilities on the test samples
-    labels (numpy.array) : the corresponding labels of the test samples 
-    config (dict) : the optimal configuration, i.e., the one that returns the highest AUC
+    Returns
+    ----
+    auc (float) : Highest AUC achieved throughout the cartesian product of the search space
+    probs (numpy.array) : Classifier's predicted probabilities on the test samples
+    labels (numpy.array) : Corresponding labels of the test samples 
+    config (dict) : Optimal configuration, i.e., the one that returns the highest AUC
     """
     start_time = time.time()
 
@@ -543,25 +544,25 @@ def run_detection_metrics_XY(
 
     Args
     ----
-    train_X (numpy.array) : the training data as a numpy array 
-    train_Y (numpy.array) : the training labels as a numpy array
-    test_X (numpy.array) : the testing data as a numpy array
-    test_Y (numpy.array) : the testing labels as a numpy array
-    svm_search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
+    train_X (numpy.array) : Training data as a numpy array 
+    train_Y (numpy.array) : Training labels as a numpy array
+    test_X (numpy.array) : Test data as a numpy array
+    test_Y (numpy.array) : Test labels as a numpy array
+    svm_search_space (dict) : Dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument; 
                             E.g.: 
                                 search_space = {
                                     "C": [1.0, 0.75, 0.5], 
                                     "gamma": ["auto", "scale"]
                                 }
-                            if None, it uses a predefined space that aims for a wide search but with reasonable running times;
+                            if `None`,uses a predefined space that aims for a wide search but with reasonable running times;
                             for more details, please check the source code
-    lstm_search_space (dict) : same as for the SVM detection, but with the corresponding ClassifierLSTM arguments; 
+    lstm_search_space (dict) : As for the SVM detection, but with the corresponding ClassifierLSTM arguments; 
                             for more details, please check the source code 
-    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: `False`)
 
-    Return
-    ------
+    Returns
+    ----
     res (dict) : detection output as a dictionary with the following fields: 
         - "auc": the optimal detector's AUC score
         - "config": the optimal detector's configuration
@@ -670,16 +671,16 @@ class MMD_loss(nn.Module):
 def mmd_torch(real, synthetic, batch_size: int=500) -> float:
     """ 
     Computes the Maximum Mean Discrepancy distance of the real and synthetic samples.
-    The bandwidth multipliers are set to: [0.01, 0.1, 1, 10, 100].
+    The bandwidth multipliers are set to: `[0.01, 0.1, 1, 10, 100]`.
 
     Args
     ----
     real (pandas.DataFrame or np.ndarray or torch.Tensor) : The real data.
     synthetic (pandas.DataFrame or np.ndarray or torch.Tensor) : The synthetic data.
-    batch_size (int) : The batch size for cases where the number of samples exceeds 2000.
+    batch_size (int) : Batch size for cases where the number of samples exceeds `2000`.
 
     Returns
-    -------
+    ----
     score (float) : The MMD distance.
     """
     

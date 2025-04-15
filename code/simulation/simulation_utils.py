@@ -53,26 +53,26 @@ def simulate(
     Args
     -----
     true_data (pandas.DataFrame) : Ground truth data frame
-    true_label (pandas.DataFrame) : the ground-truth causal graph, as a full-time adjacency matrix;
-        if None, an estimated ground-truth causal graph is computed (default: None)
-    cd (str) : Causal Discovery Method (default: 'PCMCI')
-    cd_kwargs (dict) : Keyword arguments for cd argument (default: None)
-    pred_method (str) : Predictive Method (default: 'RF'). Can either be Random Forests ('RF'), ADDSTCN from Temporal Causal Discovery 
-        Forecaster ('TCDF') or the TimesFM foundational model for forecasting ('TimesFM').
-    pred_kwargs (dict) : Keyword arguments for Predictive Method; For 'RF', they correspond to arguments of 
-        sklearn.ensemble.RandomForestRegressor (default: n_estimators=1000). For 'TCDF', they correspond to arguments of 
-        TCDF.Forecaster.TCDForecaster (default: num_levels=0, epochs=1000, kernel_size=2, dilation_c=2, log_interval=250, lr=0.01, 
-        optimizer_name='Adam', seed=1111, split=0.8)  
-    o_approximation (str) : Method for approximating orphan (no causal parents) nodes (default: 'nvp')
-    noise_approximation (str) : Method for noise approximation (default: 'nvp')
-    n_samples (int) : Number of samples of the simulated data (default: 500)
-    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
+    true_label (pandas.DataFrame) : The ground-truth causal graph, as a full-time adjacency matrix;
+        if `None`, an estimated ground-truth causal graph is computed (default: `None`)
+    cd (str) : Causal Discovery Method (default: `PCMCI`)
+    cd_kwargs (dict) : Keyword arguments for cd argument (default: `None`)
+    pred_method (str) : Predictive Method (default: `RF`). Can either be Random Forests (`RF`), ADDSTCN from Temporal Causal Discovery 
+        Forecaster (`TCDF`) or the TimesFM foundational model for forecasting (`TimesFM`).
+    pred_kwargs (dict) : Keyword arguments for Predictive Method; For `RF`, they correspond to arguments of 
+        sklearn.ensemble.RandomForestRegressor (default: `n_estimators=1000`). For `TCDF`, they correspond to arguments of 
+        TCDF.Forecaster.TCDForecaster (default: `num_levels=0, epochs=1000, kernel_size=2, dilation_c=2, log_interval=250, lr=0.01, 
+        optimizer_name='Adam', seed=1111, split=0.8`)  
+    o_approximation (str) : Method for approximating orphan (no causal parents) nodes (default: `nvp`)
+    noise_approximation (str) : Method for noise approximation (default: `nvp`)
+    n_samples (int) : Number of samples of the simulated data (default: `500`)
+    verbose (bool) : Prints info on intermediate steps, mainly used to provide insights (default: `False`)
 
-    Return
-    ------
+    Returns
+    ----
     simulated_data (pd.DataFrame) : The simulated_data generated from the discovered Structural Causal Model.
     fitted_scm (TempSCM) : The fitted Structural Equation Model from Phase 1 of simulation
-    funcs_and_noise (dict) : A nested dictionary that for each node of the true data contains a *torch.distributions* object 
+    funcs_and_noise (dict) : A nested dictionary that for each node of the true data contains a `torch.distributions` object 
         for the estimated noise distribution and a function implementing an ML-model fitted on parent values to estimate the 
         correspnding functional dependency
     scores (dict) : Dictionary containing the R2 scores of the fitted ML-methods on a held-out test set 
@@ -148,12 +148,12 @@ def safe_cd_task(
 
     Args
     ----
-    true_data (pandas.DataFrame) : the true data
-    cd_method (function) : the specified CD method
-    cd_kwargs (dict) : the configuration of the specified CD method
-    CONFIGS (dict) : the rest of the available CD methods and their corresponding configurations 
-                    (taken by default from **simulation_configs.py**)
-    verbose (bool) : prints relevant informative statements
+    true_data (pandas.DataFrame) : The true data
+    cd_method (function) : The specified CD method. Default is `estimate_with_PCMCI`.
+    cd_kwargs (dict) : The configuration of the specified CD method. Default is `{"n_lags": 1}`.l
+    CONFIGS (dict) : The rest of the available CD methods and their corresponding configurations 
+                    (taken by default from `simulation_configs.py`). Default is `list(CD_CONFIGS.values())`.
+    verbose (bool) : Whether or not to print relevant informative statements. Default is `True`.
     """
     CD_LIST = CONFIGS.copy()
     random.shuffle(CD_LIST)
@@ -197,21 +197,21 @@ def _sim_prepare_data(
 ):
     """
     Prepares the time-series data and their corresponding causal graph for estimation of the SCM parameters.
-    Distinguishes between labeled and unlabeled cases. For unlabeled cases, a causal discovery (CD) algorithm for time-series is used to 
+    Distinguishes between labeled and unlabeled cases. For unlabeled cases, a Causal Discovery (CD) algorithm for time-series is used to 
     approximate the ground-truth causal structure.
 
     Args
     ----
     true_data (pandas.DataFrame) : The true data.
-    true_label (None or pandas.DataFrame, optional) : The ground-truth causal graph, represented as a full-time adjacency matrix;
-            if None, an estimated ground-truth causal graph is computed. Defaults to None.
+    true_label (`None` or pandas.DataFrame, optional) : The ground-truth causal graph, represented as a full-time adjacency matrix;
+            if `None`, an estimated ground-truth causal graph is computed. Defaults to `None`.
     cd_method (str, optional) : The method to be used for the CD task if the ground-truth causal graph is not provided; 
-            defaults to "PCMCI". Available methods are: Peter-Clark Momentary Conditional Independence ('PCMCI') [1], 
-            DYNOTEARS ('DYNO') [2], and Causal Pretraining ('CP') [3].
-    cd_args (list, optional) : List of arguments specific to 'cd_method'. Defaults to an empty list.
+            defaults to `PCMCI`. Available methods are: Peter-Clark Momentary Conditional Independence (`PCMCI`) [1], 
+            DYNOTEARS (`DYNO`) [2], and Causal Pretraining (`CP`) [3].
+    cd_args (list, optional) : List of arguments specific to `cd_method`. Defaults to an empty list.
         
-    Return
-    -------
+    Returns
+    ----
     data (pandas.DataFrame) : The true data with renamed columns, to avoid certain problematic cases.
     label (pandas.DataFrame) : The ground-truth causal graph, if provided.
     nam2let (dict) : Renaming dictionary.
@@ -321,37 +321,37 @@ def _sim_fit_parameters(
 
     Args
     ----
-    true_data (pandas.DataFrame) : the true data to be simulated
-    adj_pd (pandas.DataFrame) : the ground-truth full-time graph adjacency matrix (existing or estimated)
-    test_perc (float) : the test percentage of the true data length; used to evaluate the fitted models
-    model (any) : the model to perform the forecasting; it may be any class object for forecasting, 
-        that implements a .fit() and a .predict() method, as in *sklearn.ensemble.RandomForestRegressor*; 
-        default value is a *sklearn.ensemble.RandomForestRegressor* object
+    true_data (pandas.DataFrame) : The true data to be simulated
+    adj_pd (pandas.DataFrame) : The ground-truth full-time graph adjacency matrix (existing or estimated)
+    test_perc (float) : The test percentage of the true data length; used to evaluate the fitted models. Default is `0.15`.
+    model (any) : The model to perform the forecasting; it may be any class object for forecasting, 
+        that implements a `.fit()` and a `.predict()` method, as in `sklearn.ensemble.RandomForestRegressor`; 
+        default value is a `sklearn.ensemble.RandomForestRegressor` object, with `n_estimators` set to 1000.
     noise_approximation (str) : describes how to approximate the noise distribution based on the residuals;
         four distinct options are provided:
-        - 'normal' : the noise is assumed to follow a normal distribution of zero mean and variance equal 
+        - `normal` : Noise is assumed to follow a normal distribution of zero mean and variance equal 
                     to the empirical variance of the computed residuals
-        - 'uniform' : the noise is assumed to follow a uniform distribution with low and high values 
+        - `uniform` : Noise is assumed to follow a uniform distribution with low and high values 
                     equal to the empirical lowest and highest values of the computed residuals
-        - 'nvp' : an implementation of RealNVP [1] flow-based model is used to estimate the true distribution 
+        - `nvp` : Implementation of RealNVP [1] flow-based model is used to estimate the true distribution 
                     of the residuals
         - None or any other value : the noise is uniformly sampled from the computed residuals  
     o_approximation (str) : describes how to approximate the distribution of nodes without parents; similar to 
         noise approximation, with slight differences. Three distinct options are provided:
-        - 'uniform' : the noise is assumed to follow a uniform distribution with low and high values 
+        - `uniform` : Noise is assumed to follow a uniform distribution with low and high values 
                     equal to the empirical lowest and highest values of the feature at hand
-        - 'nvp' : an implementation of RealNVP [1] flow-based model is used to estimate the true distribution 
+        - `nvp` : An implementation of RealNVP [1] flow-based model is used to estimate the true distribution 
                     of the feature at hand
-        - None or any other value :  the noise is assumed to follow a normal distribution of zero mean and 
+        - `None` or any other value :  Noise is assumed to follow a normal distribution of zero mean and 
                     variance equal to the empirical variance of the feature at hand
-    verbose (bool) : printing internal processes; mainly for debugging 
+    verbose (bool) : printing internal processes; mainly for debugging. Default is `False`. 
 
-    Return
+    Returns
     ------
-    funcs_and_noise (dict) : a nested dictionary that for each node of the true data contains a *torch.distributions* object for the 
+    funcs_and_noise (dict) : A nested dictionary that for each node of the true data contains a `torch.distributions` object for the 
         estimated noise distribution and a function implementing an ML-model fitted on parent values to estimate the correspnding 
         functional dependency
-    scores (dict) : a second dictionary containing the R2 scores of the fitted ML-methods on a held-out test set 
+    scores (dict) : A second dictionary containing the R2 scores of the fitted ML-methods on a held-out test set 
     
     References :
     ---
@@ -514,12 +514,12 @@ def simulate_with_TimesFM(
     ----
     true_data (pandas.DataFrame) : Ground truth data frame
     true_label (pandas.DataFrame) : the ground-truth causal graph, as a full-time adjacency matrix;
-        if None, an estimated ground-truth causal graph is computed (default: None)
-    cd (str) : Causal Discovery Method (default: 'PCMCI')
-    cd_kwargs (dict) : Keyword arguments for cd argument (default: None)
-    z_approximation (str) : Method for noise approximation (default: 'nvp')
+        if None, an estimated ground-truth causal graph is computed (default: `None`)
+    cd (str) : Causal Discovery Method (default: `PCMCI`)
+    cd_kwargs (dict) : Keyword arguments for cd argument (default: `None`)
+    z_approximation (str) : Method for noise approximation (default: `nvp`)
 
-    Return
+    Returns
     ------
     simulated_data (pd.DataFrame) : the simulated data, generated from the discovered Causal Structure.
     """
@@ -558,26 +558,27 @@ def fit_with_TimesFM(
 
     Args
     ----
-    true_data (pandas.DataFrame) : the true data to be simulated
-    adj_pd (pandas.DataFrame) : the ground-truth full-time graph adjacency matrix (existing or estimated)
-    noise_approximation (str) : describes how to approximate the noise distribution based on the residuals;
-        four distinct options are provided:
-        - 'normal' : the noise is assumed to follow a normal distribution of zero mean and variance equal 
+    true_data (pd.DataFrame) : the true data to be simulated
+    adj_pd (pd.DataFrame) : the ground-truth full-time graph adjacency matrix (existing or estimated)
+    z_approximation (str) : describes how to approximate the noise distribution based on the residuals;
+        four distinct options are provided (default is `spline`):
+        - `normal` : the noise is assumed to follow a normal distribution of zero mean and variance equal 
                     to the empirical variance of the computed residuals
-        - 'uniform' : the noise is assumed to follow a uniform distribution with low and high values 
+        - `uniform` : the noise is assumed to follow a uniform distribution with low and high values 
                     equal to the empirical lowest and highest values of the computed residuals
-        - 'nvp' : an implementation of RealNVP [1] flow-based model is used to estimate the true distribution 
+        - `spline` : an implementation of Spline flows [2] model used to estimate the true distribution of the residuals
+        - `nvp` : an implementation of RealNVP [1] flow-based model is used to estimate the true distribution 
                     of the residuals
         None or any other value : the noise is uniformly sampled from the computed residuals  
     verbose (bool) : printing internal processes; mainly for debugging
-    model_horizon_len (int) : default is 128
-    model_context_len (int) : default is 256
-    data_horizon_len (int) : default is 128
-    data_context_len (int) : default is 256
-    batch_size (int) : default is 128 
+    model_horizon_len (int) : default is `128`
+    model_context_len (int) : default is 256`
+    data_horizon_len (int) : default is `128`
+    data_context_len (int) : default is `256`
+    batch_size (int) : default is `128`
 
-    Return
-    ------
+    Returns
+    ----
     simulated_pd (pd.DataFrame) : the simulated_pd 
     funcs_and_noise (pd.DataFrame) : a dictionary containing the estimated noise distributions
     
@@ -600,7 +601,7 @@ def fit_with_TimesFM(
             model_dims=1280,
         ),
         checkpoint=timesfm.TimesFmCheckpoint(
-            #   huggingface_repo_id="google/timesfm-1.0-200m"),
+            # huggingface_repo_id="google/timesfm-1.0-200m"),
             huggingface_repo_id="google/timesfm-1.0-200m-pytorch"),
     )
     
@@ -668,7 +669,7 @@ def fit_with_TimesFM(
                         static_numerical_covariates={},
                         static_categorical_covariates={},
                         freq=[0] * len(example),       # default
-                        xreg_mode="xreg + timesfm",              # default
+                        xreg_mode="xreg + timesfm",    # default
                         ridge=0.0,
                         force_on_cpu=False,
                         normalize_xreg_target_per_input=True,    # default
@@ -805,15 +806,15 @@ def get_batched_data_fn(
 
     Args
     ----
-    target_data (numpy.array) : the target data
-    parent_data (numpy.array) : the parent values of the target data
-    batch_size (int) : the batch size of the TimesFM model; (default = 128)
-    context_len (int) : the context length of the TimesFM model; (default = 256)
-    horizon_len (int) : the horizon length of the TimesFM model; (default = 128)
+    target_data (numpy.array) : Target data
+    parent_data (numpy.array) : Parent values of the target data
+    batch_size (int) : Batch size of the TimesFM model; (default = `128`)
+    context_len (int) : Context length of the TimesFM model; (default = `256`)
+    horizon_len (int) : Horizon length of the TimesFM model; (default = `128`)
 
-    Return
-    ------
-    fn (iterator) : an iterator that yields batched data 
+    Returns
+    ----
+    fn (iterator) : iterator that yields batched data 
     """
     examples = defaultdict(list)
 
@@ -843,11 +844,11 @@ def get_batched_data_fn(
 class ResidualsEst(torch.distributions.distribution.Distribution):
     """
         Torch Distributions wrapper class for uniformly sampling though the residuals. 
-        Reimplements only the 'sample' method.
+        Reimplements only the `sample` method.
 
         Args
         ----
-        residuals (torch.Tensor) : the residuals computated based on the real values and the predictions
+        residuals (torch.Tensor) : The residuals computated based on the real values and the predictions
     """
     arg_constraints = {}
 
@@ -862,11 +863,11 @@ class ResidualsEst(torch.distributions.distribution.Distribution):
 
         Args
         ----
-        num_samples (int) : number of samples to output
+        num_samples (int) : Number of samples to output
 
-        Return
-        ------
-        samples (torch.tensor) : the sampled elements
+        Returns
+        ----
+        samples (torch.tensor) : The sampled elements
         """
         if isinstance(num_samples, Iterable):
             num_samples = num_samples[0]
@@ -883,7 +884,7 @@ class ResidualsNVP(torch.distributions.distribution.Distribution):
 
     Args
     ----
-    residuals (list) : the residuals computated based on the real values and the predictions
+    residuals (list) : The residuals computated based on the real values and the predictions
 
     NOTE: should be more parameterizable -- left for future work
     """
@@ -911,11 +912,11 @@ class ResidualsNVP(torch.distributions.distribution.Distribution):
 
         Args
         ----
-        num_samples (int) : number of samples to output
+        num_samples (int) : Number of samples to output
 
-        Return
+        Returns
         ------
-        samples (torch.tensor) : the sampled elements
+        samples (torch.tensor) : The sampled elements
         """
         zs = self.simulator.model.distribution.sample([num_samples])
         samples, _ = self.simulator.model.predict(zs, verbose=0)
@@ -928,11 +929,11 @@ class ResidualsNVP(torch.distributions.distribution.Distribution):
 
         Args
         ----
-        num_samples (int) : number of samples to output
+        num_samples (int) : Number of samples to output
 
-        Return
+        Returns
         ------
-        samples (torch.tensor) : the sampled elements
+        samples (torch.tensor) : The sampled elements
         """
         if isinstance(num_samples, Iterable):
             num_samples = num_samples[0]
@@ -949,11 +950,11 @@ class ResidualsNVP(torch.distributions.distribution.Distribution):
 
         Args
         ----
-        num_samples (int) : number of samples to output
+        num_samples (int) : Number of samples to output
 
-        Return
+        Returns
         ------
-        samples (torch.tensor) : the sampled elements
+        samples (torch.tensor) : The sampled elements
         """
         zs = self.simulator.model.distribution.sample(num_samples)
         samples, _ = self.simulator.model.predict(zs, verbose=0)
@@ -964,11 +965,11 @@ class ResidualsSpline(torch.distributions.distribution.Distribution):
     """
     Torch Distributions wrapper class for estimating the noise distribution through a Spline Flow model. 
     Based on the corresponding Pyro implementation: https://docs.pyro.ai/en/dev/index.html
-    Reimplements only the 'sample' method.
+    Reimplements only the `sample` method.
 
     Args
     ----
-    residuals (list) : the residuals computated based on the real values and the predictions
+    residuals (list) : Residuals computed based on the real values and the predictions
     """
     arg_constraints = {}
 
@@ -1008,8 +1009,8 @@ class ResidualsSpline(torch.distributions.distribution.Distribution):
         ----
         num_samples (int) : number of samples to output
 
-        Return
-        ------
+        Returns
+        ----
         samples (torch.tensor) : the sampled elements
         """
         if isinstance(num_samples, Iterable):
@@ -1024,23 +1025,38 @@ class ResidualsSpline(torch.distributions.distribution.Distribution):
 
 class SimEstRF:
     """ 
-    A wrapper for performing ancestral sampling forward steps per node, through fitted ML models.
-    The current addresses sklearn RandomForestRegressor models.
+    A wrapper for performing ancestral sampling forward steps per node using fitted ML models.
+    Class currently designed to work with scikit-learn's `RandomForestRegressor` models. 
+    If the node has no parents, a trivial predictor is used instead.
 
-    Args
-    ----
-    parent_values (list) : the parent values of the node.  
-    model (sklearn.ensemble._forest.RandomForestRegressor) : the fitted sklean RandomForestRegressor model
+    Parameters
+    ----------
+    model : sklearn.ensemble._forest.RandomForestRegressor
+        A trained RandomForestRegressor model used for predicting the node's value given its parents.
+    trivial_predictor : object
+        A predictor with a `.predict()` method, used when the node has no parents.
     """
+    
     def __init__(self, model, trivial_predictor):
         self.model = model
         self.trivial_predictor = trivial_predictor
 
-
     def __call__(self, parent_values):
         """
+        Predict the value of a node given its parent values using the fitted model.
+
+        Parameters
+        ----------
+        parent_values : list or np.ndarray
+            Values of the parent nodes for the current node. Can be an empty list 
+            if the node has no parents.
+
+        Returns
+        -------
+        torch.Tensor
+            A tensor containing the predicted value for the node.
         """
-        if len(parent_values)==0:
+        if len(parent_values) == 0:
             return self.trivial_predictor.predict()
         else:
             return torch.Tensor(
@@ -1050,10 +1066,9 @@ class SimEstRF:
 
 class SimTrivialPredictor:
     """ 
-    It learns the empirical mean of a univariate time-series sample and uses it as its prediction.
-    Used for nodes without parents. 
+    Trivial predictor class for nodes without parents. Learns the empirical mean of 
+    a univariate time-series sample and uses it as its prediction.
     """
-
     def __init__(self):
         self.X = None
         self.mean = None
@@ -1062,10 +1077,10 @@ class SimTrivialPredictor:
         """
         Calculates the empirical mean of the provided data
 
-        Arg
+        Args
         ----
-        X (numpy.ndarray) : the incoming data
-        Y (any) : dummy argument added for uniformality 
+        X (numpy.ndarray) : Incoming data
+        Y (any) : Dummy argument added for uniformality 
         """
         self.X = X
         self.mean = X.mean()
@@ -1077,5 +1092,9 @@ class SimTrivialPredictor:
         Args
         ----
         X (any) : dummy argument added for uniformality 
+
+        Returns
+        ----
+        mean (float) : the empirical mean
         """
         return self.mean

@@ -66,7 +66,7 @@ def edge_cp_to_pd(edge_cp: list, n_lags: int):
     edge_cp (tuple or list) : the edge indices in the cp-representation
     n_lags (int) : the number of lags
 
-    Return
+    Returns
     ------
     edge_pd (tuple or list) : the edge indices in pd-representation
     """
@@ -83,7 +83,7 @@ def edge_pd_to_cp(edge_pd: list, n_lags: int):
     edge_pd (tuple or list) : the edge indices in the pd-representation
     n_lags (int) : the number of lags
 
-    Return
+    Returns
     ------
     edge_cp (tuple or list) : the edge indices in cp-representation
     """
@@ -105,7 +105,7 @@ def random_node_subset(
     k (int) : the number of nodes contained in the subset
     rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding 
 
-    Return
+    Returns
     ------
     sampled_data (pandas.DataFrame) : the sampled subset as a new DataFrame
     """
@@ -132,20 +132,20 @@ def simulate_on_random_samples(
 
     Args
     ----
-    data (pandas.DataFrame) : the real dataset
-    re_kwargs (dict) : keyword arguments for the simulation method
-    k (int) : the number of subsets; for a variety of *k* and *n*, use the *k_dict* argument
-    n (int) : the number of datasets created for k nodes; for a variety of of *k* and *n*, use the *k_dict* argument
-    k_dict (dict) : a dictionary containing the number of nodes sampled k and the number of datasets sampled n for each k; 
-                defaults to None; if provided, it over-rules the arguments n and k
-    save_file (pathlib.Path) : if provided, it saves the sampled datasets at the specified path; defaults to None
-    save_prefix (str) : additional prefix to the name of the saved file; defaults to an empty string
+    data (pandas.DataFrame) : The real dataset
+    re_kwargs (dict) : Keyword arguments for the simulation method
+    k (int) : Number of subsets; for a variety of `k` and `n`, use the `k_dict` argument
+    n (int) : Number of datasets created for k nodes; for a variety of of `k` and *n*, use the `k_dict` argument
+    k_dict (dict) : Dictionary containing the number of nodes sampled `k` and the number of datasets sampled `n` for each `k`; 
+                defaults to `None`; if provided, over-rules the arguments `n` and `k`
+    save_file (pathlib.Path) : If provided, saves the sampled datasets at the specified path; defaults to None
+    save_prefix (str) : Additional prefix to the name of the saved file; defaults to an empty string.
                 
-    Return
+    Returns
     ------
-    dataset_list (list) : the simulated datasets 
-    sample_list (list) : the list of sample datasets created  
-    scm_list (list): the created temporal structural causal models
+    dataset_list (list) : Simulated datasets 
+    sample_list (list) : List of sample datasets created  
+    scm_list (list): Created temporal structural causal models
     """
     if k_dict is None:
         k_dict = {k: n}
@@ -174,7 +174,6 @@ def simulate_on_random_samples(
     return dataset_list, sample_list, scm_list
 
 
-
 def simulate_on_sub_samples(
         data: pd.DataFrame, 
         window: int=None, 
@@ -196,19 +195,19 @@ def simulate_on_sub_samples(
 
     Args
     ----
-    data (pandas.DataFrame) : the time-series data
-    window (int) : the time-window length
-    minimum (int) : the minimum number of time-steps required in the time-series data
-    belt (bool) : if True, approaches the splitting linearly and ensures splits have no intersections
-    n_subs (int) : only valid if belt=False; defines the number of uniform random splits  
-    verbose (bool) : prints insights about the process
-    re_kwargs (dict) : keyword arguments for the simulation method
+    data (pandas.DataFrame) : Time-series data
+    window (int) : Time-window length
+    minimum (int) : Minimum number of time-steps required in the time-series data
+    belt (bool) : If True, approaches the splitting linearly and ensures splits have no intersections
+    n_subs (int) : Only valid if `belt=False`; defines the number of uniform random splits  
+    verbose (bool) : Prints insights about the process
+    re_kwargs (dict) : Keyword arguments for the simulation method
 
-    Return
+    Returns
     ------
-    dataset_list (list) : the simulated datasets 
-    sample_list (list) : the list of sample datasets created  
-    scm_list (list): the created temporal structural causal models 
+    dataset_list (list) : Simulated datasets 
+    sample_list (list) : List of sample datasets created  
+    scm_list (list): Created temporal structural causal models 
     """
     if minimum<400:
         print(f"Invalid minimum number of time-steps entered ({minimum}<400). Minimum was set to 400.")
@@ -261,7 +260,6 @@ def simulate_on_sub_samples(
     return dataset_list, sample_list, scm_list
 
 
-
 def simulate_on_configs(
         data: pd.DataFrame, 
         m: int=10,  
@@ -275,22 +273,22 @@ def simulate_on_configs(
 
     Args
     ----
-    data (pandas.DataFrame) : the real dataset
-    m (int) : the number of datasets to create; size should be less than the total number of possilbe configurations; 
-                current maximum is 504
-    rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding
-    pred_config (dict) : a dict w/ all possible configurations of the predictive method, as in *simulation_configs.py*;
-                takes its default value from *simulation_configs.py* but it can be overwritten
-    cd_config (dict) : a dict w/ all possible configurations of the causal discovery approach, as in *simulation_configs.py*;
-                takes its default value from *simulation_configs.py* but it can be overwritten
-    noise_config (dict) : a dict w/ the possible configurations of the noise distribution estimation, as in
-                *simulation_configs.py*; takes its default value from *simulation_configs.py* but it can be overwritten
-    rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding
+    data (pandas.DataFrame) : Real dataset
+    m (int) : Number of datasets to create; size should be less than the total number of possilbe configurations; 
+                current maximum is `504`. Defaults to `10`.
+    rng (numpy.random._generator.Generator) : NumPy random number generator; defaults to one w/ no specific seeding
+    pred_config (dict) : Dict w/ all possible configurations of the predictive method, as in `simulation_configs.py`;
+                takes its default value from `simulation_configs.py` but it can be overwritten
+    cd_config (dict) : Ddict w/ all possible configurations of the causal discovery approach, as in `simulation_configs.py`;
+                takes its default value from `simulation_configs.py` but it can be overwritten
+    noise_config (dict) : Dict w/ the possible configurations of the noise distribution estimation, as in
+                `simulation_configs.py`; takes its default value from `simulation_configs.py` but it can be overwritten
+    rng (numpy.random._generator.Generator) : Numpy random number generator; defaults to one w/ no specific seeding
                 
-    Return
+    Returns
     ------
-    dataset_list (list) : the simulated datasets
-    scm_list (list) : the created temporal structural causal models 
+    dataset_list (list) : Simulated datasets
+    scm_list (list) : Created temporal structural causal models 
     """
     
     # placeholders
@@ -331,19 +329,19 @@ def _sim_remove_random_edges(
 
     Args
     ----
-    scm (TempSCM) : the fitted temporal structural causal model as a TempSCM object
-    true_data (pandas.DataFrame) : the true data as a dataframe
-    etr (int) : the number of edges to remove; should be less than the number of edges in the provided causal structure; 
+    scm (TempSCM) : Fitted temporal structural causal model as a TempSCM object
+    true_data (pd.DataFrame) : True data as a dataframe
+    etr (int) : Number of edges to remove; should be less than the number of edges in the provided causal structure; 
         if not, it is resampled to be less that the existing edges; defaults to None, in which case it is randomly sampled
-    edge_indices (list) : the indices of the edges to be removed in a list; if provided, it by-passes the edge sampling; 
-        defaults to None
-    n_samples (int) : the number of samples to generate
-    rng (numpy.random._generator.Generator) : a numpy random number generator; defaults to one w/ no specific seeding 
+    edge_indices (list) : Indices of the edges to be removed in a list; if provided, it by-passes the edge sampling; 
+        defaults to `None`
+    n_samples (int) : Number of samples to generate. Defaults to `500`.
+    rng (numpy.random._generator.Generator) : a NumPy random number generator; defaults to one w/ no specific seeding 
     
-    Return
+    Returns
     ------
-    simulated_data (pd.DataFrame) : the newly simulated data
-    mu_scm (TempSCM) : the newly created temporal casual structure
+    simulated_data (pd.DataFrame) : Simulated data
+    mu_scm (TempSCM) : Created temporal casual structure
     """
     
     # Do this through cp-representation instead of the nx-representation, in order to avoid using an edge used for causal sufficiency 
@@ -460,8 +458,6 @@ def _sim_remove_random_edges(
     simulated_data = mu_scm.generate_time_series(n_samples=n_samples, verbose=False)
 
     return simulated_data, mu_scm
-
-
 
 
 """ ____ Strategic chain of calls to avoid computing using the same configurations twice and expand the produced pairs ____ """
