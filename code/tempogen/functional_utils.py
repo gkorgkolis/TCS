@@ -1,201 +1,255 @@
 import torch
 
-
 def _torch_linear(x):
     """
-    Essentially the *torch.nn.functional.linear*, but conveniently applied on a TempNode instance 
+    Applies a randomly initialized linear transformation to the parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    This function mimics torch.nn.functional.linear but initializes weights and bias
+    randomly from a uniform distribution scaled by the input size. If x is empty, returns zero.
+
+    Parameters
+    ----------
+    x : list or torch.Tensor
+        Parent values of the node at a given time-step.
+
+    Returns
+    -------
+    torch.Tensor
+        The result of applying the linear transformation.
     """
-    if x==[]:
+    if x == []:
         return torch.zeros(size=[1])
-    
-    else:
-        input_shape = len(x)
-        init_dist = torch.distributions.uniform.Uniform(
-            low=-torch.sqrt(torch.tensor(input_shape)), 
-            high=torch.sqrt(torch.tensor(input_shape))
-        )
-        weights = init_dist.sample(sample_shape=[1, input_shape])
-        bias = init_dist.sample()
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.nn.functional.linear(input=x, weight=weights, bias=bias)
+
+    input_shape = len(x)
+    init_dist = torch.distributions.uniform.Uniform(
+        low=-torch.sqrt(torch.tensor(input_shape, dtype=torch.float32)), 
+        high=torch.sqrt(torch.tensor(input_shape, dtype=torch.float32))
+    )
+    weights = init_dist.sample(sample_shape=[1, input_shape])
+    bias = init_dist.sample()
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.nn.functional.linear(input=x.unsqueeze(0), weight=weights, bias=bias).squeeze(0)
+
 
 def _torch_pow(x, alpha=2):
-    """ 
-    Essentially the *torch.pow*, but conveniently applied on a TempNode instance
-
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-        - alpha (float):  the exponent
-    Returns:
-        - the value of the function applied on the sum of the parent values
-    Example usage:
-        >> from functools import partial # for creating callable objects with fixed arguments (partial functions)
-        >> scm = TempSCM(method='C', n_vars=5, n_lags=1, node_names=None, p_edge=0.3, funcs=partial(_torch_pow, alpha=2)),
-        z_distributions=torch.distributions.uniform.Uniform(low=0, high=1),z_types=None) 
     """
-    if x==[]:
+    Applies the power function to the sum of the parent values.
+
+    Parameters
+    ----------
+    x : list or torch.Tensor
+        Parent values of the node at a given time-step.
+    alpha : float, optional
+        The exponent (default is 2).
+
+    Returns
+    -------
+    torch.Tensor
+        The sum of x raised to the power of alpha.
+    """
+    if x == []:
         return torch.zeros(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.pow(sum(x), alpha)
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.pow(torch.sum(x), alpha)
+
 
 def _torch_linear_sigmoid(x):
-    """ Just a sigmoid wrapper for _torch_linear """
+    """
+    Applies a sigmoid activation on top of a random linear transformation of x.
+
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
+    """
     return torch.sigmoid(_torch_linear(x))
 
 
 def _torch_linear_tanh(x):
-    """ Just a tanh wrapper for _torch_linear """
+    """
+    Applies a tanh activation on top of a random linear transformation of x.
+
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
+    """
     return torch.tanh(_torch_linear(x))
 
 
 def _torch_linear_relu(x):
-    """ Just a relu wrapper for _torch_linear """
+    """
+    Applies a ReLU activation on top of a random linear transformation of x.
+
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
+    """
     return torch.relu(_torch_linear(x))
 
 
 def _torch_identity(x):
     """
-    Essentially the *torch.nn.Identity*, but conveniently applied on a TempNode instance 
+    Returns the sum of parent values, mimicking torch.nn.Identity.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    return torch.nn.Identity()(sum(x))
+    if x == []:
+        return torch.zeros(size=[1])
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.sum(x)
 
 
 def _torch_exp(x):
     """
-    Essentially the *torch.exp*, but conveniently applied on a TempNode instance 
+    Applies the exponential function to the sum of parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    if x==[]:
+    if x == []:
         return torch.ones(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.exp(sum(x))
-    
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.exp(torch.sum(x))
+
 
 def _torch_tanh(x):
     """
-    Essentially the *torch.tanh*, but conveniently applied on a TempNode instance 
+    Applies the tanh function to the sum of parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    if x==[]:
+    if x == []:
         return torch.zeros(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.tanh(sum(x))
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.tanh(torch.sum(x))
 
 
 def _torch_sin(x):
     """
-    Essentially the *torch.sin*, but conveniently applied on a TempNode instance 
+    Applies the sine function to the sum of parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    if x==[]:
+    if x == []:
         return torch.zeros(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.sin(sum(x))
-    
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.sin(torch.sum(x))
+
 
 def _torch_cos(x):
     """
-    Essentially the *torch.cos*, but conveniently applied on a TempNode instance 
+    Applies the cosine function to the sum of parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    if x==[]:
+    if x == []:
         return torch.zeros(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.cos(sum(x))
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.cos(torch.sum(x))
 
 
 def _torch_arctan(x):
     """
-    Essentially the *torch.arctan*, but conveniently applied on a TempNode instance 
+    Applies the arctangent function to the sum of parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    if x==[]:
+    if x == []:
         return torch.zeros(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.arctan(sum(x))
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.atan(torch.sum(x))
 
 
 def _torch_sigmoid(x):
     """
-    Essentially the *torch.sigmoid*, but conveniently applied on a TempNode instance 
+    Applies the sigmoid function to the sum of parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    if x==[]:
+    if x == []:
         return torch.zeros(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.sigmoid(sum(x))
-    
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    return torch.sigmoid(torch.sum(x))
+
 
 def _torch_inv_sigmoid(x):
     """
-    Essentially the inverse sigmoid function, but conveniently applied on a TempNode instance 
+    Applies the inverse sigmoid (expit) to the sum of parent values.
 
-    Args: 
-        - x: a list with the parent values of the node at a given time-step
-    
-    Return: 
-        - the value of the function applied on the sum of the parent values
+    This is defined as exp(-x) / (1 + exp(-x)).
+
+    Parameters
+    ----------
+    x : list or torch.Tensor
+
+    Returns
+    -------
+    torch.Tensor
     """
-    if x==[]:
+    if x == []:
         return torch.zeros(size=[1])
-    else:
-        if not torch.is_tensor(x):
-            x = torch.tensor(x)
-        return torch.exp(-x) / (torch.exp(-x) + 1)
+    if not torch.is_tensor(x):
+        x = torch.tensor(x, dtype=torch.float32)
+    x_sum = torch.sum(x)
+    return torch.exp(-x_sum) / (1 + torch.exp(-x_sum))
