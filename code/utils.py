@@ -22,6 +22,17 @@ from cd_methods.CausalPretraining.model.model_wrapper import Architecture_PL
 
 
 def timing(f):
+    """
+    Timing decorator for the execution time of a function.
+    
+    Args
+    ---
+       - f (function): the function to be timed
+    
+    Returns
+    ---
+       - f (function): the timed function.
+    """
     @wraps(f)
     def wrap(*args, **kwargs):
         tic = time.time()
@@ -42,7 +53,7 @@ def get_device():
     
     Returns
     ---
-       - 'cuda' if CUDA is currently available, else 'cpu'.
+       - `cuda` if CUDA is currently available, else `cpu`.
     """
     if torch.cuda.is_available():
         device = torch.device('cuda')
@@ -56,10 +67,10 @@ def df_to_tensor(data):
     Converts a DataFrame or NumPy array to a torch Tensor.
     
     Args:
-    - data (pandas.DataFrame or numpy.ndarray)
+        - data (pandas.DataFrame or numpy.ndarray)
 
     Returns:
-    - torch.Tensor: Converted tensor.
+        - (torch.Tensor): Converted tensor.
     """
     device = get_device()
     
@@ -73,7 +84,7 @@ def df_to_tensor(data):
 
 def print_time_slices(adj: torch.Tensor) -> None:
     """
-    Simply print the time slices of a lagged adjacency matrix. Shape of the matrix should be (n_vars, n_vars, n_lags). 
+    Simply prints the time slices of a lagged adjacency matrix. Shape of the matrix should be (n_vars, n_vars, n_lags). 
 
     Args
     ----
@@ -91,7 +102,7 @@ def _to_cp_ready(adj_cp: torch.Tensor):
     ----
         - adj_cp (numpy.array or torch.Tensor) : the lagged adjacency matrix
     
-    Return
+    Returns
     ------
         structure_cp_T (torch.Tensor) : the inversed cp-style lagged adjacency matrix
     """
@@ -106,13 +117,13 @@ def _to_cp_ready(adj_cp: torch.Tensor):
 def get_max_lag(nodes: list):
     """
     Returns the maximum lag of an iterable object, based on the naming convention of the elements 
-    ('_t' suffix for contemporaneous elements, '_t-*l*', where *l* is the lag of the element)
+    (`_t` suffix for contemporaneous elements, `_t-*l*`, where *l* is the lag of the element)
 
     Args
     ----
     - nodes (list or iterable) : the elements, usually the nodes of the graph at hand
 
-    Return
+    Returns
     ------
     - max_lag (int) : the maximum number of lags
     """
@@ -133,7 +144,7 @@ def group_lagged_nodes(lagged_nodes: list) -> dict:
     ----
         - lagged_nodes (str) : the lagged nodes
 
-    Return
+    Returns
     ------
         - a dictionary with the lags as str and the corresponding sublist of lagged nodes
     """
@@ -153,15 +164,15 @@ def group_lagged_nodes(lagged_nodes: list) -> dict:
 def reverse_order_pd(adj_pd: pd.DataFrame) -> list:
     """
     Returns the reversed order of the nodes of the Pandas full-time adjacency matrix, similar to the custom generator. 
-    See the custom generator for details. Assumes the dataframe follows the node naming convention based on '_t-'.
+    See the custom generator for details. Assumes the dataframe follows the node naming convention based on `_t-`.
 
     Args
     ----
         - adj_pd (pd.DataFrame) : Pandas full-time adjacency matrix
     
-    Return
+    Returns
     ------
-        a (list) containing the reversed order of nodes
+        - (list) containing the reversed order of nodes
     """
     n_lags = get_max_lag(adj_pd.columns)
     temp = []
@@ -175,7 +186,7 @@ def reverse_order_pd(adj_pd: pd.DataFrame) -> list:
 def regular_order_pd(adj_pd: pd.DataFrame) -> list:
     """
     Returns the reversed order of the nodes of the Pandas full-time adjacency matrix, similar to the custom generator. 
-    See the custom generator for details. Assumes the dataframe follows the node naming convention based on '_t-'.
+    See the custom generator for details. Assumes the dataframe follows the node naming convention based on `_t-`.
 
     Args
     ----
@@ -204,7 +215,7 @@ def _from_full_to_cp(full_adj_pd: pd.DataFrame) -> torch.Tensor:
     ----
         - full_adj_pd (pd.DataFrame) : the full-time-graph adjacency matrix as a pd.DataFrame
 
-    Return
+    Returns
     ------
         - adj_cp (torch.Tensor) : CP-style lagged adjacency matrix, as a Numpy array of shape `(n_vars, n_vars, n_lags)`
     """
@@ -241,9 +252,9 @@ def _from_cp_to_full(adj_cp: torch.Tensor, node_names: str=None) -> pd.DataFrame
         - node_names (list) : a list of strings with the names of the nodes, without any time index incorporated; 
                         if None, it follows an alphabetical order
     
-    Return
+    Returns
     ------ 
-        temp_adj_pd: the full-time-graph adjacency matrix as a pd.DataFrame
+        - temp_adj_pd (pd.DataFrame): the full-time-graph adjacency matrix as a pd.DataFrame
     """
     # get intel
     n_vars = adj_cp.shape[1]
@@ -291,7 +302,7 @@ def _from_cp_to_effects(adj_cp: torch.Tensor, effects_distribution=None) -> torc
     ---- 
         - adj_cp (torch.Tensor) : the full-time-graph adjacency matrix
         - effects_distribution (torch.distributions) : the distribution followed by the causal effects; 
-                                default option is a uniform distribution in [0.06, 0.94]
+                                default option is a uniform distribution in `[0.06, 0.94]`
 
     Out (torch.Tensor)
     ---
@@ -315,9 +326,9 @@ def _edges_for_causal_stationarity(temp_adj_pd: pd.DataFrame) -> pd.DataFrame:
     ----
         - temp_adj_pd (pd.DataFrame) : a full-time graph adjacency matrix in a Pandas DataFrame format
     
-    Return
+    Returns
     ------
-        the initial full-time graph adjacency matrix w/ propagated edges in time in a Pandas DataFrame format
+        - (pd.DataFrame) : the initial full-time graph adjacency matrix w/ propagated edges in time in a Pandas DataFrame format
     """
     # from Pandas adjacency to NetworkX graph
     G = nx.from_pandas_adjacency(temp_adj_pd, create_using=nx.DiGraph)
@@ -353,14 +364,14 @@ def _edges_for_causal_stationarity(temp_adj_pd: pd.DataFrame) -> pd.DataFrame:
 def from_fmri_to_cp(test_fmri: pd.DataFrame, label_fmri: pd.DataFrame) -> torch.Tensor:
     """
     Converts the fMRI pandas lagged edgelist to a lagged adjacency tensor.
-    Assumes that the data ground truth edgelist has been read w/ column names: ['effect', 'cause', 'delay']
+    Assumes that the data ground truth edgelist has been read w/ column names: `['effect', 'cause', 'delay']`
 
     Args
     ----
         - test_fmri (pandas.DataFrame, numpy.array or torch.Tensor) : the time-series data
         - label_fmri (pandas.DataFrame) : the ground truth Pandas edgelist
 
-    Return
+    Returns
     ------
         the cp-style lagged adjacency matrix as a tensor
     """ 
@@ -383,13 +394,13 @@ def custom_binary_metrics(binary: torch.Tensor, A: torch.Tensor, verbose=True):
     """ 
     Adjusted from https://github.com/Gideon-Stein/CausalPretraining/tree/main.
     
-    Input
+    Args
     -----
         - binary (torch.Tensor): the predicted (N x N x T) temporal adjacency matrix (should NOT be thresholded)
         - A (torch.Tensor): the ground truth (N x N x T) temporal adjacency matrix  
         - verbose (bool): whether to print or not the results
 
-    Return
+    Returns
     ------
         Returns the TPR, FPR, TNR, FNR and AUC
     """
@@ -449,11 +460,11 @@ def run_inv_pcmci(
        - invert (bool) : (optional) if true, it inverts the time-slices of the returning adjacency matrix, 
                             in order to match the effect-case order of CP
        - rnd (str): (optional) the rounding range for the output 
-       - threshold (float) : (optional) the threshold on which the corrected p-values of the p-matrix are adjusted; default is 0.05
+       - threshold (float) : (optional) the threshold on which the corrected p-values of the p-matrix are adjusted; default is `0.05`.
     
-    Return
+    Returns
     ------
-       the PCMCI q-matrix (numpy.array)
+       - the PCMCI q-matrix (numpy.array)
     """
     if isinstance(sample, pd.DataFrame):
         sample = sample.values
@@ -553,8 +564,8 @@ def estimate_with_CP(
                             defaults to the model *deep_CI_12_3*
         - MAX_VAR (int) : the maximum supported number of variables; used for padding 
         - thresholded (bool) : whether to threshold the predicted values or not, in order to have a binary output 
-                            (default : True)
-        - threshold (floa) : the threshold value used, if thresholded is true (default : 0.05)
+                            (default : `True`)
+        - threshold (floa) : the threshold value used, if thresholded is true (default : `0.05`)
     
     Returns
     ------- 
@@ -676,19 +687,18 @@ def estimate_with_CP(
 
 def timeseries_to_stationary(data_pd: pd.DataFrame, n_shift: int, columns_to_diff: list, diffs: int=1) -> pd.DataFrame:
     '''
-    Converts a non-stationary time-series to a stationary 
-    time-series using finite order differencing
+    Converts a non-stationary time-series to a stationary  time-series using finite order differencing
 
     Parameters
     ----------
-        - data_pd : (pandas dataframe): time-series dataset
+        - data_pd : (pd.DataFrame): time-series dataset
         - n_shift (int) : shift for differencing
         - columns_to_diff (list): list of column names to convert to stationary
-        - order (int): order of differences to take; either first (1) or second (2) order. Defaults to 1.
+        - order (int): order of differences to take; either first (`1`) or second (`2`) order. Defaults to `1`.
 
     Returns
     -------
-        - data_pd (pandas dataframe): stationary time-series dataset
+        - data_pd (pd.DataFrame): stationary time-series dataset
     '''
 
     data_pd_diff = data_pd.copy()
@@ -802,12 +812,12 @@ def lagged_batch_corr(points: torch.Tensor, max_lags: int):
     
     Args 
     ----
-    points (torch.Tensor) : the tensor should have dimension (B, time, var)
-    max_lags (int) : the number of maximum lags
+        - points (torch.Tensor) : the tensor should have dimension (B, time, var)
+        - max_lags (int) : the number of maximum lags
     
-    Return
+    Returns
     ------
-    corr (torch.Tensor) : the lagged covariance matrix, of dimensions (B, D, D); **roll to calculate lagged cov** 
+        - corr (torch.Tensor) : the lagged covariance matrix, of dimensions (B, D, D); **roll to calculate lagged cov** 
     """
     B, N, D = points.size()
 
@@ -845,21 +855,21 @@ def r2_from_scratch(
 ):
     """ 
     Classic definition of R2 metric. Both inputs should be 1D tensors and have the same length. 
-    If oos set to True, it implements the out-of-sample protocol as in JADbio, where the mean value y_bar is computed on the training targets.
+    If oos set to True, it implements the out-of-sample (oos) protocol as in JADbio, where the mean value y_bar is computed on the training targets.
     While otherwise optional, if oos=True, then the Y_train argument has to be provided. 
     Finally, if oos is set to False and prev is set to True, it uses the target of the previous timestep as the trivial predictor.
 
     Args
     ----
-    ys_hat (torch.Tensor) : 1D-tensor of the predictions
-    ys (torch.Tensor) : 1D-tensor of the true values
-    oos (bool) : out-of-sample protocol
-    Y_train (torch.Tensor) : the training targets
-    prev (bool) : target of the previous timestep as the trivial predictor
+        - ys_hat (torch.Tensor) : 1D-tensor of the predictions
+        - ys (torch.Tensor) : 1D-tensor of the true values
+        - oos (bool) : out-of-sample protocol; defaults to `False`
+        - Y_train (torch.Tensor) : the training targets
+        - prev (bool) : target of the previous timestep as the trivial predictor
     
-    Return
+    Returns
     ------
-    r2 (torch.Tensorloat) : the R2 score
+        - r2 (torch.Tensorloat) : the R2 score
     """
     if not isinstance(ys_hat, torch.Tensor):
         ys_hat = torch.tensor(ys_hat)
@@ -891,12 +901,12 @@ def read_to_csv(
 
     Args
     ----
-    data_path (pathlib.Path) : the path to the data
-    column_names (list) : a list containing the names of the columns to be assigned to the data 
+        - data_path (pathlib.Path) : the path to the data
+        - column_names (list) : a list containing the names of the columns to be assigned to the data 
 
-    Return
+    Returns
     ------
-    data_pd (pandas.DataFrame) : the data as a pandas.DataFrame object
+        - data_pd (pd.DataFrame) : the data as a pd.DataFrame object
     """
     if column_names is None:
         column_names = list(string.ascii_uppercase) + ["".join(a) 
@@ -933,12 +943,12 @@ def check_non_stationarity(df: pd.DataFrame, verbose: bool=False):
     
     Args
     ----
-    df (pd.DataFrame) : multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size 
-    verbose (bool) : whether to print which feature is non-stationary (default: False)
+        - df (pd.DataFrame) : multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size 
+        - verbose (bool) : whether to print which feature is non-stationary (default: False)
     
     Returns
     -------
-    out (bool) : `True` if there exists a non-stationary feature, `False` otherwise.    
+        - out (bool) : `True` if there exists a non-stationary feature, `False` otherwise.    
     """
     # Hyperparameters
     a_fuller = 0.05
@@ -959,13 +969,15 @@ def to_stationary_with_finite_differences(df: pd.DataFrame, order: int=1):
     """
     Converts the given (non-stationary) time-series sample to stationary using finite differences of order 'order'.
 
-    Args:
-       df (pandas.DataFrame): multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size,
+    Args
+    ---
+        - df (pd.DataFrame): multivariate time-series sample of shape `(n,d)` where `n` is the sample size and `d` the feature size,
          where at least one feature is non-stationary.
-       order (int): order of finite differences to take (default: `1`)
+        - order (int): order of finite differences to take (default: `1`)
 
-    Returns:
-       out (pandas.DataFrame) : Finite-differenced dataframe of the non-stationary multivariate time-series
+    Returns
+    ---
+        - out (pd.DataFrame) : Finite-differenced dataframe of the non-stationary multivariate time-series
     """
     if check_non_stationarity(df) == False:
         warnings.warn("Provided time-series sample is stationary. No finite differencing is applied.")
@@ -982,13 +994,13 @@ def convert_data_to_stationary(df: pd.DataFrame, order: int=1, verbose=False):
 
     Args
     ----
-    df (pandas.DataFrame) : The data sample of shape `(n,d)` where `n` is the sample size and `d` the feature size
-    order (int) : The order to account for in the finite-differences method (default: 1)
-    verbose (bool) : Whether to print process messages (default: `False`).
+        - df (pd.DataFrame) : The data sample of shape `(n,d)` where `n` is the sample size and `d` the feature size
+        - order (int) : The order to account for in the finite-differences method (default: 1)
+        - verbose (bool) : Whether to print process messages (default: `False`).
 
     Returns
     -------
-    out (pandas.DataFrame) : The stationary-transformed dataset    
+        - out (pd.DataFrame) : The stationary-transformed dataset    
     """
     if check_non_stationarity(df, verbose=verbose):
         diff_df = to_stationary_with_finite_differences(df, order=order)
