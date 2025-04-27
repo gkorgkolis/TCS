@@ -715,20 +715,22 @@ def timeseries_to_stationary(data_pd: pd.DataFrame, n_shift: int, columns_to_dif
     return data_pd_diff
 
 
-def plot_structure(temp_adj_pd: pd.DataFrame=None, node_color: str='indianred', node_size: int = 1200):
+def plot_structure(temp_adj_pd: pd.DataFrame=None, node_color: str='indianred', node_size: int = 1200, show: bool=True):
     """
     Plots the causal structure of the model.
 
     Args
     ----
         - temp_adj_pd (pd.DataFrame) : the base causal structure (without the causal stationarity edges, they are added on the fly here)
+        - node_color (str) : color of the nodes; default is `indianred`
+        - node_size (int) : size of the nodes in the plot; default is `1200`
+        - show (bool) : whether to show the plot; default is `True`.
     
-    Return
+    Returns
     ------
         - f (matplotlib.figure.Figure) :the figure object, for potential further tempering
         - ax (matplotlib.axes._axes.Axes) :the axis object, for potential further tempering
     """
-
     # from pandas to networkx
     G = nx.from_pandas_adjacency(temp_adj_pd, create_using=nx.DiGraph)
 
@@ -817,12 +819,12 @@ def lagged_batch_corr(points: torch.Tensor, max_lags: int):
     
     Args 
     ----
-        - points (torch.Tensor) : the tensor should have dimension (B, time, var)
+        - points (torch.Tensor) : the tensor should have dimension `(B, time, var)`
         - max_lags (int) : the number of maximum lags
     
     Returns
     ------
-        - corr (torch.Tensor) : the lagged covariance matrix, of dimensions (B, D, D); **roll to calculate lagged cov** 
+        - corr (torch.Tensor) : the lagged covariance matrix, of dimensions `(B, D, D)`; **roll to calculate lagged cov** 
     """
     B, N, D = points.size()
 
