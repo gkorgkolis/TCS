@@ -734,7 +734,6 @@ def plot_structure(temp_adj_pd: pd.DataFrame=None, node_color: str='indianred', 
 
     # find the number of lags from the adjacency
     max_lag = get_max_lag(G.nodes)
-        
 
     # group nodes depending on their lags
     groups = {f"t-{lag}":[] for lag in reversed(range(max_lag + 1))}
@@ -760,7 +759,7 @@ def plot_structure(temp_adj_pd: pd.DataFrame=None, node_color: str='indianred', 
     for key in groups.keys():
         for node in groups[key]:
             pos[node] = (x_current, y_current)
-            y_current += y_offset
+            y_current -= y_offset
         x_current += x_offset
         y_current = 0                 
 
@@ -768,27 +767,31 @@ def plot_structure(temp_adj_pd: pd.DataFrame=None, node_color: str='indianred', 
     lbd_lag = lambda x: int(x.split('_t-')[-1]) if '_t-' in x else 0
     # lambda for getting the name out of each node
     lbd_name = lambda x: x.split('_t-')[0] if '_t-' in x else x.split('_t')[0]
-        # add edges for causal stationarity
+    
+    # add edges for causal stationarity
     added_edges = []
-    for edge in G.edges:
+    for edge in list(G.edges): # avoid iterating over edges while modifying them
         # calculate edge lag range   
         lag_range = lbd_lag(edge[0]) - lbd_lag(edge[1])
-        ctr = 0
-        while(lag_range + lbd_lag(edge[0]) + ctr <= max_lag):
-            if f"{edge[0].split('_t-')[0]}_t-{lbd_lag(edge[0]) + lag_range + ctr}" in G.nodes:
-                G.add_edge(
-                    u_of_edge=f"{lbd_name(edge[0])}_t-{lbd_lag(edge[0]) + lag_range + ctr}", 
-                    v_of_edge=f"{lbd_name(edge[1])}_t-{lbd_lag(edge[1]) + lag_range + ctr}"
-                )
-                added_edges.append((
-                    f"{lbd_name(edge[0])}_t-{lbd_lag(edge[0]) + lag_range + ctr}", 
-                    f"{lbd_name(edge[1])}_t-{lbd_lag(edge[1]) + lag_range + ctr}"
-                ))
-            ctr += 1
+        if f"{edge[0].split('_t-')[0]}_t-{lbd_lag(edge[0]) + lag_range}" in G.nodes:
+            G.add_edge(
+                u_of_edge=f"{lbd_name(edge[0])}_t-{lbd_lag(edge[0]) + lag_range}", 
+                v_of_edge=f"{lbd_name(edge[1])}_t-{lbd_lag(edge[1]) + lag_range}"
+            )
+            added_edges.append((
+                f"{lbd_name(edge[0])}_t-{lbd_lag(edge[0]) + lag_range}", 
+                f"{lbd_name(edge[1])}_t-{lbd_lag(edge[1]) + lag_range}"
+            ))
+
+    # patching - assign positions to any new nodes
+    for node in G.nodes:
+        if node not in pos:
+            pos[node] = (x_current, y_current)
+            y_current -= y_offset
 
     # define edges for causal consistency
     edge_colors = {}
-    for edge in G.edges:
+    for edge in list(G.edges):
         if edge in added_edges:
             edge_colors[edge] = "gray"
         else:
@@ -796,10 +799,12 @@ def plot_structure(temp_adj_pd: pd.DataFrame=None, node_color: str='indianred', 
     edge_color = list(edge_colors.values())  
 
     # draw it
-    f, ax = plt.subplots(figsize=figsize)
+    if ax is None:
+        f, ax = plt.subplots(figsize=figsize)
     nx.draw(G, pos=pos, with_labels=True, ax=ax, node_size=node_size, node_color=node_color, edge_color=edge_color,
             labels={node: "$" + node.split('_t-')[0] + "_{t-" + node.split('_t-')[1] + "}$" if "_t-" in node else f"${node}$" for node in G.nodes})
-    plt.show()
+    if show:
+        plt.show()
 
     return f, ax
 
