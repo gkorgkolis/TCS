@@ -84,7 +84,7 @@ def df_to_tensor(data):
 
 def print_time_slices(adj: torch.Tensor) -> None:
     """
-    Simply prints the time slices of a lagged adjacency matrix. Shape of the matrix should be (n_vars, n_vars, n_lags). 
+    Simply prints the time slices of a lagged adjacency matrix. Shape of the matrix should be `(n_vars, n_vars, max_lag)`. 
 
     Args
     ----
@@ -396,13 +396,13 @@ def custom_binary_metrics(binary: torch.Tensor, A: torch.Tensor, verbose=True):
     
     Args
     -----
-        - binary (torch.Tensor): the predicted (N x N x T) temporal adjacency matrix (should NOT be thresholded)
-        - A (torch.Tensor): the ground truth (N x N x T) temporal adjacency matrix  
-        - verbose (bool): whether to print or not the results
+        - binary (torch.tensor): The predicted `(n_vars x n_vars x max_lag)` temporal adjacency matrix (should **NOT** be thresholded)
+        - A (torch.tensor): The ground truth `(n_vars x n_vars x max_lag)` temporal adjacency matrix  
+        - verbose (bool): Whether to print or not the results (default: `True`)
 
-    Returns
+    Returns (list)
     ------
-        Returns the TPR, FPR, TNR, FNR and AUC
+        - metrics (list): A list of computed metrics (TPR, FPR, TNR, FNR, AUC)
     """
 
     # Converts ground truth to binary - might not be always required
@@ -424,7 +424,6 @@ def custom_binary_metrics(binary: torch.Tensor, A: torch.Tensor, verbose=True):
     fn = torch.sum((binary == 0) * (A == 1))
 
     # true positive % - false positive % - true negative % - false negative %
-    # tpr, fpr, tnr, fnr = binary_metrics(pred=pred, lab=A, link_threshold=0.05)
     tpr, fpr, tnr, fnr = tp / (tp + fn), fp / (fp + tn), tn / (fp + tn), fn / (tp + fn)
 
     if verbose:
@@ -453,8 +452,8 @@ def run_inv_pcmci(
     Args
     ----
        - sample (pd.DataFrame) : the time-series data as a dataframe 
-       - c_test (tigramite.independence_tests) : conditional independence test to be used (ParCorr() or GPDC())
-       - max_tau (int) : (optional) the maximum lag to use; defaults to 1
+       - c_test (tigramite.independence_tests) : conditional independence test to be used (`ParCorr()` or `GPDC()`). Defaults to `ParCorr()`
+       - max_tau (int) : (optional) the maximum lag to use; defaults to `1`
        - fdr_method (str) : (optional) the FDR method that PCMCI will use internally; for more info, 
                             please refer to the official PCMCI documentation
        - invert (bool) : (optional) if true, it inverts the time-slices of the returning adjacency matrix, 
