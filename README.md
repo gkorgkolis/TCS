@@ -2,6 +2,8 @@
 
 Code for the paper "Temporal Causal-based Simulation for Realistic Time-Series Simulation".  
 
+## Overview
+
 
 ## Instalation
 
@@ -113,7 +115,7 @@ Notebooks for reproducible experiments and demo scripts (`running_examples.ipynb
 If the codebase has proven useful, cite:
 
 ```bibtex
-@misc{gkorgkolis2025temporal,
+@misc{,
       title={}, 
       author={},
       year={2025},
