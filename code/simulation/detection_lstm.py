@@ -299,6 +299,7 @@ class ClassifierLSTM_V2(torch.nn.Module):
                 accuracy = np.mean(y_pred == y)
                 acc.append(accuracy)
         accuracy = np.mean(acc)
+        # print(f"LOG: lstm_detection: y_pred_list length: {len(y_pred_list)}")
         y_pred_list = np.concatenate(y_pred_list)
         y_list = np.concatenate(y_list)
         auc_score = roc_auc_score(y_list, y_pred_list)

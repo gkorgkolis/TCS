@@ -1,26 +1,26 @@
-"""
-Dictionaries containing configurations. Please modify depending on your setup or preferences
-Considering using .YAML or .JSON files instead of this one in the future. 
+""" 
+NOTE: CP model configs are commented out for the submission, as the weights cannot be shared to maintain anonymity.
+- The configurations at use are simply a suggetion for a first run.
+- Feel free to uncomment and experiment with more or less configuration options per phase. Inference time will vary.
 """
 
-
-cd_config = {
-    'CP_1': {
-        "cd_method": "CP",
-        "cd_kwargs": {
-            "model": "../cd_methods/CausalPretraining/res/deep_CI_RH_12_3_merged_290k.ckpt",
-            "model_name": "deep_CI_RH_12_3_merged_290k",
-            "MAX_VAR": 12,
-            "thresholded": True,
-            "threshold": 0.05,
-            "enforce_density": False,
-            "density": [2, 10]
-        },
-    },
+cd_config = { 
+    # # 'CP_1': {
+    # #     "cd_method": "CP",
+    # #     "cd_kwargs": {
+    # #         "model": "../cd_methods/CausalPretraining/res/deep_CI_RH_12_3_merged_290k.ckpt",
+    # #         "model_name": "deep_CI_RH_12_3_merged_290k",
+    # #         "MAX_VAR": 12,
+    # #         "thresholded": True,
+    # #         "threshold": 0.05,
+    # #         "enforce_density": False,
+    # #         "density": [2, 10]
+    # #     },
+    # # },
     # 'CP_2': {
     #     "cd_method": "CP",
     #     "cd_kwargs": {
-    #         "model": "../cd_methods/CausalPretraining/res/lcm_CI_RH_12_3_merged_290k.ckpt",
+    #         "model": "E:/CausalPretraining/Weights/2025+/lcm_CI_RH_12_3_merged_290k.ckpt",
     #         "model_name": "LCM_CI_RH_12_3_merged_290k",
     #         "MAX_VAR": 12,
     #         "thresholded": True,
@@ -29,18 +29,18 @@ cd_config = {
     #         "density": [2, 10]
     #     },
     # },
-    # 'CP_3': {
-    #     "cd_method": "CP",
-    #     "cd_kwargs": {
-    #         "model": "../cd_methods/CausalPretraining/res/deep_CI_RH_12_3_merged_290k.ckpt",
-    #         "model_name": "deep_CI_RH_12_3_merged_290k",
-    #         "MAX_VAR": 12,
-    #         "thresholded": True,
-    #         "threshold": 0.05,
-    #         "enforce_density": True,
-    #         "density": [2, 10]
-    #     },
-    # },
+    # # 'CP_3': {
+    # #     "cd_method": "CP",
+    # #     "cd_kwargs": {
+    # #         "model": "../cd_methods/CausalPretraining/res/deep_CI_RH_12_3_merged_290k.ckpt",
+    # #         "model_name": "deep_CI_RH_12_3_merged_290k",
+    # #         "MAX_VAR": 12,
+    # #         "thresholded": True,
+    # #         "threshold": 0.05,
+    # #         "enforce_density": True,
+    # #         "density": [2, 10]
+    # #     },
+    # # },
     'PCMCI_1': {
         "cd_method": "PCMCI",
         "cd_kwargs": None,

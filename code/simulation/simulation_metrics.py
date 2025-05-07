@@ -570,8 +570,8 @@ def run_detection_metrics_XY(
     """
     if svm_search_space is None:
         svm_search_space = {
-            "C" : [1.0, 0.75, 0.5,0.25],
-            "kernel" : ["linear", "poly", "rbf"],
+            "C" : [1.0, 0.75, 0.5],
+            "kernel" : ["linear", "rbf"],
             "degree" : [3],
             "gamma" : ["auto", "scale"],
         }
