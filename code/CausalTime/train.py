@@ -3,7 +3,6 @@ import shutil
 
 import numpy as np
 import torch
-from torch.utils.tensorboard import SummaryWriter
 
 
 def train_CUTS(model, mask, optimizer, criterion, train_loader, val_loader, device, save_path, n_epochs, summary_writer=None):
@@ -34,7 +33,6 @@ def train_CUTS(model, mask, optimizer, criterion, train_loader, val_loader, devi
 
             # if i % 10 == 0:
             #     # print(f"Epoch {epoch+1}/{n_epochs}, Batch {i+1}/{len(train_loader)}, Loss: {loss.item():.6f}")
-            #     summary_writer.add_scalar('train_loss', loss.item(), epoch*len(train_loader)+i)
             i += 1
 
             train_losses.append(loss.item())
@@ -60,9 +58,6 @@ def train_CUTS(model, mask, optimizer, criterion, train_loader, val_loader, devi
 
         print(f'Epoch {epoch+1}/{n_epochs}, Train Loss: {np.mean(train_losses)}')
         print(f'Epoch {epoch+1}/{n_epochs}, Val Loss: {np.mean(val_losses)}')
-        # summary_writer.add_scalar('train_loss_epoch', np.mean(train_losses), epoch)
-        # summary_writer.add_scalar('val_loss', np.mean(val_losses), epoch)
-        # summary_writer.flush()
     # torch.save(model.state_dict(), save_path + f'epoch_{epoch+1}_loss_{loss.item()}.pth')
     
     return model
@@ -92,7 +87,6 @@ def train(model, optimizer, criterion, train_loader, val_loader, device, save_pa
 
             # if i % 10 == 0:
             #     # print(f"Epoch {epoch+1}/{n_epochs}, Batch {i+1}/{len(train_loader)}, Loss: {loss.item():.6f}")
-            #     summary_writer.add_scalar('train_loss', loss.item(), epoch*len(train_loader)+i)
             # i += 1
 
             train_losses.append(loss.item())
@@ -116,9 +110,6 @@ def train(model, optimizer, criterion, train_loader, val_loader, device, save_pa
 
         print(f'Epoch {epoch+1}/{n_epochs}, Train Loss: {np.mean(train_losses)}')
         print(f'Epoch {epoch+1}/{n_epochs}, Val Loss: {np.mean(val_losses)}')
-        # summary_writer.add_scalar('train_loss_epoch', np.mean(train_losses), epoch)
-        # summary_writer.add_scalar('val_loss', np.mean(val_losses), epoch)
-        # summary_writer.flush()
     # torch.save(model.state_dict(), save_path + f'epoch_{epoch+1}_loss_{loss.item()}.pth')
     return model
 
@@ -145,7 +136,6 @@ def stable_train(model, optimizer, criterion, train_loader, val_loader, device, 
 
             # if i % 10 == 0:
             #     print(f"Epoch {epoch+1}/{n_epochs}, Batch {i+1}/{len(train_loader)}, Loss: {loss.item():.6f}")
-            #     summary_writer.add_scalar('train_loss', loss.item(), epoch*len(train_loader)+i)
             # i += 1
 
             train_losses.append(loss.item())
@@ -169,9 +159,6 @@ def stable_train(model, optimizer, criterion, train_loader, val_loader, device, 
 
         print(f'Epoch {epoch+1}/{n_epochs}, Train Loss: {np.mean(train_losses)}')
         print(f'Epoch {epoch+1}/{n_epochs}, Val Loss: {np.mean(val_losses)}')
-        # summary_writer.add_scalar('train_loss_epoch', np.mean(train_losses), epoch)
-        # summary_writer.add_scalar('val_loss', np.mean(val_losses), epoch)
-        # summary_writer.flush()
     # torch.save(model.state_dict(), save_path + f'epoch_{epoch+1}_loss_{loss.item()}.pth')
     return model
 

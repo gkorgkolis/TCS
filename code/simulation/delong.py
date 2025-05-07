@@ -7,11 +7,11 @@ def Delong_test(true, prob_A, prob_B):
 
     Parameters
     ----------
-    true : array-like of shape (n_samples,)
+    true : array-like of shape `(n_samples,)`
         True binary labels in range {0, 1}.
-    prob_A : array-like of shape (n_samples,)
+    prob_A : array-like of shape `(n_samples,)`
         Predicted probabilities by the first model.
-    prob_B : array-like of shape (n_samples,)
+    prob_B : array-like of shape `(n_samples,)`
         Predicted probabilities by the second model.
 
     Returns

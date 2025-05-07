@@ -23,22 +23,22 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 def get_appropriate_batch_size(n: int, threshold: float=0.5):
     """
     Determines an appropriate batch size based on the divisors of a given positive integer `n`.
-    This function is primarily used to compute batch size for tasks like MMD (Maximum Mean Discrepancy).
+    This function is primarily used to compute batch size for tasks like MMD (Maximum Mean Discrepancy), to avoid potential memory overheads.
 
     Args
     ----
-    n (int) : The number for which divisors will be computed. Typically represents the dataset size or a related quantity.
-    threshold (float) : optional (default=0.5) A threshold value (between 0 and 1) that determines which divisor to choose.  
-        A threshold of 0 selects the smallest divisor, while a threshold of 1 selects the largest divisor. The default of 0.5 aims to select a "middle" divisor, useful for balancing computation.
+        - n (int) : The number for which divisors will be computed. Typically represents the dataset size or a related quantity.
+        - threshold (float) : optional (default=`0.5`) A threshold value (between `0` and `1`) that determines which divisor to choose.  
+            A threshold of `0` selects the smallest divisor, while a threshold of `1` selects the largest divisor. The default of `0.5` aims to select a "middle" divisor, useful for balancing computation.
 
-    Return
+    Returns
     ------
-    res (int) : the selected batch size, which is one of the divisors of `n`. The function ensures a minimum batch size of 2.
+        - (int) : the selected batch size, which is one of the divisors of `n`. The function ensures a minimum batch size of `2`.
 
     Notes
     -----
-    - If `n` is prime, the batch size returned is 2 as a fallback.
-    - Time complexity is \[[ O(\sqrt{n}) \]].
+    - If `n` is prime, the batch size returned is `2` as a fallback.
+    - Time complexity is \[ O(\sqrt{n}) \].
 
     """    
     divisors = []
@@ -70,21 +70,21 @@ def preprocess(generated_data, ori_data, seq_length=5):
 
     Args
     ----
-    generated_data (numpy.array or torch.Tensor) : The generated data to be reshaped and aligned with the original data. It can be either a 2D or 3D array.
-    ori_data (numpy.array or torch.Tensor) : The original data which the generated data is compared to. 
-    seq_length (int) : optional (default=5) The sequence length for reshaping the data. According to CausalTime, each data array
-        is split into sequences of this length, and any leftover elements that don't fit are discarded.
+        - generated_data (numpy.array or torch.Tensor) : The generated data to be reshaped and aligned with the original data. It can be either a 2D or 3D array.
+        - ori_data (numpy.array or torch.Tensor) : The original data which the generated data is compared to. 
+        - seq_length (int) : optional (default=5) The sequence length for reshaping the data. According to CausalTime, each data array
+            is split into sequences of this length, and any leftover elements that don't fit are discarded.
     
-    Return
+    Returns
     ------
-    res (tuple) : A tuple containing the preprocessed `generated_data` and `ori_data` as numpy arrays, reshaped into matching formats.
+        - res (tuple) : A tuple containing the preprocessed `generated_data` and `ori_data` as numpy arrays, reshaped into matching formats.
 
     Notes
     ----
-    - If the data is 3-dimensional, it is reshaped into sequences of size `seq_length * input_size`.
-    - If the data is 2-dimension, it is reshaped into `data.reshape(-1, seq_length * input_size)`.
-    - The data is aligned by ensuring both `generated_data` and `ori_data` have the same number of rows by truncating the larger dataset.
-    - If the data arrays do not divide evenly by `seq_length`, the remaining elements are discarded.
+        - If the data is 3-dimensional, it is reshaped into sequences of size `seq_length * input_size`.
+        - If the data is 2-dimension, it is reshaped into `data.reshape(-1, seq_length * input_size)`.
+        - The data is aligned by ensuring both `generated_data` and `ori_data` have the same number of rows by truncating the larger dataset.
+        - If the data arrays do not divide evenly by `seq_length`, the remaining elements are discarded.
     """
 
     input_size = ori_data.shape[1]
@@ -141,29 +141,29 @@ def generate_through_CT(batch_size: int=32, hidden_size: int=128, num_layers: in
 
     Args
     ----
-    true_data (pandas.DataFrame) : the true data
-    batch_size (int) : the batch size used during the CausalTime model training; defaults to 32
-    hidden_size (int) : the hidden size of the neural network layers (both for LSTM and MLP)
-    num_layers (int) : the number of hidden layers
-    dropout (float) : the dropout rate used in the constructed neural network
-    seq_length (int) : the length of the sequences that formulate the data; defaults to 20
-    test_size (float) : the percentage of the dataset to be used as test set; defaults to 0.2
-    n_max (int) : maximum number of features supported; set to 100 
-    learning_rate (float) : the learning rate used in the neural network training 
-    n_epochs (int) : the number of training epochs for the full and masked models
-    flow_length (int) : the number of layers in the used normalizing flow
-    arch_type (str) : the type of neural network architecture to use; can be either 'MLP' or 'LSTM'
-    mmd_score (str) : 'default' or 'causaltime'. Whether to apply the MMD score in the CausalTime way or the default, proper way; defaults to 'default'
-    save_path (str) : the path to save training and generation outputs
-    log_dir (str) : the path to save logs
-    return_scaler (bool) : if true, returns the scaler used for the data; handy when comparing with other methods 
+        - true_data (pandas.DataFrame) : the true data
+        - batch_size (int) : the batch size used during the CausalTime model training; defaults to `32`
+        - hidden_size (int) : the hidden size of the neural network layers (both for LSTM and MLP)
+        - num_layers (int) : the number of hidden layers; defaults to `2`
+        - dropout (float) : the dropout rate used in the constructed neural network; defaults to `0.1`
+        - seq_length (int) : the length of the sequences that formulate the data; defaults to `20`
+        - test_size (float) : the percentage of the dataset to be used as test set; defaults to `0.2`
+        - n_max (int) : maximum number of features supported; set to `100` 
+        - learning_rate (float) : the learning rate used in the neural network training; defaults to `0.0001` 
+        - n_epochs (int) : the number of training epochs for the full and masked models; defauls to `1`
+        - flow_length (int) : the number of layers in the used normalizing flow; defaults to `4`
+        - arch_type (str) : the type of neural network architecture to use; can be either `MLP` or `LSTM`, defaults to `MLP`
+        - mmd_score (str) : `default` or `causaltime`. Whether to apply the MMD score in the CausalTime way or the default, proper way; defaults to `default`
+        - save_path (str) : the path to save training and generation outputs; defaults to `outputs/`
+        - log_dir (str) : the path to save logs; defaults to `log/`
+        - return_scaler (bool) : if true, returns the scaler used for the data; handy when comparing with other methods 
 
-    Return
+    Returns
     ------
-    generated_data (torch.Tensor) : the generated data 
-    ori_data (torch.Tensor) : the original (ground truth) data
-    mmd (float) : The MMD distance
-    auc (float) : The AUC score
+        - generated_data (torch.Tensor) : the generated data 
+        - ori_data (torch.Tensor) : the original (ground truth) data
+        - mmd (float) : The MMD distance
+        - auc (float) : The AUC score
     """
     if not Path(save_path).exists():
         Path(save_path).mkdir(parents=True)
@@ -277,30 +277,30 @@ def run_causaltime_single(dataset_name: str, data_path: str, data_type: str, tas
 
     Args
     ----
-    dataset_name (str) : The name of the dataset.
-    data_path (str) : Path to the dataset folder.
-    data_type (str) : Type of dataset. Use 'pm2.5' for 'air_quality' or 'mvts' for MvTS [*] datasets.
-    task (str): Task identifier, typically the same as dataset_name.
-    batch_size (int) : Batch size for model training. Defaults to 32.
-    hidden_size (int) : Size of hidden layers for LSTM/MLP models. Defaults to 128.
-    num_layers (int) : Number of hidden layers. Defaults to 2.
-    dropout (float) : Dropout rate in the neural network. Defaults to 0.1.
-    seq_length (int) : Sequence length for input data. Defaults to 20.
-    test_size (float) : Fraction of the dataset used for testing. Defaults to 0.2.
-    n_max (int) : Maximum number of features. Defaults to 100.
-    learning_rate (float) : Learning rate for training. Defaults to 0.0001.
-    n_epochs (int) : Number of training epochs. Defaults to 1.
-    flow_length (int) : Number of layers in the normalizing flow. Defaults to 4.
-    gen_n (int) : Unused parameter. Defaults to 20.
-    arch_type (str) : Neural network type, either 'MLP' or 'LSTM'. Defaults to 'LSTM'.
-    mmd_score (str) : 'default' or 'causaltime'. Whether to apply the MMD score in the CausalTime way or the default, proper way; defaults to 'default'.
-    save_path (str) : Directory to save outputs. Defaults to 'outputs/'.
-    log_dir (str) : Directory to save logs. Defaults to 'log/'.
-    verbose (bool) : Whether to print processing information. Defaults to True.
+        - dataset_name (str) : The name of the dataset.
+        - data_path (str) : Path to the dataset folder.
+        - data_type (str) : Type of dataset. Use `pm2.5` for `air_quality` or `mvts` for MvTS [*] datasets. 
+        - task (str): Task identifier, typically the same as dataset_name.
+        - batch_size (int) : Batch size for model training. Defaults to `32`.
+        - hidden_size (int) : Size of hidden layers for LSTM/MLP models. Defaults to `128`.
+        - num_layers (int) : Number of hidden layers. Defaults to `2`.
+        - dropout (float) : Dropout rate in the neural network. Defaults to `0.1`.
+        - seq_length (int) : Sequence length for input data. Defaults to `20`.
+        - test_size (float) : Fraction of the dataset used for testing. Defaults to `0.2`.
+        - n_max (int) : Maximum number of features. Defaults to `100`.
+        - learning_rate (float) : Learning rate for training. Defaults to `0.0001`.
+        - n_epochs (int) : Number of training epochs. Defaults to `1`.
+        - flow_length (int) : Number of layers in the normalizing flow. Defaults to `4`.
+        - gen_n (int) : Unused parameter. Defaults to `20`.
+        - arch_type (str) : Neural network type, either `MLP` or `LSTM`. Defaults to `LSTM`.
+        - mmd_score (str) : `default` or `causaltime`. Whether to apply the MMD score in the CausalTime way or the default, proper way; defaults to `default`.
+        - save_path (str) : Directory to save outputs. Defaults to `outputs/`.
+        - log_dir (str) : Directory to save logs. Defaults to `log/`.
+        - verbose (bool) : Whether to enable verbose logging. Defaults to `True`.
 
-    Return
+    Returns
     ------
-    metrics_dict (dict) : Dictionary with dataset name, MMD, and AUC values. 
+        - metrics_dict (dict) : Dictionary with dataset name, MMD, and AUC values. 
       AUC represents the 2-sample classifier score comparing real vs. generated data.
 
     Notes 
@@ -342,28 +342,28 @@ def run_causaltime(datasets: dict, save_results: bool=False, **kwargs):
 
     Args
     ----
-    datasets (dict) : Dictionary with dataset info (keys: 'data_path', 'data_type', 'task').
-    save_results (bool) : Whether to save the results to a CSV file. Defaults to False.
-    **kwargs : Additional keyword arguments passed to `run_causaltime_single`. Options:
-      - batch_size (int) - Defaults to 32.
-      - hidden_size (int) - Defaults to 128.
-      - num_layers (int) - Defaults to 2.
-      - dropout (float) - Defaults to 0.1.
-      - seq_length (int) - Defaults to 20.
-      - test_size (float) - Defaults to 0.2.
-      - n_max (int) - Defaults to 100.
-      - learning_rate (float) - Defaults to 0.0001.
-      - n_epochs (int) - Defaults to 1.
-      - flow_length (int) - Defaults to 4.
-      - gen_n (int) - Defaults to 20.
-      - arch_type (str) - Defaults to 'LSTM'.
-      - mmd_score (str) - 'default' or 'causaltime'. Whether to apply the MMD score in the CausalTime way or the default, proper way; defaults to 'default'
-      - save_path (str) - Defaults to 'outputs/'.
-      - log_dir (str) - Defaults to 'log/'.
+        - datasets (dict) : Dictionary with dataset info (keys: `data_path`, `data_type`, `task`).
+        - save_results (bool) : Whether to save the results to a CSV file. Defaults to `False`.
+        - **kwargs : Additional keyword arguments passed to `run_causaltime_single`. Options:
+            - batch_size (int) - Defaults to `32`.
+            - hidden_size (int) - Defaults to `128`.
+            - num_layers (int) - Defaults to `2`.
+            - dropout (float) - Defaults to `0.1`.
+            - seq_length (int) - Defaults to `20`.
+            - test_size (float) - Defaults to `0.2`.
+            - n_max (int) - Defaults to `100`.
+            - learning_rate (float) - Defaults to `0.0001`.
+            - n_epochs (int) - Defaults to `1`.
+            - flow_length (int) - Defaults to `4`.
+            - gen_n (int) - Defaults to `20`.
+            - arch_type (str) - Defaults to `LSTM`.
+            - mmd_score (str) - `default` or `causaltime`. Whether to apply the MMD score in the CausalTime way or the default, proper way; defaults to `default`.
+            - save_path (str) - Defaults to `outputs/`.
+            - log_dir (str) - Defaults to `log/`.
 
     Returns
     ----
-    results_df (pd.DataFrame) : DataFrame with columns 'Dataset', 'MMD', and 'AUC'.
+        - results_df (pd.DataFrame) : DataFrame with columns `Dataset`, `MMD`, and `AUC`.
     """
     results_df = pd.DataFrame(columns=['Dataset', 'MMD', 'AUC'])
 

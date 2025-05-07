@@ -38,11 +38,11 @@ def get_n_samples(
 
     Args
     ---- 
-    low (int) : the lower boundary; defaults to 200
-    high (int) : the upper boundary; defaults to 600 for compatibility with Causal Pretraining
+    low (int) : the lower boundary; defaults to `200`
+    high (int) : the upper boundary; defaults to `600` for compatibility with Causal Pretraining
 
-    Return
-    ------ 
+    Returns
+    ----
     val (int) : a random value for the number of samples
     """ 
     return 500 # TODO: Keep this for now but investigate further on tensor stacking issues
@@ -61,11 +61,11 @@ def get_n_vars(
 
     Args
     ---- 
-    low (int) : the lower boundary; defaults to 3 for compatibility with Causal Pretraining
-    high (int) : the upper boundary; defaults to 12 for compatibility with Causal Pretraining
+    low (int) : the lower boundary; defaults to `3` for compatibility with Causal Pretraining
+    high (int) : the upper boundary; defaults to `12` for compatibility with Causal Pretraining
 
-    Return 
-    ------
+    Returns
+    ----
     val (int) : a random value for the number of variables
     """ 
     return int(rng.choice(a=np.arange(start=low, stop=high + 1, step=1)))
@@ -83,11 +83,11 @@ def get_n_lags(
 
     Args
     ----
-    low (int) : the lower boundary; defaults to 1 for compatibility with Causal Pretraining
-    high (int) : the upper boundary; defaults to 3 for compatibility with Causal Pretraining
+    low (int) : the lower boundary; defaults to `1` for compatibility with Causal Pretraining
+    high (int) : the upper boundary; defaults to `3` for compatibility with Causal Pretraining
 
-    Return
-    ------
+    Returns
+    ----
     val (int) : a random value for the number of lags
     """ 
     return int(rng.choice(a=np.arange(start=low, stop=high + 1, step=1)))
@@ -100,12 +100,12 @@ def get_p_edge(
 ) -> float:
     """
     Function to get a random probability per edge, using weighted sampling from a list. 
-    User can both the list values and the weights of sampling. Both should be in [0, 1]. 
-    Both values and weights (only weights for now) can also be overruled by the parameter c, corrsponding to complexity. 
-    For the time being, c receives two values: c=0 and c=1. 
+    User can both the list values and the weights of sampling. Both should be in `[0, 1]`. 
+    Both values and weights (only weights for now) can also be overruled by the parameter `c`, corrsponding to complexity. 
+    For the time being, `c` receives two values: `c=0` and `c=1`. 
 
-    - c=0: favors the frequently used edge probability of p_edge=0.4, resulting average cases of connectivity. 
-    - c=1: favors the extreme cases of p_edge, resulting mostly in either sparse or dense graphs.  
+    - `c=0`: favors the frequently used edge probability of `p_edge=0.4`, resulting average cases of connectivity. 
+    - `c=1`: favors the extreme cases of p_edge, resulting mostly in either sparse or dense graphs.  
     
     **NOTE**: should also be implemented with a uniform distribution. 
     **NOTE**: for small p_edges, a test for empty graphs should be considered. 
@@ -113,11 +113,11 @@ def get_p_edge(
     Args
     ---- 
     c (int) : the complexity parameter to overrule the weights, described above
-    values (list) : a list of floats in [0, 1] with the possible values of p_edge 
-    weights (list) : a list of floats in [0, 1] with the weights for the possible values of p_edge
+    values (list) : a list of floats in `[0, 1]` with the possible values of p_edge 
+    weights (list) : a list of floats in `[0, 1]` with the weights for the possible values of p_edge
 
-    Return
-    ------ 
+    Returns
+    ----
     val (float) : a random value for the uniform probability of all edges during graph creation
     """ 
     if c==0:
@@ -141,12 +141,12 @@ def get_funcs(
 ) -> float:
     """
     Function to get a random functional dependency per node, using weighted sampling from a list. 
-    User can both the function list and the weights of sampling. Functions can be arbitrary. Weights should be in [0, 1]. 
-    Both functions and weights (only weights for now) can also be overruled by the parameter c, corrsponding to complexity. 
-    For the time being, c receives two values: c=0 and c=1. 
+    User can both the function list and the weights of sampling. Functions can be arbitrary. Weights should be in `[0, 1]`. 
+    Both functions and weights (only weights for now) can also be overruled by the parameter `c`, corrsponding to complexity. 
+    For the time being, `c` receives two values: `c=0` and `c=1`. 
 
-    - c=0: favors the sigmoid activation function on a linear layer's output. 
-    - c=1: favors the tanh activation function on a linear layer's output and promotes diversity of functions.  
+    - `c=0`: favors the sigmoid activation function on a linear layer's output. 
+    - `c=1`: favors the tanh activation function on a linear layer's output and promotes diversity of functions.  
     
     **NOTE**: should also be implemented with a uniform distribution. 
     **NOTE**: for small p_edges, a test for empty graphs should be considered. 
@@ -155,10 +155,10 @@ def get_funcs(
     ---- 
     c (int) : the complexity parameter to overrule the weights, described above
     values (list) : a list of functions; default is a linear layer with 3 different activation functions: relu, sigmoid & tanh 
-    weights (list) : a list of floats in [0, 1] with the weights for the possible functions per node
+    weights (list) : a list of floats in `[0, 1]` with the weights for the possible functions per node
 
-    Return
-    ------
+    Returns
+    ----
     fn (function) : a random functional dependency, uniformly chosen
     """ 
     if c==0:
@@ -186,24 +186,24 @@ def get_z_distribution(
     """
     Function to get a random noise distribution per node, using weighted sampling from a list. 
     User can both the function list and the weights of sampling. Noise distribution can be arbitrary, 
-    as long as they are torch.distribution objects. Weights should be in [0, 1]. Both functions and weights 
-    (only weights for now) can also be overruled by the parameter c, corrsponding to complexity. 
-    For the time being, c receives two values: c=0 and c=1. 
+    as long as they are torch.distribution objects. Weights should be in `[0, 1]`. Both functions and weights 
+    (only weights for now) can also be overruled by the parameter `c`, corrsponding to complexity. 
+    For the time being, `c` receives two values: `c=0` and `c=1`. 
 
-    - c=0: favors the uses only gaussian noise, of variance 0.25
-    - c=1: favors the uniform noise in -0.25, 0.25 and promotes diversity of noise distributions.  
+    - `c=0`: favors the uses only gaussian noise, of variance `0.25`
+    - `c=1`: favors the uniform noise in `[-0.25, 0.25]` and promotes diversity of noise distributions.  
     
     **NOTE**: should also be implemented with a uniform distribution. 
-    **NOTE**: for small p_edges, a test for empty graphs should be considered. 
+    **NOTE**: for small `p_edges`, a test for empty graphs should be considered. 
 
     Args
     ----
     c (int) : the complexity parameter to overrule the weights, described above
     values (list) : a list of functions 
-    weights (list) : a list of floats in [0, 1] with the weights for the possible functions per node
+    weights (list) : a list of floats in `[0, 1]` with the weights for the possible functions per node
 
-    Return
-    ------ 
+    Returns
+    ----
     dist (distribution) : a random distribution, uniformly chosen
     """ 
     if c==0:

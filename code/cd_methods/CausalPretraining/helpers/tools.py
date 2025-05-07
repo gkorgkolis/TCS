@@ -5,9 +5,6 @@ import einops
 import torch
 import torch.nn as nn
 
-# import sys
-# sys.path.append("..")
-
 
 def timing(f):
     @wraps(f)
@@ -21,7 +18,6 @@ def timing(f):
 
 
 class weighted_mse:
-    # might be worth to add prob sparse attention here but for now lets just use full
     def __init__(self, scaling=90):
         self.mse = nn.MSELoss(reduction="none")
         self.scaling = scaling
