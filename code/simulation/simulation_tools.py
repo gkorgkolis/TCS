@@ -240,13 +240,13 @@ def get_optimal_sim_XY(
     Args
     ----
     true_data (pandas.DataFrame) : the real data
-    CONFIGS (dict) : Dictionary containing the search spaces for the optimal simulation configuration (default = None)
+    CONFIGS (dict) : Dictionary containing the search spaces for the optimal simulation configuration (default = `None`)
     done_eval (bool) : Skips the fine-tuning process of the evaluators (lstm-based and svm-based C2ST); 
                     if `True`, then `optimal_det_config` & `optimal_det_func` should be provided (default = `False`) 
     optimal_det_config (dict) : The optimal configuration for the optimal C2ST (default = `None`)
     optimal_det_func (callable) : The optimal C2ST
     sparsity_penalty (bool) : If `True`, chooses from the top-k configurations (according to their detection AUC) the one 
-                    with the most sparse structure, given that its scored auc is below a threshold of `0.7`. Otherwise, the  
+                    with the most sparse structure, given that its scored AUC is below a threshold of `0.7`. Otherwise, the  
                     in order configuration is picked instead. If no such configuration exists, the returned configuration 
                     is the one with the optimal detection auc, no matter the structure density (default = `True`)
     sparsity_k (int) : Number of top configurations checked by the sparsity penalty (default = `5`)
@@ -260,7 +260,7 @@ def get_optimal_sim_XY(
         - optimal_config (dict) : Optimal simulation configuration
         - optimal_detector (callable) : Thefunction of the optimal detector
         - optimal_det_config (dict) : The optimal configuration for the optimal detector
-        - auc (dict) - the AUC 
+        - auc (dict) - the AUC
     """
 
     if CONFIGS is None:
