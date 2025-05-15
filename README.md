@@ -1,9 +1,17 @@
 # TCS
 
-Code for the paper "Temporal Causal-based Simulation for Realistic Time-series Generation".  
+Code for the paper "Temporal Causal-based Simulation for Realistic Time-series Generation", Gkorgkolis et al., 2025.  
 
-## Overview
+## 📌 Overview
 
+- **Problem**: Existing works on generating time-series data and their corresponding causal graphs often assume overly simplistic or closed-world simulation settings, evaluating generated datasets using unoptimized or single-metric approaches (e.g., MMD) which can be highly misleading and fail to reflect true data quality.
+
+- **Contributions**:
+
+  - Demonstrate that relying on unoptimized metrics for data quality assessment leads to unreliable conclusions (see Figure 1 of our paper).
+  - Introduce a modular, model-agnostic pipeline for simulating realistic time-series data along with their time-lagged causal graphs.
+  - Propose a Min-max AutoML scheme that selects the best simulation configuration using optimized classifier two-sample tests (C2STs), by minimizing over configurations $`c \in C`$ and maximizing over discriminators $`d \in D`$.
+  - Show that our method achieves comparable or superior generation across a diverse set of real, semi-synthetic, and synthetic time-series datasets.
 
 ## Instalation
 
