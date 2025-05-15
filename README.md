@@ -1,5 +1,8 @@
 # TCS
 
+![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?logo=python)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/gkorgkolis/TCS/blob/main/LICENSE)
+
 Code for the paper "Temporal Causal-based Simulation for Realistic Time-series Generation", Gkorgkolis et al., 2025.  
 
 ## 📌 Overview
@@ -19,7 +22,7 @@ Code for the paper "Temporal Causal-based Simulation for Realistic Time-series G
 
 Create a virtual conda environment using 
 
-- `conda env create -n TCS -f environment.yaml`
+- `conda env create -f environment.yaml`
 - `conda activate TCS`
 
 ### Install requirements directly
@@ -30,9 +33,10 @@ Alternatively, you can just install the dependencies from the `requirements.txt`
 
 ## 🧪 Quick Start
 
-Notebooks for reproducible experiments and demo scripts (`running_examples.ipynb`) are available in the `code/notebooks/` folder. 
+Notebooks for reproducible experiments and demo scripts (`running_examples.ipynb`) are available in the `code/notebooks/` folder. Experimental
+results are available in `code/data/results/`.
 
-## Structure
+## 📁 Structure
 
 ```
 ├── code
@@ -130,14 +134,23 @@ Notebooks for reproducible experiments and demo scripts (`running_examples.ipynb
 └── requirements.txt
 ```
 
-## Citation
+## 📚 Citation
 
 If the codebase has proven useful, cite:
 
 ```bibtex
 @misc{gkorgkolis2025,
       title={Temporal Causal-based Simulation for Realistic Time-series Generation}, 
-      author={},
+      author={Gkorgkolis, Nikolaos and Kougioulis, Nikolaos and Wang, MingXue and Caglayan, Bora and Tonon, Andrea and Simionato, Dario
+      and Tsamardinos, Ioannis},
       year={2025},
 }
 ```
+
+## 🥰 Contributing
+
+Contributions are welcome! Feel free to:
+- Open issues for bugs, questions, or feature requests
+- Submit pull requests for improvements or new functionality
+
+We follow standard GitHub practices for contributions, see our [CONTRIBUTING](https://github.com/gkorgkolis/TCS/blob/main/CONTRIBUTING.md) file.
