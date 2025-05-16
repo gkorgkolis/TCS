@@ -1,5 +1,5 @@
 
-This directory contains selected modules of the **CausalNex** library, specifically the `structure` submodule (`dynotears.py`, `structure_model.py`, and `transformers.py`) from version **0.12.1**.
+This directory contains selected modules of the **CausalNex** library, specifically the `structure` submodule (`notears.py`, `dynotears.py`, `structure_model.py`, `transformers.py` and `categorical_variable_mapper.py`) from version **0.12.1**.
 
 We use this local copy instead of installing the official CausalNex package via pip because of **conflicts with `timesfm` and other dependencies**.
 
