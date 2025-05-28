@@ -69,7 +69,7 @@ def simulate(
     verbose (bool) : Prints info on intermediate steps, mainly used to provide insights (default: `False`)
 
     Returns
-    ----
+    -------
     simulated_data (pd.DataFrame) : The simulated_data generated from the discovered Structural Causal Model.
     fitted_scm (TempSCM) : The fitted Structural Equation Model from Phase 1 of simulation
     funcs_and_noise (dict) : A nested dictionary that for each node of the true data contains a `torch.distributions` object 
@@ -78,6 +78,7 @@ def simulate(
     scores (dict) : Dictionary containing the R2 scores of the fitted ML-methods on a held-out test set 
     """
     # 1. Find the causal graph
+    print(f"LOG : Phase (1) : Causal structure ...")
     true_data, adj_pd, _, let2nam, = _sim_prepare_data(
         true_data=true_data, 
         true_label=true_label, 
@@ -88,6 +89,7 @@ def simulate(
     n_lags = _from_full_to_cp(adj_pd).shape[2]
 
     # 2. Estimate the SCM parameters
+    print(f"LOG : Phase (2) : Functional Dependencies ...")
     if pred_method=='TimesFM':
         if pred_kwargs is None:
             pred_kwargs = {}
@@ -109,6 +111,7 @@ def simulate(
         forecaster = TCDForecaster()
     else:
         raise ValueError(f"The supported predictive method acronyms are: [RF, TCDF]. {pred_method} was provided instead.")
+    print(f"LOG : Phase (3) : Noise Estimation ...")
     funcs_and_noise, scores = _sim_fit_parameters(
         true_data=true_data, 
         adj_pd=adj_pd, 
@@ -130,6 +133,7 @@ def simulate(
         funcs=[val['est_func'] for _, val in funcs_and_noise.items()], 
         z_distributions=[val['est_noise'] for _, val in funcs_and_noise.items()]
     )
+    print(f"LOG : Simulation Phase : Ancestral Sampling ...")
     simulated_data = fit_scm.generate_time_series(n_samples=n_samples, verbose=False)
 
     return simulated_data.rename(columns=let2nam), fit_scm, funcs_and_noise, scores
@@ -441,7 +445,7 @@ def _sim_fit_parameters(
         else:
 
             if verbose:
-                print(f"LOG : Forecasting : Node {target_node} (orphan) ...")
+                print(f"LOG : Forecasting : Node {target_node} (no parents) ...")
 
             # Step 2.2.1: Define the functional dependency explicitly, as only the trivial predictor will be used 
             est_func = SimEstRF(model=deepcopy(model), trivial_predictor=trivial_predictor)
