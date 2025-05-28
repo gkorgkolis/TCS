@@ -449,7 +449,7 @@ def get_optimal_sim_XY_dual(
         ]
 
     if verbose:
-        print(f"LOG: Optimal Simulation: {len(CONFIGS)} are to be tested ...")
+        print(f"LOG: Optimal Simulation: {len(CONFIGS)} TCS configurations are to be tested ...")
 
     simulated_data_list = []
     det_config_list = []

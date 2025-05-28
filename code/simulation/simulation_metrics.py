@@ -587,6 +587,7 @@ def run_detection_metrics_XY(
             "learning_rate" : [0.0001, 0.001],
         }
 
+    print(f"LOG: Optimal Detection Config: Searching for the optimal SVC discriminator ...")
     svm_auc, svm_probs, svm_labels, svm_config = get_optimal_config_XY(
         train_X=train_X, 
         train_Y=train_Y,
@@ -597,6 +598,7 @@ def run_detection_metrics_XY(
         verbose=verbose
     )
 
+    print(f"LOG: Optimal Detection Config: Searching for the optimal LSTM discriminator ...")
     lstm_auc, lstm_probs, lstm_labels, lstm_config = get_optimal_config_XY(
         train_X=train_X, 
         train_Y=train_Y,

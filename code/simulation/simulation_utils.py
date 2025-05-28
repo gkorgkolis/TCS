@@ -108,7 +108,6 @@ def simulate(
         forecaster = TCDForecaster()
     else:
         raise ValueError(f"The supported predictive method acronyms are: [RF, TCDF]. {pred_method} was provided instead.")
-    print(f"LOG : Phase (3) : Noise Estimation ...")
     funcs_and_noise, scores = _sim_fit_parameters(
         true_data=true_data, 
         adj_pd=adj_pd, 
@@ -117,6 +116,7 @@ def simulate(
         noise_approximation=noise_approximation, 
         verbose=verbose
     )
+    print(f"LOG : Phase (3) : Noise Estimation ...")
 
     # 3. Create a temporal SCM based on the previous outputs and simulate data
     fit_causal_structure = TempCausalStructure(
