@@ -2,11 +2,11 @@
 
 name: TCS
 channels:
-  - defaults
+  - pytorch
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.10.2
-  - anaconda
+  - python=3.10
   - pip
   - pip:
-    - --requirement requirements.txt
+      - -r requirements.txt

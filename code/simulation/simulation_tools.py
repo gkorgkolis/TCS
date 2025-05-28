@@ -7,13 +7,13 @@ from tqdm import trange
 from utils import _from_full_to_cp
 
 from simulation.simulation_configs import cd_config as CD_CONFIGS
+from simulation.simulation_configs import noise_config as NOISE_CONFIGS
 from simulation.simulation_configs import pred_config as PRED_CONFIGS
 from simulation.simulation_metrics import (prepare_det_data,
                                            run_detection_metrics,
                                            run_detection_metrics_XY)
 from simulation.simulation_utils import simulate
-from simulation.simulation_metrics import run_detection_metrics, run_detection_metrics_XY, prepare_det_data
-from simulation.simulation_configs import cd_config as CD_CONFIGS, pred_config as PRED_CONFIGS, noise_config as NOISE_CONFIGS
+
 
 def get_optimal_sim(
         true_data: pd.DataFrame, 
@@ -240,7 +240,7 @@ def get_optimal_sim_XY(
     Args
     ----
     true_data (pandas.DataFrame) : the real data
-    CONFIGS (dict) : Dictionary containing the search spaces for the optimal Simulation configuration (default = None)
+    CONFIGS (dict) : Dictionary containing the search spaces for the optimal simulation configuration (default = `None`)
     done_eval (bool) : Skips the fine-tuning process of the evaluators (lstm-based and svm-based C2ST); 
                     if `True`, then `optimal_det_config` & `optimal_det_func` should be provided (default = `False`) 
     optimal_det_config (dict) : The optimal configuration for the optimal C2ST (default = `None`)
@@ -259,7 +259,7 @@ def get_optimal_sim_XY(
         - optimal_config (dict) : Optimal Simulation configuration
         - optimal_detector (callable) : Thefunction of the optimal detector
         - optimal_det_config (dict) : The optimal configuration for the optimal detector
-        - auc (dict) - the AUC 
+        - auc (dict) - the AUC
     """
 
     if CONFIGS is None:

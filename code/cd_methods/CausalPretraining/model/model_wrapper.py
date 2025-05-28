@@ -2,7 +2,6 @@ import lightning.pytorch as pl
 import torch
 import torch.nn as nn
 import torch.optim as opt
-# from softadapt import LossWeightedSoftAdapt
 from torchmetrics import MeanAbsoluteError, MeanSquaredError
 
 from cd_methods.CausalPretraining.helpers.tools import (

@@ -4,12 +4,21 @@ import warnings
 import networkx as nx
 import numpy as np
 import pandas as pd
-from causalnex.structure.dynotears import from_pandas_dynamic
+
+import warnings
+from typing import Dict, List, Tuple, Union
 
 from utils import (_from_full_to_cp, 
                    estimate_with_CP, 
                    group_lagged_nodes,
                    regular_order_pd)
+
+
+import sys
+sys.path.append("..")
+
+
+from cd_methods.DynoTears.causalnex.structure.dynotears import from_pandas_dynamic
 
 """ _____________________________________________ DYNOTEARS _____________________________________________ """
 

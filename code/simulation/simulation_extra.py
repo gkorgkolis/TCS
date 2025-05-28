@@ -51,8 +51,8 @@ from utils import (_edges_for_causal_stationarity, _from_cp_to_full,
                    _from_full_to_cp, group_lagged_nodes)
 
 from simulation.simulation_configs import cd_config, noise_config, pred_config
-from simulation.simulation_utils import SimEstRF
-from simulation.simulation_utils import (SimTrivialPredictor, regular_order_pd, simulate)
+from simulation.simulation_utils import (SimEstRF, SimTrivialPredictor,
+                                         regular_order_pd, simulate)
 
 rng = np.random.default_rng()
 
