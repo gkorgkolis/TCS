@@ -800,8 +800,7 @@ def plot_structure(temp_adj_pd: pd.DataFrame=None, node_color: str='indianred', 
     edge_color = list(edge_colors.values())  
 
     # draw it
-    if ax is None:
-        f, ax = plt.subplots(figsize=figsize)
+    f, ax = plt.subplots(figsize=figsize)
     nx.draw(G, pos=pos, with_labels=True, ax=ax, node_size=node_size, node_color=node_color, edge_color=edge_color,
             labels={node: "$" + node.split('_t-')[0] + "_{t-" + node.split('_t-')[1] + "}$" if "_t-" in node else f"${node}$" for node in G.nodes})
     if show:
