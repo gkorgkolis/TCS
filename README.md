@@ -1,11 +1,14 @@
 # Temporal Causal-based Simulation (TCS)
 
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?logo=python)
+![PyTorch](https://img.shields.io/badge/PyTorch-black?logo=PyTorch)
+![Scikit-learn](https://img.shields.io/badge/Scikit--learn-20232A?&logoColor=61DAFB)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/gkorgkolis/TCS/blob/main/LICENSE)
+[![arXiv](https://img.shields.io/badge/arXiv-2506.02084-b31b1b.svg?style=flat)](https://arxiv.org/abs/2506.02084)
 
 Code for the paper "Temporal Causal-based Simulation for Realistic Time-series Generation", Gkorgkolis et al., 2025.  
 
-## 📌 Overview
+## 📌 Overvie
 
 - **Problem**: Existing works on generating time-series data and their corresponding causal graphs often assume overly simplistic or closed-world simulation settings, evaluating generated datasets using unoptimized or single-metric approaches (e.g., MMD) which can be highly misleading and fail to reflect true data quality.
 
@@ -260,11 +263,14 @@ results are available in `code/data/results/`.
 If the codebase has proven useful, cite:
 
 ```bibtex
-@misc{gkorgkolis2025,
+@misc{gkorgkolis2025temporal,
       title={Temporal Causal-based Simulation for Realistic Time-series Generation}, 
-      author={Gkorgkolis, Nikolaos and Kougioulis, Nikolaos and Wang, MingXue and Caglayan, Bora and Tonon, Andrea and Simionato, Dario
-      and Tsamardinos, Ioannis},
+      author={Nikolaos Gkorgkolis and Nikolaos Kougioulis and MingXue Wang and Bora Caglayan and Andrea Tonon and Dario Simionato and Ioannis Tsamardinos},
       year={2025},
+      eprint={2506.02084},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2506.02084}, 
 }
 ```
 
