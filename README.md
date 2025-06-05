@@ -40,8 +40,18 @@ Alternatively, you can just install the dependencies from the `requirements.txt`
 
 ## 🧪 Quick Start
 
-Notebooks for reproducible experiments and demo scripts (`running_examples.ipynb`) are available in the `code/notebooks/` folder. Experimental
-results are available in `code/data/results/`.
+Notebooks for reproducible experiments and demo scripts (`running_examples.ipynb`) are available in the `code/notebooks/` folder. Experimental results are available in `code/data/results/`.
+
+## 📔 Available Notebooks
+
+We provide various `.ipynb` notebooks not only for reproducing the experimental results of the paper but also for getting started with our codebase. Specifically:
+
+- `exp_0_increasing_density.ipynb` contains experiments on the impact of using the sparsity penalty in the simulation on synthetic data against the number of edges
+- `ex_1_dense_output.ipynb` contains an experiment on using a dense graph as input to the TCS algorithm from the 1st phase of TCS. It also contains our experimental results on using the ground truth graph (oracle graph) with the sparsity penalty (see Figures 3a and 3b of our paper)
+- `exp_2_oracle_graph.ipynb` illustrates the behavior of TCS given the oracle graph as the 1st phase's output
+- `exp_3_vs_baselines.ipynb` contains baseline comparisons between TCS, CausalTime and non-causal simulators (CPAR, TVAE) (Table 3 of our paper)
+- `exp_4_cd_efficacy.ipynb` corresponds to our CD Efficacy experiments (Table 2 of our paper)
+- `running_examples.ipynb` represents two running examples of the TCS codebase: (i) one running a single TCS simulation with a configuration of PCMCI Causal Discovery algorithm, ADDSTCN (TCDF) predictor and spline noise estimators and (ii) an optimized TCS simulation with our proposed Min-max selection scheme.
 
 ## 📁 Structure
 
