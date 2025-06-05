@@ -8,7 +8,11 @@
 
 Code for the paper "Temporal Causal-based Simulation for Realistic Time-series Generation", Gkorgkolis et al., 2025.  
 
-## 📌 Overvie
+## 📌 Overview
+
+<p align="center" width="100%">
+  <img width="80%" src="assets/img/pipeline_v4.png" />
+</p>
 
 - **Problem**: Existing works on generating time-series data and their corresponding causal graphs often assume overly simplistic or closed-world simulation settings, evaluating generated datasets using unoptimized or single-metric approaches (e.g., MMD) which can be highly misleading and fail to reflect true data quality.
 
