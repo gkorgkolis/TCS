@@ -88,8 +88,8 @@ def Delong_test(true, prob_A, prob_B):
     delongcov = sx / m + sy / n
 
     # Calculating z-score and p-value
-    l = np.array([[1, -1]])
-    z = np.abs(np.diff(aucs)) / np.sqrt(np.dot(np.dot(l, delongcov), l.T)).flatten()
+    diff = np.array([[1, -1]])
+    z = np.abs(np.diff(aucs)) / np.sqrt(np.dot(np.dot(diff, delongcov), diff.T)).flatten()
     p_value = scipy.stats.norm.sf(abs(z)) * 2
 
     z_score = -z[0].item()

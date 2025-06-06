@@ -87,12 +87,12 @@ class DepthwiseNet(torch.nn.Module):
         layers = []
         in_channels = num_inputs
         out_channels = num_inputs
-        for l in range(num_levels):
-            dilation_size = dilation_c ** l
-            if l==0:
+        for level in range(num_levels):
+            dilation_size = dilation_c ** level
+            if level==0:
                 layers += [FirstBlock(target, in_channels, out_channels, kernel_size, stride=1, dilation=dilation_size,
                                      padding=(kernel_size-1) * dilation_size)]
-            elif l==num_levels-1:
+            elif level==num_levels-1:
                 layers+=[LastBlock(in_channels, out_channels, kernel_size, stride=1, dilation=dilation_size,
                                      padding=(kernel_size-1) * dilation_size)]
             

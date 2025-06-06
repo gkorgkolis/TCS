@@ -137,7 +137,6 @@ class TempSCM:
                 parent_values = list(parent_values * temp_node.pa["effect"])
             res = temp_node.forward(parent_values=parent_values).numpy()
             # CLIP values to avoid infimums and supremums
-            # TODO: Check for non-stationarity (e.g. Dickey-Fuller test) and convert to stationary using MA finite differences? 
             if clipping:
                 res = np.clip(res, a_min=-50, a_max=50)
 
