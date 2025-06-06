@@ -382,7 +382,7 @@ def get_optimal_sim_XY(
     if verbose:
         print(f"LOG: Optimal Simulation ({auc_list[idx]} auc): chosen configuration: {json.dumps(CONFIGS[idx], sort_keys=True, indent=4)}")
 
-    res =  {
+    res = {
         "optimal_data" : simulated_data_list[idx],
         "optimal_scm" : fit_scm_list[idx],
         "optimal_config": CONFIGS[idx], 
