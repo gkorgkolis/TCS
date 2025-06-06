@@ -274,7 +274,7 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 
 ## 📚 Citation
 
-If the codebase has proven useful, cite:
+If the codebase has proven useful, please consider citing the following article:
 
 ```bibtex
 @misc{gkorgkolis2025temporal,
