@@ -289,10 +289,10 @@ class TokenEmbedding(nn.Module):
 
     def forward(self, x):
         # somehow sometimes the dimension breaks. Fix that here:
-        l = x.shape[1]
+        length = x.shape[1]
         out = self.token_conv(x.permute(0, 2, 1)).transpose(1, 2)
-        if out.shape[1] != l:
-            out = out[:, :l, :]
+        if out.shape[1] != length:
+            out = out[:, :length, :]
         return out
 
 

@@ -37,7 +37,7 @@ def reverse_order_sm(sm) -> list:
     out (list) : containing the reversed order of nodes
     """
     n_lags = max([int(node.split("lag")[-1]) for node in sm.nodes if ("lag" in node)])
-    temp = [reversed(sorted([col for col in sm.nodes if str(t) in col]))  for t in reversed(range(n_lags + 1))]
+    temp = [reversed(sorted([col for col in sm.nodes if str(t) in col])) for t in reversed(range(n_lags + 1))]
     temp = [x for y in temp for x in y]
     return temp
 
@@ -55,7 +55,7 @@ def regular_order_sm(sm) -> list:
         out (list) : contains the reversed order of nodes
     """
     n_lags = max([int(node.split("lag")[-1]) for node in sm.nodes if ("lag" in node)])
-    temp = [sorted([col for col in sm.nodes if str(t) in col])  for t in range(n_lags + 1)]
+    temp = [sorted([col for col in sm.nodes if str(t) in col]) for t in range(n_lags + 1)]
     temp = [x for y in temp for x in y]
     return temp
 

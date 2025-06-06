@@ -551,7 +551,7 @@ def get_optimal_sim_XY_dual(
     if verbose:
         print(f"LOG: Optimal Simulation ({auc_list[idx]} auc): chosen configuration: {json.dumps(CONFIGS[idx], sort_keys=True, indent=4)}")
 
-    res =  {
+    res = {
         "optimal_data" : simulated_data_list[idx],
         "optimal_scm" : fit_scm_list[idx],
         "optimal_config": CONFIGS[idx], 
@@ -561,7 +561,7 @@ def get_optimal_sim_XY_dual(
         "auc": auc_list[idx]
     }
 
-    res_s =  {
+    res_s = {
         "optimal_data" : simulated_data_list[idx_s],
         "optimal_scm" : fit_scm_list[idx_s],
         "optimal_config": CONFIGS[idx_s], 

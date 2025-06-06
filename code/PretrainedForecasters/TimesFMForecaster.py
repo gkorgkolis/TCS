@@ -135,9 +135,9 @@ class TimesFMForecaster:
             def batch(iterable, n=1):
                 """
                 """
-                l = len(iterable)
-                for ndx in range(0, l, n):
-                    yield iterable[ndx:min(ndx + n, l)] 
+                length = len(iterable)
+                for ndx in range(0, length, n):
+                    yield iterable[ndx:min(ndx + n, length)] 
 
             # batched_horizons = [len(x) for x in list(batch(X_test, self.horizon_len))]
             batched_inputs = [x for x in list(batch(X_test, self.horizon_len))]

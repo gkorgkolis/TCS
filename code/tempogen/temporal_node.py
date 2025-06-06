@@ -66,7 +66,7 @@ class TempNode:
 
     """
     
-    def  __init__(
+    def __init__(
             self, 
             causal_structure, 
             name,

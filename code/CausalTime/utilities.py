@@ -259,7 +259,7 @@ def generate_through_CT(batch_size: int=32, hidden_size: int=128, num_layers: in
     auc, _, _ = classifier.test_by_classify(df_to_tensor(generated_data.loc[:1000, :]), device=get_device(), batch_size=16)
 
     if return_scaler:
-        return  generated_data, ori_data, mmd, auc, scaler
+        return generated_data, ori_data, mmd, auc, scaler
     else:
         return generated_data, ori_data, mmd, auc
 
