@@ -5,6 +5,7 @@
 ![Scikit-learn](https://img.shields.io/badge/Scikit--learn-20232A?&logoColor=61DAFB)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/gkorgkolis/TCS/blob/main/LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-2506.02084-b31b1b.svg?style=flat)](https://arxiv.org/abs/2506.02084)
+[![CodeFactor](https://www.codefactor.io/repository/github/gkorgkolis/tcs/badge/main)](https://www.codefactor.io/repository/github/gkorgkolis/tcs/overview/main)
 
 Code for the paper "Temporal Causal-based Simulation for Realistic Time-series Generation", Gkorgkolis et al., 2025.  
 
