@@ -273,6 +273,13 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 └── requirements.txt
 ```
 
+## ✨ Pretrained Weights
+
+CP Weights (to be optionally included in Phase 1 of TCS -see `simulation_configs.py`) are provided outside GitHub due to size constraints, in the following Google Drive links:
+
+- [deep_CI_RH_12_3_merged_290k.ckpt](https://drive.google.com/file/d/1Syfse6nXr_vK7lfPEOEScl-4xbr0b_OJ/view?usp=drive_link)
+- [lcm_CI_RH_12_3_merged_290k.ckpt](https://drive.google.com/file/d/1XZyhp1t9Kc015KDaIlwrw938aKnarYli/view?usp=drive_link)
+
 ## 📚 Citation
 
 If the codebase has proven useful, please consider citing the following article:
