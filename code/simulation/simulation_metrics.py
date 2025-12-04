@@ -614,20 +614,20 @@ def run_detection_metrics_XY(
     
     if "svm" in detectors and "lstm" in detectors:
 
-            if np.abs(lstm_auc - 0.5) > np.abs(svm_auc - 0.5): 
-                return {
-                    "auc": lstm_auc,
-                    "probs": lstm_probs,
-                    "config": lstm_config,
-                    "detector": lstm_detection_XY
-                }
-            else:
-                return {
-                    "auc": svm_auc,
-                    "probs": svm_probs,
-                    "config": svm_config,
-                    "detector": svm_detection_XY
-                }
+        if np.abs(lstm_auc - 0.5) > np.abs(svm_auc - 0.5): 
+            return {
+                "auc": lstm_auc,
+                "probs": lstm_probs,
+                "config": lstm_config,
+                "detector": lstm_detection_XY
+            }
+        else:
+            return {
+                "auc": svm_auc,
+                "probs": svm_probs,
+                "config": svm_config,
+                "detector": svm_detection_XY
+            }
 
     elif "lstm" in detectors:
         return {
