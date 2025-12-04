@@ -533,8 +533,11 @@ def run_detection_metrics_XY(
         train_Y : np.array, 
         test_X : np.array, 
         test_Y : np.array, 
+        real : pd.DataFrame,
+        synthetic : pd.DataFrame,
         svm_search_space: dict = None,
         lstm_search_space: dict = None, 
+        detectors: tuple = ("svm", "lstm"),
         verbose: bool = False
 ) -> dict: 
     """ 
@@ -543,29 +546,23 @@ def run_detection_metrics_XY(
 
     Args
     ----
-    train_X (numpy.array) : Training data as a numpy array 
-    train_Y (numpy.array) : Training labels as a numpy array
-    test_X (numpy.array) : Test data as a numpy array
-    test_Y (numpy.array) : Test labels as a numpy array
-    svm_search_space (dict) : Dictionary containing as keys the metric arguments on which it is optimized, 
+    train_X (numpy.ndarray) : ...
+    train_Y (numpy.ndarray) : ... 
+    test_X (numpy.ndarray) : ...
+    test_Y (numpy.ndarray) : ...
+    svm_search_space (dict) : a dictionary containing as keys the metric arguments on which it is optimized, 
                             and as values of each key a list with the search space for each such argument; 
                             E.g.: 
                                 search_space = {
                                     "C": [1.0, 0.75, 0.5], 
                                     "gamma": ["auto", "scale"]
                                 }
-                            if `None`,uses a predefined space that aims for a wide search but with reasonable running times;
+                            if None, it uses a predefined space that aims for a wide search but with reasonable running times;
                             for more details, please check the source code
-    lstm_search_space (dict) : As for the SVM detection, but with the corresponding ClassifierLSTM arguments; 
+    lstm_search_space (dict) : same as for the SVM detection, but with the appropriate arguments; 
                             for more details, please check the source code 
-    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: `False`)
-
-    Returns
-    ----
-    res (dict) : detection output as a dictionary with the following fields: 
-        - "auc": the optimal detector's AUC score
-        - "config": the optimal detector's configuration
-        - "detector": the trained optimal detector instance
+    detectors (tuple) : a tuple containing the names of the detection methods to be evaluated; default: ["svm", "lstm"]
+    verbose (bool) : prints info on intermediate steps, mainly used to provide insights (default: False)
 
     """
     if svm_search_space is None:
@@ -577,7 +574,7 @@ def run_detection_metrics_XY(
         }
 
     if lstm_search_space is None:
-        lstm_search_space = {
+       lstm_search_space = {
             "batch_size" : [32, None], 
             "hidden_size" : [128],
             "num_layers" : [2],
@@ -587,43 +584,65 @@ def run_detection_metrics_XY(
             "learning_rate" : [0.0001, 0.001],
         }
 
-    print(f"LOG: Optimal Detection Config: Searching for the optimal SVC discriminator ...")
-    svm_auc, svm_probs, svm_labels, svm_config = get_optimal_config_XY(
-        train_X=train_X, 
-        train_Y=train_Y,
-        test_X=test_X, 
-        test_Y=test_Y, 
-        detection=svm_detection_XY, 
-        search_space=svm_search_space,
-        verbose=verbose
-    )
+    print(f"LOG: run_detection_metrics_XY(): real shape: {real.shape} | synthetic shape: {synthetic.shape}")
 
-    print(f"LOG: Optimal Detection Config: Searching for the optimal LSTM discriminator ...")
-    lstm_auc, lstm_probs, lstm_labels, lstm_config = get_optimal_config_XY(
-        train_X=train_X, 
-        train_Y=train_Y,
-        test_X=test_X, 
-        test_Y=test_Y, 
-        detection=lstm_detection_XY, 
-        search_space=lstm_search_space,
-        verbose=verbose
-    )
+    if "svm" in detectors:
+        svm_auc, svm_probs, svm_labels, svm_config = get_optimal_config_XY(
+            train_X=train_X, 
+            train_Y=train_Y,
+            test_X=test_X, 
+            test_Y=test_Y, 
+            detection=svm_detection_XY, 
+            search_space=svm_search_space,
+            real=real,
+            synthetic=synthetic,
+            verbose=verbose
+        )
 
-    if np.abs(lstm_auc - 0.5) > np.abs(svm_auc - 0.5): 
+    if "lstm" in detectors:
+        lstm_auc, lstm_probs, lstm_labels, lstm_config = get_optimal_config_XY(
+           train_X=train_X, 
+           train_Y=train_Y,
+           test_X=test_X, 
+           test_Y=test_Y, 
+           detection=lstm_detection_XY, 
+           search_space=lstm_search_space,
+           real=real,
+           synthetic=synthetic,
+           verbose=verbose
+        )
+    
+    if "svm" in detectors and "lstm" in detectors:
+
+            if np.abs(lstm_auc - 0.5) > np.abs(svm_auc - 0.5): 
+                return {
+                    "auc": lstm_auc,
+                    "probs": lstm_probs,
+                    "config": lstm_config,
+                    "detector": lstm_detection_XY
+                }
+            else:
+                return {
+                    "auc": svm_auc,
+                    "probs": svm_probs,
+                    "config": svm_config,
+                    "detector": svm_detection_XY
+                }
+
+    elif "lstm" in detectors:
         return {
             "auc": lstm_auc,
             "probs": lstm_probs,
             "config": lstm_config,
-            "detector": lstm_detection_XY 
+            "detector": lstm_detection_XY
         }
-    
     else:
-        return {
-            "auc": svm_auc,
-            "probs": svm_probs,
-            "config": svm_config,
-            "detector": svm_detection_XY
-        }
+       return {
+           "auc": svm_auc,
+           "probs": svm_probs,
+           "config": svm_config,
+           "detector": svm_detection_XY
+       }
 
 
 ###############################################################################################################
