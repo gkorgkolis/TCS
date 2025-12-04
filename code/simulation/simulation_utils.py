@@ -16,7 +16,8 @@ import torch
 
 from cd_methods.DynoTears.utils import estimate_with_DYNOTEARS
 from RealNVP.RealNVP_pytorch import RealNVPSimulator
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import StandardScaler
 from statsmodels.tsa.stattools import adfuller
 from TCDF.forecaster import TCDForecaster
@@ -102,12 +103,20 @@ def simulate(
         if pred_kwargs is None:
             pred_kwargs = {'n_estimators': 1000}
         forecaster = RandomForestRegressor(**pred_kwargs)
+    elif pred_method=='KNR':
+        if pred_kwargs is None:
+            pred_kwargs = {'n_neighbors': 5}
+        forecaster = KNeighborsRegressor(**pred_kwargs)
+    elif pred_method=='GBR':
+        if pred_kwargs is None:
+            pred_kwargs = {'n_estimators': 100}
+        forecaster = GradientBoostingRegressor(**pred_kwargs)
     elif pred_method=='TCDF':
         if pred_kwargs is None:
             pred_kwargs = {}
         forecaster = TCDForecaster()
     else:
-        raise ValueError(f"The supported predictive method acronyms are: [RF, TCDF]. {pred_method} was provided instead.")
+        raise ValueError(f"The supported predictive method acronyms are: [RF, KNR, GBR, TCDF]. {pred_method} was provided instead.")
     funcs_and_noise, scores = _sim_fit_parameters(
         true_data=true_data, 
         adj_pd=adj_pd, 
@@ -160,11 +169,9 @@ def safe_cd_task(
     random.shuffle(CD_LIST)
     while CD_LIST!=[]:
         try:
-            # print(f"DEBUG : cd_method : {cd_method}, cd_kwargs : {cd_kwargs}")
             if verbose:
                     print(f"LOG : Causal structure : {cd_method.__name__} w/ {cd_kwargs} ...")
             adj_cp, adj_pd = cd_method(true_data=true_data, **cd_kwargs)
-            # print(f"DEBUG : adj_cp sum : {adj_cp.sum()}")
             if adj_cp.sum()>0:
                 if verbose:
                     print(f"LOG : Causal structure : {cd_method.__name__} was successfully used.")
@@ -227,7 +234,7 @@ def _sim_prepare_data(
     [3] : Stein, G., Shadaydeh, M., & Denzler, J. (2024). Embracing the Black Box: Heading Towards Foundation Models for Causal Discovery from
         Time Series Data. *arXiv preprint* arXiv:2402.09305.
     """
-    # validate arguments here (highly recommended)
+    # NOTE: validate arguments here (highly recommended)
 
     # rename the dataframe columns
     nam2let = dict(zip(true_data.columns,(list(string.ascii_uppercase) + list(string.ascii_lowercase))[:true_data.shape[1]]))

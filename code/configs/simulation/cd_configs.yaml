@@ -1,0 +1,90 @@
+---
+# PCMCI
+PCMCI_1:
+    cd_method: "PCMCI"
+    cd_kwargs: {}
+PCMCI_2:
+    cd_method: "PCMCI"
+    cd_kwargs: 
+        n_lags: 2 
+        n_reps: 10
+PCMCI_3:
+    cd_method: "PCMCI"
+    cd_kwargs:
+        n_lags: 3 
+        n_reps: 10
+
+# # Large Causal Models (Causal Pretraining (CP) & new architectures)
+# CP_1: 
+#     cd_method: "CP"
+#     cd_kwargs:
+#         model: "E:/CausalPretraining/Weights/2025+/lcm_CI_CR_RH_12_3_merged_340k.ckpt"
+#         model_name: "lcm_CI_CR_RH_12_3_merged_340k"
+#         MAX_VAR: 12
+#         thresholded: True
+#         threshold: 0.05
+#         enforce_density: False
+#         density: 
+#             - 2 
+#             - 10
+# CP_2:
+#     cd_method: "CP"
+#     cd_kwargs:
+#         model: "E:/CausalPretraining/Weights/2025+/lcm_CI_RH_12_3_merged_290k.ckpt"
+#         model_name: "LCM_CI_RH_12_3_merged_290k"
+#         MAX_VAR: 12
+#         thresholded: True
+#         threshold: 0.05
+#         enforce_density: False
+#         density: 
+#             - 2 
+#             - 10
+# CP_3:
+#     cd_method: "CP"
+#     cd_kwargs:
+#         model: "E:/CausalPretraining/Weights/2025+/lcm_CI_CR_RH_12_3_merged_340k.ckpt"
+#         model_name: "lcm_CI_CR_RH_12_3_merged_340k"
+#         MAX_VAR: 12
+#         thresholded: True
+#         threshold: 0.05
+#         enforce_density: False
+#         density: 
+#             - 2 
+#             - 10
+            
+# # DYNOTEARS
+# DYNO_1:
+#     cd_method: "DYNO"
+#     cd_kwargs:
+#         n_lags: 1 
+#         lambda_w: 0.1
+#         lambda_a: 0.1 
+#         max_iter: 100
+#         n_reps: 10
+#         thresholded: True
+#         threshold: 0.05
+# DYNO_2:
+#     cd_method: "DYNO"
+#     cd_kwargs:
+#         n_lags: 2 
+#         lambda_w: 0.1
+#         lambda_a: 0.1 
+#         max_iter: 100
+#         n_reps: 10
+#         thresholded: True
+#         threshold: 0.05
+# DYNO_3:
+#     cd_method: "DYNO"
+#     cd_kwargs:
+#         n_lags: 3 
+#         lambda_w: 0.1
+#         lambda_a: 0.1 
+#         max_iter: 100
+#         n_reps: 10
+#         thresholded: True
+#         threshold: 0.05
+        
+# # Dense experiment (fully-connected graph a candidate solution)
+# DENSE_1:
+#     cd_method: "DENSE"
+#     cd_kwargs: {}

@@ -1,0 +1,52 @@
+---
+# # random forests (timelagged)
+# RF_1:
+#     pred_method: "RF"
+#     pred_kwargs: 
+#         n_estimators: 100
+# RF_2: 
+#     pred_method: "RF"
+#     pred_kwargs: 
+#         n_estimators: 500
+# RF_3:
+#     pred_method: "RF"
+#     pred_kwargs:
+#         n_estimators: 1000
+
+# # k-nearest neighbors (timelagged)
+# KNR_1:
+#     pred_method: "KNR"
+#     pred_kwargs: 
+#         n_neighbors: 5
+
+# gradient boosting (time-lagged)
+GBR_1:
+    pred_method: "GBR"
+    pred_kwargs: 
+        n_estimators: 500
+
+# AD-DSTCN (from TCDF)
+TCDF_1:
+    pred_method: "TCDF"
+    pred_kwargs: {}
+# TCDF_2:
+#     pred_method: "TCDF"
+#     pred_kwargs: 
+#         num_levels: 0  
+#         epochs: 1000 
+#         kernel_size: 2 
+#         dilation_c: 2   
+#         lr: 0.01
+TCDF_3: 
+    pred_method: "TCDF"
+    pred_kwargs:
+        num_levels: 2  
+        epochs: 1000 
+        kernel_size: 3 
+        dilation_c: 3   
+        lr: 0.001
+
+# # Times FM
+# TimesFM: 
+#     pred_method: "TimesFM"
+#     pred_kwargs: {}
