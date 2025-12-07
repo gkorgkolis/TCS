@@ -1,0 +1,7 @@
+{
+    "C" : [1.0, 0.5],
+    "kernel" : ["linear", "rbf"],
+    "degree" : [3],
+    "gamma" : ["scale"], 
+    "lags" : [1, 5]
+}

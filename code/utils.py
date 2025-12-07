@@ -20,6 +20,9 @@ from tigramite.pcmci import PCMCI
 from cd_methods.CausalPretraining.helpers.tools import *
 from cd_methods.CausalPretraining.model.model_wrapper import Architecture_PL
 
+import warnings
+warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
+
 
 def timing(f):
     """
@@ -80,6 +83,40 @@ def df_to_tensor(data):
         return torch.from_numpy(data).float().to(device)
     else:
         raise TypeError(f"Unsupported data type {type(data)}, must be either pandas DataFrame or numpy ndarray")
+
+
+def ts_to_lagged(data, lagged_feats, lags, contemporaneous=False):
+    """
+    Creates lagged data from time-series
+
+    Args
+    ----
+    data : pandas.DataFrame
+        the temporal data
+    lagged_feats : list
+        the features to be lagged
+    lags : int
+        the number of lags
+
+    Return
+    ------
+    lagged_data : pandas.DataFrame
+        the lagged data
+    """
+    if lagged_feats is None:
+        lagged_feats = np.arange(len(data.columns)).tolist()
+
+    lagged_data = pd.DataFrame()
+
+    for jdx in lagged_feats:
+        col = data.columns[jdx]
+        for lag in range(lags+1):
+            if (not contemporaneous) and lag==0:
+                continue
+            else:
+                lagged_data.loc[:, f"{col}_t-{lag}"] = data.iloc[lag: len(data) - (lags-lag), jdx].values
+    
+    return lagged_data
 
 
 def print_time_slices(adj: torch.Tensor) -> None:

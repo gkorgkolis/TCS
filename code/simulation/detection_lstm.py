@@ -1,6 +1,7 @@
+import json
+import torch
 import numpy as np
 import pandas as pd
-import torch
 from sklearn.metrics import roc_auc_score
 
 """
@@ -13,7 +14,6 @@ _______________________________________________ Vesion 0 _______________________
 - As implemented in its original version in CausalTime.
 - Kept for running CausalTime.
 """
-
 
 class ClassifierLSTM(torch.nn.Module):
     """
@@ -173,10 +173,158 @@ class ClassifierLSTM(torch.nn.Module):
     
 
 """  
+_______________________________________________ Vesion 3 _______________________________________________ 
+- Corrected a mistaken during data preparation from Version 2
+- Cleaner structure 
+"""
+
+class ClassifierLSTM_V3(torch.nn.Module):
+    """ 
+    LSTM-based time-series classifier.
+    """
+    def __init__(self, input_size, output_size, hidden_size, num_layers, seq_length, batch_size, dropout=0.1):
+        """
+        """
+        super(ClassifierLSTM_V3, self).__init__()
+        self.lstm = torch.nn.LSTM(input_size, hidden_size, num_layers, dropout=dropout, batch_first=True)
+        self.fc = torch.nn.Linear(hidden_size, output_size)
+        self.sigmoid = torch.nn.Sigmoid()
+
+        self.input_size = input_size 
+        self.output_size = output_size 
+        self.hidden_size = hidden_size 
+        self.num_layers = num_layers 
+        self.seq_length = seq_length 
+        self.batch_size = batch_size
+        self.dropout = dropout
+
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    
+    def forward(self, x):
+        """
+        """ 
+        out, _ = self.lstm(x)
+        out = self.fc(out[:, -1, :])
+        out = self.sigmoid(out)
+        return out
+
+
+    def fit(self, train_dataloader, num_epochs=10, learning_rate=0.001, verbose=False):
+        """
+        """
+        self = self.to(self.device)
+        criterion = torch.nn.BCELoss()
+        optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
+        for epoch in range(num_epochs):
+            self.train()
+            for i, (X, y) in enumerate(train_dataloader):
+                X = X.permute(0, 2, 1).to(self.device)
+                X = X.cuda()
+                y = y.cuda()
+                y_pred = self(X)
+                loss = criterion(y_pred.squeeze(), y)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+    
+    def evaluate(self, test_dataloader, verbose=False):
+        """ 
+        """
+        self = self.to(self.device)
+        self.eval()
+        y_pred_list = []
+        y_list = []
+        with torch.no_grad():
+            for i, (X, y) in enumerate(test_dataloader):
+                X = X.permute(0, 2, 1).to(self.device)
+                X = X.cuda()
+                y = y.cuda()
+                y_pred = self(X)
+                y_pred = y_pred.cpu().detach().numpy()
+                y = y.cpu().detach().numpy()
+                y_pred_list.append(y_pred.squeeze())
+                y_list.append(y.squeeze())
+                y_pred = np.where(y_pred > 0.3, 1, 0)
+        y_pred_list = np.concatenate(y_pred_list)
+        y_list = np.concatenate(y_list)
+        auc_score = roc_auc_score(y_list, y_pred_list)
+        return auc_score, y_pred_list, y_list
+
+
+class DiscDatasetLSTM(torch.utils.data.Dataset):
+    """
+    """
+    def __init__(self, real, synthetic, seq_length, batch_size):
+        """ 
+        """
+        # convert input type & unfold
+        if isinstance(real, np.ndarray) or isinstance(real, list):
+            real = torch.Tensor(real)
+        elif isinstance(real, pd.DataFrame):
+            real = torch.Tensor(real.values)
+        real = real.unfold(0, seq_length, 1)
+        if isinstance(synthetic, np.ndarray) or isinstance(synthetic, list):
+            synthetic = torch.Tensor(synthetic)
+        elif isinstance(synthetic, pd.DataFrame):
+            synthetic = torch.Tensor(synthetic.values)
+        synthetic = synthetic.unfold(0, seq_length, 1)
+
+        # trim
+        with open("../configs/discrimination/tempfile_max_len.json", "r") as tempf:
+            trim_info = json.load(tempf)
+        real_len = trim_info["real_len"]
+        synthetic_len = trim_info["synthetic_len"]
+        max_seq_len = trim_info["max_seq_len"]
+        real = real[-(real_len-max_seq_len):, :, :]
+        synthetic = synthetic[-(synthetic_len-max_seq_len):, :, :]
+
+        # labels
+        real_labels = torch.ones(size=[real.shape[0]])
+        synthetic_labels = torch.zeros(size=[synthetic.shape[0]])
+
+        # concatenate
+        concatenated_data = torch.cat(tensors=[real, synthetic], dim=0)
+        concatenated_labels = torch.cat(tensors=[real_labels, synthetic_labels], dim=0)
+        labelled_data = list(zip(concatenated_data, concatenated_labels))
+
+        self.len_real = len(real)
+        self.len_synthetic = len(synthetic)
+        self.labelled_data = labelled_data
+        self.seq_length = seq_length
+        self.batch_size = batch_size
+
+    def __len__(self):
+        """ 
+        """
+        return len(self.labelled_data)
+
+    def __getitem__(self, idx):
+        """ 
+        """
+        x = self.labelled_data[idx][0]
+        y = self.labelled_data[idx][1]
+        return x, y
+    
+    def get_train_test_dataloaders(self, splits=[0.75, 0.25], shuffle=False):
+        """ 
+        """
+        th_train, th_test = torch.utils.data.random_split(dataset=self, lengths=splits, generator=torch.Generator().manual_seed(1))
+
+        train_dataloader = torch.utils.data.DataLoader(th_train, batch_size=self.batch_size, shuffle=shuffle)
+        test_dataloader = torch.utils.data.DataLoader(th_test, batch_size=self.batch_size, shuffle=shuffle)
+
+        return train_dataloader, test_dataloader
+
+
+
+"""  
 _______________________________________________ Vesion 2 _______________________________________________ 
 - Instead of creating the training and test sets on the fly, it receives them as arguments. Necessary for: 
     - appropriately comparing to other classifiers
     - performing statistical permutation tests for AUC equivalence 
+    - kept as legacy
 """
 
 

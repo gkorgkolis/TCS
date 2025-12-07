@@ -24,11 +24,7 @@ import seaborn as sns
 import torch
 from tqdm import trange
 
-from tempogen.functional_utils import (_torch_exp, _torch_identity,
-                                       _torch_linear, _torch_linear_relu,
-                                       _torch_linear_sigmoid,
-                                       _torch_linear_tanh, _torch_pow,
-                                       _torch_sin, _torch_tanh)
+from tempogen.functional_utils import (_torch_exp, _torch_identity, _torch_pow, _torch_sin, _torch_tanh)
 
 sys.path.append(".")
 
@@ -96,7 +92,7 @@ class TempNode:
         # -- node --
         self.x = 0
         if not func:
-            func = _torch_linear_sigmoid
+            func = _torch_identity
         self.func = func
         
         # -- noise --

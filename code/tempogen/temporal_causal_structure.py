@@ -1,3 +1,4 @@
+import itertools
 import string
 import sys
 
@@ -156,7 +157,8 @@ class TempCausalStructure:
             - CP-style lagged adjacency matrix, as a Numpy array of shape (n_vars, n_vars, n_lags)
         """
         if effects_distribution is None:
-            effects_distribution = torch.distributions.uniform.Uniform(low=0.06, high=0.94)
+            # effects_distribution = torch.distributions.uniform.Uniform(low=0.06, high=0.94)
+            effects_distribution = torch.distributions.uniform.Uniform(low=0.2, high=0.5)
         causal_effects = effects_distribution.sample(sample_shape=adj_cp.shape)
 
         return causal_effects * adj_cp
@@ -378,6 +380,78 @@ class TempCausalStructure:
         return temp_adj_pd
     
 
+    def _in_degree_random_temporal_DAG(self, n_vars=5, n_lags=2, m_degree=3, mode='norm', node_names=None):
+        """
+        Creates a temporal DAG based on the in-degree of each node. In-degrees are summed through. 
+
+        *Note*: in contrast to the methods based on NetworkX functions, this method firstly creates 
+        a temporal adjacency matrix of (n_vars, n_vars, n_lags) shape. 
+        Additional assumptions are also implied:
+
+        - no contemporaneous effects
+        - only one time-lag assigned per cause
+
+        Args
+        ----
+        n_vars : (int) 
+            the number of variables
+        n_lags : (int) 
+            the number of lags
+        m_degree : (int) 
+            probability that an edge will be created (similar to ER)
+        node_names : (list) 
+            a list of strings with the names of the nodes, without any time index incorporated; if None, it follows an alphabetical order
+        mode : (str) 
+            concerns how the degrees for each node are sampled; (default='norm')
+        
+        Return
+        ------
+        temp_adj_pd : (pandas.DataFrame) 
+            full-time causal graph, as a Pandas DataFrame
+        """
+
+        assert n_vars>=2, f"n_vars argument oughts to be an integer of value at least 2; {n_vars} was provided instead"
+        assert n_lags>=1, f"n_lags argument oughts to be an integer of value at least 1; {n_lags} was provided instead"
+
+        # initialize the adjacency matrix - for instantaneous effects: (n_lags + 1)
+        adj = np.zeros(shape=(n_vars, n_vars, n_lags), dtype=int)
+
+        if mode=="norm":
+            # initialize the degree of each node according to a Gaussian Distribution
+            degrees = np.random.normal(loc=m_degree, scale=1, size=n_vars).round().astype("int")
+        elif mode=="comb":
+            # initialize the degree of each node by samping from all possible combinations that result in the desired mean degree
+            possible_degrees = [list(x) for x in itertools.product(range(2*m_degree), repeat=n_vars) 
+                                    if np.mean(x) in pd.Interval(left=m_degree-0.5, right=m_degree+0.5)]
+            degrees = possible_degrees[np.random.choice(range(len(possible_degrees)))]
+        else:
+            raise ValueError(f"the only possible values for the mode argument are 'norm' and 'comb'; {mode} was provided instead")
+
+        # assign random edges
+        for i, degree in zip(range(n_vars), degrees):     # cause
+            ll = list(itertools.product(range(n_vars), range(n_lags)))
+            idcs = np.random.choice(a=range(len(ll)), size=degree, replace=False) 
+            for idx in idcs:
+                j, t = ll[idx]
+                adj[i, j, t] = 1
+        
+        # maintain only one lag per cause
+        for i in range(n_vars):
+            for j in range(n_vars):
+                sl = [adj[i, j, t] for t in range(n_lags)]
+                if sum(sl) > 1:
+                    for idx in range(len(sl)-1, -1, -1):
+                        if sl[idx] == 1:
+                            break
+                    adj[i, j, :] = np.zeros_like(sl)
+                    adj[i, j, idx] = 1
+
+        # see the method at hand for details
+        temp_adj_pd = _from_cp_to_full(adj_cp=adj, node_names=node_names)
+
+        return temp_adj_pd
+
+
     def _edges_for_causal_stationarity(self, temp_adj_pd):
         """
         Takes as input a full-time graph adjacency matrix, checks which existing edges can be propagated through time,
@@ -411,18 +485,21 @@ class TempCausalStructure:
         return _to_cp_ready(adj_cp=self.causal_structure_cp)
 
 
-    def plot_structure(self, temp_adj_pd=None, node_color='indianred', node_size = 1200):
+    def plot_structure(self, temp_adj_pd=None, node_color='indianred', node_size = 800):
         """
         Plots the causal structure of the model.
 
         Args
         ----
-            - temp_adj_pd (pd.DataFrame) : the base causal structure (without the causal stationarity edges, they are added on the fly here)
+        temp_adj_pd (pd.DataFrame) : (optional) the base causal structure 
+                                    (without the causal stationarity edges, they are added on the fly here)
+        node_color (str) : the node color (default:'indianred')
+        node_size (str) : the node size (default:'800')
         
         Return
         ------
-            - f (matplotlib.figure.Figure) :the figure object, for potential further tempering
-            - ax (matplotlib.axes._axes.Axes) :the axis object, for potential further tempering
+        f (matplotlib.figure.Figure) : the figure object, for potential further tempering
+        ax (matplotlib.axes._axes.Axes) : the axis object, for potential further tempering
         """
         if temp_adj_pd is None:
             temp_adj_pd = self.causal_structure_base
@@ -443,7 +520,7 @@ class TempCausalStructure:
                 groups[list(groups.keys())[-1]].append(node)
 
         # define figsize according to #nodes and #lags
-        figsize = (max([3.2 * max_lag, 10]), max([8, 1.2 * len(groups[list(groups.keys())[-1]])]))
+        figsize = (max([2.2 * max_lag, 5]), max([5, 0.9 * len(groups[list(groups.keys())[-1]])]))
 
         # other keywords
         node_size = node_size
@@ -452,8 +529,8 @@ class TempCausalStructure:
         pos = {}
         x_current = 0
         y_current = 0
-        x_offset = 3
-        y_offset = 1
+        x_offset = 2
+        y_offset = 0.5
         for key in groups.keys():
             for node in groups[key]:
                 pos[node] = (x_current, y_current)

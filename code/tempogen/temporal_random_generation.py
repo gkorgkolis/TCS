@@ -9,7 +9,7 @@ import seaborn as sns
 import torch
 from tqdm import trange
 
-from tempogen.functional_utils import (_torch_linear_sigmoid, _torch_linear_tanh)
+from tempogen.functional_utils import (_torch_identity, _torch_sigmoid)
 from tempogen.temporal_scm import TempSCM
 
 sys.path.append(".")
@@ -94,36 +94,51 @@ def get_n_lags(
 
 
 def get_p_edge(
-        c=None, 
-        values=[0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8], 
-        weights=[0.025, 0.2, 0.4, 0.2, 0.1, 0.05, 0.025]
+    n_vars=None,
+    n_lags=None,
+    c=None, 
+    values=[0.1, 0.2, 0.25], 
+    weights=[0.6, 0.3, 0.1]
 ) -> float:
     """
     Function to get a random probability per edge, using weighted sampling from a list. 
-    User can both the list values and the weights of sampling. Both should be in `[0, 1]`. 
-    Both values and weights (only weights for now) can also be overruled by the parameter `c`, corrsponding to complexity. 
-    For the time being, `c` receives two values: `c=0` and `c=1`. 
+    User can both the list values and the weights of sampling. Both should be in [0, 1]. 
+    Both values and weights (only weights for now) can also be overruled by the parameter c, corrsponding to complexity. 
+    For the time being, c receives two values: c=0 and c=1. 
 
-    - `c=0`: favors the frequently used edge probability of `p_edge=0.4`, resulting average cases of connectivity. 
-    - `c=1`: favors the extreme cases of p_edge, resulting mostly in either sparse or dense graphs.  
+    - c=0: favors the frequently used edge probability of p_edge=0.1, resulting average cases of connectivity. 
+    - c=1: favors the extreme cases of p_edge, resulting mostly in either sparse or dense graphs.  
     
-    **NOTE**: should also be implemented with a uniform distribution. 
-    **NOTE**: for small p_edges, a test for empty graphs should be considered. 
+    NOTE: should also be implemented with a uniform distribution. 
+    NOTE: for small p_edges, a test for empty graphs should be considered. 
 
-    Args
-    ---- 
-    c (int) : the complexity parameter to overrule the weights, described above
-    values (list) : a list of floats in `[0, 1]` with the possible values of p_edge 
-    weights (list) : a list of floats in `[0, 1]` with the weights for the possible values of p_edge
+    Args : 
+        - c (int) : the complexity parameter to overrule the weights, described above
+        - values (list) : a list of floats in [0, 1] with the possible values of p_edge 
+        - weights (list) : a list of floats in [0, 1] with the weights for the possible values of p_edge
 
-    Returns
-    ----
-    val (float) : a random value for the uniform probability of all edges during graph creation
+    Return: 
+        -  a random value for the uniform probability of all edges during graph creation
     """ 
-    if c==0:
-        weights = [0.0, 0.25, 0.5, 0.25, 0.0, 0.0, 0.0]
-    elif c==1:
-        weights = [0.2, 0.3, 0.0, 0.0, 0.0, 0.3, 0.2]
+    if n_vars and n_lags:
+        total_edges = (n_vars**2)*n_lags
+
+        if total_edges < 100:
+            values = [3/total_edges, 5/total_edges, 7/total_edges]
+            weights = [0.6, 0.3, 0.1]
+
+        elif total_edges < 200:
+            values = [5/total_edges, 7/total_edges, 9/total_edges]
+            weights = [0.6, 0.3, 0.1]
+        else:
+            values = [9/total_edges, 12/total_edges, 15/total_edges]
+            weights = [0.6, 0.3, 0.1]
+    else:
+        if c==0:
+            weights = [0.4, 0.3, 0.3]
+        elif c==1:
+            weights = [0.5, 0.5, 0.0]
+
     return rng.choice(a=values, p=weights)
 
 
@@ -131,7 +146,7 @@ def get_funcs_space():
     """
     **NOTE**: to be fixed. Contains just the default for now.
     """
-    return [_torch_linear_sigmoid, _torch_linear_tanh]
+    return [_torch_identity, _torch_sigmoid]
 
 
 def get_funcs(

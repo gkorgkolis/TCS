@@ -1,0 +1,11 @@
+---
+noise_1 : 
+    noise_approximation : "est"
+# noise_2 : 
+#     noise_approximation : "normal"
+# noise_3 : 
+#     noise_approximation : "uniform"
+# noise_4 : 
+#     noise_approximation : "spline"
+# noise_5 : 
+#     noise_approximation : "nvp" 

@@ -105,7 +105,7 @@ class TempSCM:
         self._reset_time_series()
 
 
-    def forward(self, with_effect_size=False, clipping=True, verbose=False):
+    def forward(self, with_effect_size=False, clipping=False, verbose=False):
         """
         Performs ancestral sampling on the temporal SCM for one time-step, and outputs the variable value for next one.
         As a method, it takes no positional arguments and returns no output, but it internally updates the time-series attribute 
@@ -142,14 +142,14 @@ class TempSCM:
 
             self.time_series.loc[curren_time_step, temp_node.name] = res
             # debugging to get the hang on what's happening with nans and infimums
-            if verbose:
-                if temp_node.name == 'A' and curren_time_step % 10 == 0:
-                    print(f'Time step: {curren_time_step}, Node: {temp_node.name}, Value: {res}')
-                    print('\n')
+            # if verbose:
+            #     if temp_node.name == 'A' and curren_time_step % 10 == 0:
+            #         print(f'Time step: {curren_time_step}, Node: {temp_node.name}, Value: {res}')
+            #         print('\n')
     
 
     def generate_time_series(self, n_samples, warmup_steps=20, with_effect_size=False, 
-                            clipping=True, verbose=True) -> pd.DataFrame:
+                            clipping=False, verbose=True) -> pd.DataFrame:
         """
         Generate and output a time-series dataset of *n_samples*, through ancestral sampling on the temporal SCM. 
 
