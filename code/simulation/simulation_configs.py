@@ -21,7 +21,7 @@ cd_config = {
     # 'CP_2': {
     #     "cd_method": "CP",
     #     "cd_kwargs": {
-    #         "model": "E:/CausalPretraining/Weights/2025+/lcm_CI_RH_12_3_merged_290k.ckpt",
+    #         "model": "../cd_methods/CausalPretraining/res/lcm_CI_RH_12_3_merged_290k.ckpt",
     #         "model_name": "LCM_CI_RH_12_3_merged_290k",
     #         "MAX_VAR": 12,
     #         "thresholded": True,
