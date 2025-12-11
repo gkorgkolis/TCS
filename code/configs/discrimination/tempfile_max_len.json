@@ -1,5 +1,5 @@
 {
-    "real_len": 1000,
-    "synthetic_len": 1000,
+    "real_len": 310,
+    "synthetic_len": 310,
     "max_seq_len": 16
 }
