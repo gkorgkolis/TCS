@@ -52,7 +52,8 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 - `exp_2_oracle_graph.ipynb` illustrates the behavior of TCS given the oracle graph as the 1st phase's output
 - `exp_3_vs_baselines.ipynb` contains baseline comparisons between TCS, CausalTime and non-causal simulators (CPAR, TVAE) (Table 3 of our paper)
 - `exp_4_cd_efficacy.ipynb` corresponds to our CD Efficacy experiments (Table 2 of our paper)
-- `running_examples.ipynb` represents two running examples of the TCS codebase: (i) one running a single TCS simulation with a configuration of PCMCI Causal Discovery algorithm, ADDSTCN (TCDF) predictor and spline noise estimators and (ii) an optimized TCS simulation with our proposed Min-max selection scheme.
+- `exp_5_random_output.ipynb` observes the behavior of TCS when choosing a random configuration from the TSCM space. This serves as a baseline method.
+- `running_examples.ipynb` represents two running examples of the TCS codebase: (i) one running a single TCS simulation with a configuration of PCMCI Causal Discovery algorithm, gradient boosting predictor and spline noise estimators and (ii) an optimized TCS simulation with our proposed Min-max selection scheme.
 
 ## 📁 Structure
 
@@ -96,12 +97,24 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 │   │   │   ├── __init__.py
 │   │   │   └── utils.py
 │   │   └── __init__.py
+│   ├── configs
+│   │   ├── discrimination
+│   │   │   ├── lstm_configs.json
+│   │   │   ├── svc_configs.json
+│   │   │   └── tempfile_max_len.json
+│   │   └── simulation
+│   │       ├── cd_configs.yaml
+│   │       ├── fc_configs.yaml
+│   │       └── nz_configs.yaml
 │   ├── notebooks
 │   │   ├── exp_0_increasing_density.ipynb
 │   │   ├── exp_1_dense_output.ipynb
 │   │   ├── exp_2_oracle_graph.ipynb
 │   │   ├── exp_3_vs_baselines.ipynb
 │   │   ├── exp_4_cd_efficacy.ipynb
+│   │   ├── exp_5_random_output.ipynb
+│   │   ├── exp_6_synthetic_scalable_data.ipynb
+│   │   ├── exp_7_c2st_sanity_checks.ipynb
 │   │   └── running_examples.ipynb
 │   ├── PretrainedForecasters
 │   │   ├── __init__.py
@@ -115,7 +128,6 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 │   │   ├── detection_lstm.py
 │   │   ├── __init__.py
 │   │   ├── simulation_configs.py
-│   │   ├── simulation_extra.py
 │   │   ├── simulation_metrics.py
 │   │   ├── simulation_tools.py
 │   │   └── simulation_utils.py
@@ -135,6 +147,184 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 │   └── utils.py
 ├── data
 │   ├── cp_style
+│   │   ├── cp_0_L_1L
+│   │   │   ├── data
+│   │   │   │   ├── cp_collection_data_0.csv
+│   │   │   │   ├── cp_collection_data_10.csv
+│   │   │   │   ├── cp_collection_data_11.csv
+│   │   │   │   ├── cp_collection_data_12.csv
+│   │   │   │   ├── cp_collection_data_13.csv
+│   │   │   │   ├── cp_collection_data_14.csv
+│   │   │   │   ├── cp_collection_data_15.csv
+│   │   │   │   ├── cp_collection_data_16.csv
+│   │   │   │   ├── cp_collection_data_17.csv
+│   │   │   │   ├── cp_collection_data_18.csv
+│   │   │   │   ├── cp_collection_data_19.csv
+│   │   │   │   ├── cp_collection_data_1.csv
+│   │   │   │   ├── cp_collection_data_2.csv
+│   │   │   │   ├── cp_collection_data_3.csv
+│   │   │   │   ├── cp_collection_data_4.csv
+│   │   │   │   ├── cp_collection_data_5.csv
+│   │   │   │   ├── cp_collection_data_6.csv
+│   │   │   │   ├── cp_collection_data_7.csv
+│   │   │   │   ├── cp_collection_data_8.csv
+│   │   │   │   └── cp_collection_data_9.csv
+│   │   │   └── structure
+│   │   │       ├── cp_collection_struct_0.pt
+│   │   │       ├── cp_collection_struct_10.pt
+│   │   │       ├── cp_collection_struct_11.pt
+│   │   │       ├── cp_collection_struct_12.pt
+│   │   │       ├── cp_collection_struct_13.pt
+│   │   │       ├── cp_collection_struct_14.pt
+│   │   │       ├── cp_collection_struct_15.pt
+│   │   │       ├── cp_collection_struct_16.pt
+│   │   │       ├── cp_collection_struct_17.pt
+│   │   │       ├── cp_collection_struct_18.pt
+│   │   │       ├── cp_collection_struct_19.pt
+│   │   │       ├── cp_collection_struct_1.pt
+│   │   │       ├── cp_collection_struct_2.pt
+│   │   │       ├── cp_collection_struct_3.pt
+│   │   │       ├── cp_collection_struct_4.pt
+│   │   │       ├── cp_collection_struct_5.pt
+│   │   │       ├── cp_collection_struct_6.pt
+│   │   │       ├── cp_collection_struct_7.pt
+│   │   │       ├── cp_collection_struct_8.pt
+│   │   │       └── cp_collection_struct_9.pt
+│   │   ├── cp_0_L_1L+
+│   │   │   ├── data
+│   │   │   │   ├── cp_collection_data_0.csv
+│   │   │   │   ├── cp_collection_data_1.csv
+│   │   │   │   ├── cp_collection_data_2.csv
+│   │   │   │   ├── cp_collection_data_3.csv
+│   │   │   │   ├── cp_collection_data_4.csv
+│   │   │   │   ├── cp_collection_data_5.csv
+│   │   │   │   ├── cp_collection_data_6.csv
+│   │   │   │   ├── cp_collection_data_7.csv
+│   │   │   │   ├── cp_collection_data_8.csv
+│   │   │   │   └── cp_collection_data_9.csv
+│   │   │   └── structure
+│   │   │       ├── cp_collection_struct_0.pt
+│   │   │       ├── cp_collection_struct_1.pt
+│   │   │       ├── cp_collection_struct_2.pt
+│   │   │       ├── cp_collection_struct_3.pt
+│   │   │       ├── cp_collection_struct_4.pt
+│   │   │       ├── cp_collection_struct_5.pt
+│   │   │       ├── cp_collection_struct_6.pt
+│   │   │       ├── cp_collection_struct_7.pt
+│   │   │       ├── cp_collection_struct_8.pt
+│   │   │       └── cp_collection_struct_9.pt
+│   │   ├── cp_0_L_1L+-
+│   │   │   ├── data
+│   │   │   │   ├── cp_collection_data_0.csv
+│   │   │   │   ├── cp_collection_data_1.csv
+│   │   │   │   ├── cp_collection_data_2.csv
+│   │   │   │   ├── cp_collection_data_3.csv
+│   │   │   │   ├── cp_collection_data_4.csv
+│   │   │   │   ├── cp_collection_data_5.csv
+│   │   │   │   ├── cp_collection_data_6.csv
+│   │   │   │   ├── cp_collection_data_7.csv
+│   │   │   │   ├── cp_collection_data_8.csv
+│   │   │   │   └── cp_collection_data_9.csv
+│   │   │   └── structure
+│   │   │       ├── cp_collection_struct_0.pt
+│   │   │       ├── cp_collection_struct_1.pt
+│   │   │       ├── cp_collection_struct_2.pt
+│   │   │       ├── cp_collection_struct_3.pt
+│   │   │       ├── cp_collection_struct_4.pt
+│   │   │       ├── cp_collection_struct_5.pt
+│   │   │       ├── cp_collection_struct_6.pt
+│   │   │       ├── cp_collection_struct_7.pt
+│   │   │       ├── cp_collection_struct_8.pt
+│   │   │       └── cp_collection_struct_9.pt
+│   │   ├── cp_0_NL_2L
+│   │   │   ├── data
+│   │   │   │   ├── cp_collection_data_0.csv
+│   │   │   │   ├── cp_collection_data_10.csv
+│   │   │   │   ├── cp_collection_data_11.csv
+│   │   │   │   ├── cp_collection_data_12.csv
+│   │   │   │   ├── cp_collection_data_13.csv
+│   │   │   │   ├── cp_collection_data_14.csv
+│   │   │   │   ├── cp_collection_data_15.csv
+│   │   │   │   ├── cp_collection_data_16.csv
+│   │   │   │   ├── cp_collection_data_17.csv
+│   │   │   │   ├── cp_collection_data_18.csv
+│   │   │   │   ├── cp_collection_data_19.csv
+│   │   │   │   ├── cp_collection_data_1.csv
+│   │   │   │   ├── cp_collection_data_2.csv
+│   │   │   │   ├── cp_collection_data_3.csv
+│   │   │   │   ├── cp_collection_data_4.csv
+│   │   │   │   ├── cp_collection_data_5.csv
+│   │   │   │   ├── cp_collection_data_6.csv
+│   │   │   │   ├── cp_collection_data_7.csv
+│   │   │   │   ├── cp_collection_data_8.csv
+│   │   │   │   └── cp_collection_data_9.csv
+│   │   │   └── structure
+│   │   │       ├── cp_collection_struct_0.pt
+│   │   │       ├── cp_collection_struct_10.pt
+│   │   │       ├── cp_collection_struct_11.pt
+│   │   │       ├── cp_collection_struct_12.pt
+│   │   │       ├── cp_collection_struct_13.pt
+│   │   │       ├── cp_collection_struct_14.pt
+│   │   │       ├── cp_collection_struct_15.pt
+│   │   │       ├── cp_collection_struct_16.pt
+│   │   │       ├── cp_collection_struct_17.pt
+│   │   │       ├── cp_collection_struct_18.pt
+│   │   │       ├── cp_collection_struct_19.pt
+│   │   │       ├── cp_collection_struct_1.pt
+│   │   │       ├── cp_collection_struct_2.pt
+│   │   │       ├── cp_collection_struct_3.pt
+│   │   │       ├── cp_collection_struct_4.pt
+│   │   │       ├── cp_collection_struct_5.pt
+│   │   │       ├── cp_collection_struct_6.pt
+│   │   │       ├── cp_collection_struct_7.pt
+│   │   │       ├── cp_collection_struct_8.pt
+│   │   │       └── cp_collection_struct_9.pt
+│   │   ├── cp_0_NL_2L+
+│   │   │   ├── data
+│   │   │   │   ├── cp_collection_data_0.csv
+│   │   │   │   ├── cp_collection_data_1.csv
+│   │   │   │   ├── cp_collection_data_2.csv
+│   │   │   │   ├── cp_collection_data_3.csv
+│   │   │   │   ├── cp_collection_data_4.csv
+│   │   │   │   ├── cp_collection_data_5.csv
+│   │   │   │   ├── cp_collection_data_6.csv
+│   │   │   │   ├── cp_collection_data_7.csv
+│   │   │   │   ├── cp_collection_data_8.csv
+│   │   │   │   └── cp_collection_data_9.csv
+│   │   │   └── structure
+│   │   │       ├── cp_collection_struct_0.pt
+│   │   │       ├── cp_collection_struct_1.pt
+│   │   │       ├── cp_collection_struct_2.pt
+│   │   │       ├── cp_collection_struct_3.pt
+│   │   │       ├── cp_collection_struct_4.pt
+│   │   │       ├── cp_collection_struct_5.pt
+│   │   │       ├── cp_collection_struct_6.pt
+│   │   │       ├── cp_collection_struct_7.pt
+│   │   │       ├── cp_collection_struct_8.pt
+│   │   │       └── cp_collection_struct_9.pt
+│   │   ├── cp_0_NL_3L
+│   │   │   ├── data
+│   │   │   │   ├── cp_collection_data_0.csv
+│   │   │   │   ├── cp_collection_data_1.csv
+│   │   │   │   ├── cp_collection_data_2.csv
+│   │   │   │   ├── cp_collection_data_3.csv
+│   │   │   │   ├── cp_collection_data_4.csv
+│   │   │   │   ├── cp_collection_data_5.csv
+│   │   │   │   ├── cp_collection_data_6.csv
+│   │   │   │   ├── cp_collection_data_7.csv
+│   │   │   │   ├── cp_collection_data_8.csv
+│   │   │   │   └── cp_collection_data_9.csv
+│   │   │   └── structure
+│   │   │       ├── cp_collection_struct_0.pt
+│   │   │       ├── cp_collection_struct_1.pt
+│   │   │       ├── cp_collection_struct_2.pt
+│   │   │       ├── cp_collection_struct_3.pt
+│   │   │       ├── cp_collection_struct_4.pt
+│   │   │       ├── cp_collection_struct_5.pt
+│   │   │       ├── cp_collection_struct_6.pt
+│   │   │       ├── cp_collection_struct_7.pt
+│   │   │       ├── cp_collection_struct_8.pt
+│   │   │       └── cp_collection_struct_9.pt
 │   │   └── increasing_edges_cp_1
 │   │       ├── data
 │   │       │   ├── (000)_cp_v10_l1_p95_ts.csv
@@ -238,16 +428,145 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 │   │       ├── WTH_boot_3.csv
 │   │       └── WTH_boot_4.csv
 │   └── results
+│       ├── cd_efficacy
+│       │   ├── simulated_ct
+│       │   │   ├── air_quality_mini
+│       │   │   │   ├── air_quality_mini_boot_0.csv
+│       │   │   │   ├── air_quality_mini_boot_1.csv
+│       │   │   │   ├── air_quality_mini_boot_2.csv
+│       │   │   │   ├── air_quality_mini_boot_3.csv
+│       │   │   │   └── air_quality_mini_boot_4.csv
+│       │   │   ├── AirQualityUCI
+│       │   │   │   └── AirQualityUCI_boot_4.csv
+│       │   │   ├── bike-usage
+│       │   │   │   ├── bike-usage_boot_0.csv
+│       │   │   │   ├── bike-usage_boot_1.csv
+│       │   │   │   ├── bike-usage_boot_2.csv
+│       │   │   │   └── bike-usage_boot_5.csv
+│       │   │   ├── cp_style
+│       │   │   │   ├── (000)_cp_v10_l1_p95_ts.csv
+│       │   │   │   ├── (001)_cp_v10_l1_p92_ts.csv
+│       │   │   │   ├── (002)_cp_v10_l1_p89_ts.csv
+│       │   │   │   ├── (003)_cp_v10_l1_p86_ts.csv
+│       │   │   │   ├── (004)_cp_v10_l1_p83_ts.csv
+│       │   │   │   ├── (005)_cp_v10_l1_p80_ts.csv
+│       │   │   │   ├── (006)_cp_v10_l1_p77_ts.csv
+│       │   │   │   ├── (007)_cp_v10_l1_p74_ts.csv
+│       │   │   │   ├── (008)_cp_v10_l1_p71_ts.csv
+│       │   │   │   └── (009)_cp_v10_l1_p68_ts.csv
+│       │   │   ├── ETTh1
+│       │   │   │   ├── ETTh1_boot_0.csv
+│       │   │   │   ├── ETTh1_boot_1.csv
+│       │   │   │   ├── ETTh1_boot_2.csv
+│       │   │   │   ├── ETTh1_boot_3.csv
+│       │   │   │   └── ETTh1_boot_4.csv
+│       │   │   ├── ETTm1
+│       │   │   │   ├── ETTm1_boot_0.csv
+│       │   │   │   ├── ETTm1_boot_1.csv
+│       │   │   │   ├── ETTm1_boot_2.csv
+│       │   │   │   ├── ETTm1_boot_3.csv
+│       │   │   │   └── ETTm1_boot_4.csv
+│       │   │   ├── finance
+│       │   │   │   ├── random-rels_20_1_3_returns30007000_header.csv
+│       │   │   │   ├── random-rels_20_1A_returns30007000_header.csv
+│       │   │   │   ├── random-rels_20_1B_returns30007000_header.csv
+│       │   │   │   ├── random-rels_20_1C_returns30007000_header.csv
+│       │   │   │   ├── random-rels_20_1D_returns30007000_header.csv
+│       │   │   │   └── random-rels_20_1E_returns30007000_header.csv
+│       │   │   ├── fMRI
+│       │   │   │   ├── timeseries19.csv
+│       │   │   │   ├── timeseries5.csv
+│       │   │   │   ├── timeseries6.csv
+│       │   │   │   ├── timeseries7.csv
+│       │   │   │   └── timeseries9.csv
+│       │   │   ├── outdoor
+│       │   │   │   └── outdoor_original.csv
+│       │   │   └── WTH
+│       │   │       ├── WTH_boot_0.csv
+│       │   │       ├── WTH_boot_1.csv
+│       │   │       ├── WTH_boot_2.csv
+│       │   │       ├── WTH_boot_3.csv
+│       │   │       └── WTH_boot_4.csv
+│       │   └── simulated_tcs
+│       │       ├── air_quality_mini
+│       │       │   ├── air_quality_mini_boot_0.csv
+│       │       │   ├── air_quality_mini_boot_1.csv
+│       │       │   ├── air_quality_mini_boot_2.csv
+│       │       │   ├── air_quality_mini_boot_3.csv
+│       │       │   └── air_quality_mini_boot_4.csv
+│       │       ├── AirQualityUCI
+│       │       │   └── AirQualityUCI_boot_4.csv
+│       │       ├── bike-usage
+│       │       │   ├── bike-usage_boot_0.csv
+│       │       │   ├── bike-usage_boot_1.csv
+│       │       │   ├── bike-usage_boot_2.csv
+│       │       │   └── bike-usage_boot_5.csv
+│       │       ├── cp_style
+│       │       │   ├── (000)_cp_v10_l1_p95_ts.csv
+│       │       │   ├── (001)_cp_v10_l1_p92_ts.csv
+│       │       │   ├── (002)_cp_v10_l1_p89_ts.csv
+│       │       │   ├── (003)_cp_v10_l1_p86_ts.csv
+│       │       │   ├── (004)_cp_v10_l1_p83_ts.csv
+│       │       │   ├── (005)_cp_v10_l1_p80_ts.csv
+│       │       │   ├── (006)_cp_v10_l1_p77_ts.csv
+│       │       │   ├── (007)_cp_v10_l1_p74_ts.csv
+│       │       │   ├── (008)_cp_v10_l1_p71_ts.csv
+│       │       │   └── (009)_cp_v10_l1_p68_ts.csv
+│       │       ├── ETTh1
+│       │       │   ├── ETTh1_boot_0.csv
+│       │       │   ├── ETTh1_boot_1.csv
+│       │       │   ├── ETTh1_boot_2.csv
+│       │       │   ├── ETTh1_boot_3.csv
+│       │       │   └── ETTh1_boot_4.csv
+│       │       ├── ETTm1
+│       │       │   ├── ETTm1_boot_0.csv
+│       │       │   ├── ETTm1_boot_1.csv
+│       │       │   ├── ETTm1_boot_2.csv
+│       │       │   ├── ETTm1_boot_3.csv
+│       │       │   └── ETTm1_boot_4.csv
+│       │       ├── finance
+│       │       │   ├── random-rels_20_1_3_returns30007000_header.csv
+│       │       │   ├── random-rels_20_1A_returns30007000_header.csv
+│       │       │   ├── random-rels_20_1B_returns30007000_header.csv
+│       │       │   ├── random-rels_20_1C_returns30007000_header.csv
+│       │       │   ├── random-rels_20_1D_returns30007000_header.csv
+│       │       │   └── random-rels_20_1E_returns30007000_header.csv
+│       │       ├── fMRI
+│       │       │   ├── timeseries19.csv
+│       │       │   ├── timeseries5.csv
+│       │       │   ├── timeseries6.csv
+│       │       │   ├── timeseries7.csv
+│       │       │   └── timeseries9.csv
+│       │       ├── outdoor
+│       │       │   └── outdoor_original.csv
+│       │       └── WTH
+│       │           ├── WTH_boot_0.csv
+│       │           ├── WTH_boot_1.csv
+│       │           ├── WTH_boot_2.csv
+│       │           ├── WTH_boot_3.csv
+│       │           └── WTH_boot_4.csv
 │       ├── dense_graph
 │       │   ├── res_cp_vs_1.p
-│       │   └── res_cp_vs_2.p
+│       │   ├── res_cp_vs_2n.p
+│       │   ├── res_cp_vs_2.p
+│       │   ├── res_cp_vs_3n.p
+│       │   ├── res_cp_vs_4n.p
+│       │   └── res_cp_vs_5n.p
 │       ├── figures
 │       │   ├── sparsity_penalty_cp1.png
 │       │   └── sparsity_penalty_cp1_short.png
 │       ├── oracle_graph
 │       │   ├── res_cp_just_1.p
 │       │   ├── res_cp_ora_1.p
+│       │   ├── res_cp_ora_2n.p
+│       │   ├── res_cp_ora_3n.p
+│       │   ├── res_cp_ora_4n.p
+│       │   ├── res_cp_ora_5n.p
 │       │   └── res_cp_vs_1.p
+│       ├── random_graph
+│       │   ├── res_cp_vs_1.p
+│       │   ├── res_cp_vs_2.p
+│       │   └── res_cp_vs_3.p
 │       ├── sparsity_penalty
 │       │   └── res_cp_vs_2.p
 │       └── vs
@@ -257,6 +576,21 @@ We provide various `.ipynb` notebooks not only for reproducing the experimental 
 │           ├── AirQualityUCI_mmd.json
 │           ├── bike-usage_auc.json
 │           ├── bike-usage_mmd.json
+│           ├── cp_0_L_1L+_auc.json
+│           ├── cp_0_L_1L_auc.json
+│           ├── cp_0_L_1L+_mmd.json
+│           ├── cp_0_L_1L_mmd.json
+│           ├── cp_0_L_1L+_shd.json
+│           ├── cp_0_L_1L_shd.json
+│           ├── cp_0_NL_2L+_auc.json
+│           ├── cp_0_NL_2L_auc.json
+│           ├── cp_0_NL_2L+_mmd.json
+│           ├── cp_0_NL_2L_mmd.json
+│           ├── cp_0_NL_2L+_shd.json
+│           ├── cp_0_NL_2L_shd.json
+│           ├── cp_0_NL_3L_auc.json
+│           ├── cp_0_NL_3L_mmd.json
+│           ├── cp_0_NL_3L_shd.json
 │           ├── cp_1_auc.json
 │           ├── cp_1_mmd.json
 │           ├── finance_auc.json
@@ -279,6 +613,8 @@ CP Weights (to be optionally included in Phase 1 of TCS -see `simulation_configs
 
 - [deep_CI_RH_12_3_merged_290k.ckpt](https://drive.google.com/file/d/1Syfse6nXr_vK7lfPEOEScl-4xbr0b_OJ/view?usp=drive_link)
 - [lcm_CI_RH_12_3_merged_290k.ckpt](https://drive.google.com/file/d/1XZyhp1t9Kc015KDaIlwrw938aKnarYli/view?usp=drive_link)
+
+The first model corresponds to $16.1M$ parameters, while the other to $391M$. 
 
 ## 📚 Citation
 
