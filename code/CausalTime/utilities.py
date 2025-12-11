@@ -13,8 +13,8 @@ from CausalTime.train import train
 from simulation.detection_lstm import ClassifierLSTM
 from simulation.simulation_metrics import mmd_torch
 from torch.utils.tensorboard import SummaryWriter
-from tqdm import tqdm
 from utils import df_to_tensor, get_device
+from tqdm import tqdm
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
