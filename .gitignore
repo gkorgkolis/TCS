@@ -84,6 +84,9 @@ code/notebooks/outputsfull/
 code/notebooks/outputsmasked
 code/notebooks/outputs/air_quality/log/
 
+# Results
+data/results/
+
 # Large Datasets > 100MB
 # data/
 # data/single/

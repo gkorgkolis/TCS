@@ -37,14 +37,14 @@ TCDF_1:
 #         kernel_size: 2 
 #         dilation_c: 2   
 #         lr: 0.01
-TCDF_3: 
-    pred_method: "TCDF"
-    pred_kwargs:
-        num_levels: 2  
-        epochs: 1000 
-        kernel_size: 3 
-        dilation_c: 3   
-        lr: 0.001
+# TCDF_3: 
+#     pred_method: "TCDF"
+#     pred_kwargs:
+#         num_levels: 2  
+#         epochs: 1000 
+#         kernel_size: 3 
+#         dilation_c: 3   
+#         lr: 0.001
 
 # # Times FM
 # TimesFM: 

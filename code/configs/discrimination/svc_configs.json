@@ -1,5 +1,5 @@
 {
-    "C" : [1.0, 0.5],
+    "C" : [1.0, 0.75, 0.5],
     "kernel" : ["linear", "rbf"],
     "degree" : [3],
     "gamma" : ["scale"], 

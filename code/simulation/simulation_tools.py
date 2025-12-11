@@ -95,7 +95,7 @@ def get_optimal_sim_XY(
         CONFIGS: dict = None, 
         optimal_det_config: dict = None,
         optimal_det_func: dict = None,
-        bias_correction: bool = True, 
+        bias_correction: bool = False, 
         sparsity_penalty: bool = False,
         verbose: bool = True
 ) -> dict:
@@ -210,7 +210,7 @@ def get_optimal_sim_XY(
                 print(f"LOG: Optimal Simulation: A configuration failed to run, thus is removed : {len(CONFIGS) + 1} -> {len(CONFIGS)}")
             continue
     
-        Path("../configs/discrimination/tempfile_max_len.json").unlink()
+        # Path("../configs/discrimination/tempfile_max_len.json").unlink()
 
         if verbose:
             print(f"_____________________________________________________________________________________________________________")

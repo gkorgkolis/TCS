@@ -3,16 +3,16 @@
 PCMCI_1:
     cd_method: "PCMCI"
     cd_kwargs: {}
-PCMCI_2:
-    cd_method: "PCMCI"
-    cd_kwargs: 
-        n_lags: 2 
-        n_reps: 10
-PCMCI_3:
-    cd_method: "PCMCI"
-    cd_kwargs:
-        n_lags: 3 
-        n_reps: 10
+# PCMCI_2:
+#     cd_method: "PCMCI"
+#     cd_kwargs: 
+#         n_lags: 2 
+#         n_reps: 10
+# PCMCI_3:
+#     cd_method: "PCMCI"
+#     cd_kwargs:
+#         n_lags: 3 
+#         n_reps: 10
 
 # # Large Causal Models (Causal Pretraining (CP) & new architectures)
 # CP_1: 

@@ -378,10 +378,10 @@ def run_detection_metrics(
         print(f"LOG: Optimal Detection Config: Bootstrap bias correction")
         all_probs = svm_probs_all + lstm_probs_all    # represents Pi from the output of CVT
         all_labels = svm_labels.copy() 
-        all_scores = [roc_auc_score(y_true=all_labels, y_score=y_prob) for y_prob in all_probs]
+        all_scores = [roc_auc_score(y_true=all_labels, y_score=y_prob) for y_prob in all_probs]     # NOTE: this and idx are not needed
         idx = np.argmin([np.abs(0.5-x) for x in all_scores])    # use to retrieve the outputs M & L_cvt of CVT; M is not used in BBC 
         NB = 500    # number of permutations
-        NBS = int(len(all_probs[0])/2)    # number of permuted samples (with replacement)
+        NBS = len(all_probs[0])    # number of permuted samples (with replacement)
         scores_bbc = []
         # BBC loop
         for b in range(NB):
