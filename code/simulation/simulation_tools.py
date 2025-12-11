@@ -1,16 +1,17 @@
 import json
-import yaml
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from tqdm import trange
-from pathlib import Path
+import yaml
 from sklearn.metrics import roc_auc_score
-from utils import _from_full_to_cp, ts_to_lagged
+from tqdm import trange
 
 from simulation.simulation_metrics import (prepare_det_data,
                                            run_detection_metrics,
                                            run_detection_metrics_XY)
 from simulation.simulation_utils import simulate
+from utils import _from_full_to_cp, ts_to_lagged
 
 with open('../configs/simulation/cd_configs.yaml','r') as f:
     CD_CONFIGS = yaml.safe_load(f)

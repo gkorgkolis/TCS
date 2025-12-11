@@ -38,8 +38,10 @@ import pandas as pd
 import scipy.linalg as slin
 import scipy.optimize as sopt
 
-from cd_methods.DynoTears.causalnex.structure.structure_model import StructureModel
-from cd_methods.DynoTears.causalnex.structure.transformers import DynamicDataTransformer
+from cd_methods.DynoTears.causalnex.structure.structure_model import \
+    StructureModel
+from cd_methods.DynoTears.causalnex.structure.transformers import \
+    DynamicDataTransformer
 
 
 def from_pandas_dynamic(  # pylint: disable=too-many-arguments

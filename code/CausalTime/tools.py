@@ -1,5 +1,4 @@
 import itertools
-
 import string
 import sys
 from pathlib import Path

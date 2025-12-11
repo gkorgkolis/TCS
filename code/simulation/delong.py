@@ -2,7 +2,7 @@ import numpy as np
 import scipy.stats
 
 
-def Delong_test(true, prob_A, prob_B):
+def Delong_test(true: np.ndarray, prob_A: np.ndarray, prob_B: np.ndarray):
     """
     Perform DeLong's test for comparing the AUCs of two models.
 
@@ -31,7 +31,7 @@ def Delong_test(true, prob_A, prob_B):
     >>> print(f"Z-Score: {z_score}, P-Value: {p_value}")
     """
 
-    def compute_midrank(x):
+    def compute_midrank(x: np.ndarray):
         """
         """
         J = np.argsort(x)
@@ -49,12 +49,19 @@ def Delong_test(true, prob_A, prob_B):
         T2[J] = T + 1
         return T2
 
-    def compute_ground_truth_statistics(true):
+    def compute_ground_truth_statistics(true: np.ndarray):
         """
+        Computes the number of positive and negative labels
+        Args:
+            true (np.ndarray): ground truth labels for each sample in binary format
+        Returns:
+            order (np.ndarray): sorted indices of the labels
+            label_1_count (int): number of positive labels
         """
         assert np.array_equal(np.unique(true), [0, 1]), "Ground truth must be binary."
         order = (-true).argsort()
         label_1_count = int(true.sum())
+
         return order, label_1_count
 
     # Prepare data

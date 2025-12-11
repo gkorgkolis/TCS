@@ -24,7 +24,8 @@ import seaborn as sns
 import torch
 from tqdm import trange
 
-from tempogen.functional_utils import (_torch_exp, _torch_identity, _torch_pow, _torch_sin, _torch_tanh)
+from tempogen.functional_utils import (_torch_exp, _torch_identity, _torch_pow,
+                                       _torch_sin, _torch_tanh)
 
 sys.path.append(".")
 

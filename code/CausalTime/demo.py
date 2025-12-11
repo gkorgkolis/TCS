@@ -4,12 +4,11 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.tensorboard import SummaryWriter
-
 from dataloader import load_data_h5py
 from generate import generate
 from models import (NF_ResidualTransformerModel, Residual_model, shareLSTM,
                     shareMLP, shareTransformer)
+from torch.utils.tensorboard import SummaryWriter
 from train import stable_train, train
 from visualization import plot_generate_data, plot_model_prediction
 

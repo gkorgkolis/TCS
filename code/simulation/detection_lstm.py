@@ -1,7 +1,8 @@
 import json
-import torch
+
 import numpy as np
 import pandas as pd
+import torch
 from sklearn.metrics import roc_auc_score
 
 """
@@ -30,10 +31,12 @@ class ClassifierLSTM(torch.nn.Module):
 
     def forward(self, x):
         """
+        Forward pass
         """
         out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
         out = self.sigmoid(out)
+
         return out
 
 
@@ -203,6 +206,7 @@ class ClassifierLSTM_V3(torch.nn.Module):
     
     def forward(self, x):
         """
+        Forward pass
         """ 
         out, _ = self.lstm(x)
         out = self.fc(out[:, -1, :])
@@ -433,6 +437,7 @@ class ClassifierLSTM_V2(torch.nn.Module):
         acc = []
         y_pred_list = []
         y_list = []
+
         with torch.no_grad():
             for i, (X, y) in enumerate(test_loader):
                 X = X.permute(0, 2, 1).to(device)
@@ -451,7 +456,9 @@ class ClassifierLSTM_V2(torch.nn.Module):
         y_pred_list = np.concatenate(y_pred_list)
         y_list = np.concatenate(y_list)
         auc_score = roc_auc_score(y_list, y_pred_list)
+
         if verbose:
             print('Test accuracy: ', accuracy)
             print('Test auc: ', auc_score)
+
         return auc_score, y_pred_list, y_list

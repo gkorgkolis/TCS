@@ -20,7 +20,6 @@ from tigramite.pcmci import PCMCI
 from cd_methods.CausalPretraining.helpers.tools import *
 from cd_methods.CausalPretraining.model.model_wrapper import Architecture_PL
 
-import warnings
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 
 

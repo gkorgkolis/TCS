@@ -1,7 +1,7 @@
 from functools import wraps
 from time import time
-import einops
 
+import einops
 import torch
 import torch.nn as nn
 

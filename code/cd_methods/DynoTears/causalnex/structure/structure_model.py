@@ -37,6 +37,7 @@ import networkx as nx
 import numpy as np
 from networkx.exception import NodeNotFound
 
+
 def _validate_origin(origin: str) -> None:
     """
     Checks that origin has a valid value. One of:

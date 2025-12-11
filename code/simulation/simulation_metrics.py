@@ -1,8 +1,8 @@
-from pathlib import Path
 import itertools
+import json
 import string
 import time
-import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -13,9 +13,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from tqdm import tqdm
 
+from simulation.detection_lstm import (ClassifierLSTM, ClassifierLSTM_V2,
+                                       ClassifierLSTM_V3, DiscDatasetLSTM)
 from utils import ts_to_lagged
-from simulation.detection_lstm import ClassifierLSTM, ClassifierLSTM_V2, ClassifierLSTM_V3, DiscDatasetLSTM
-
 
 """ ___________________________________________ LSTM Discrimination ___________________________________________ """
 

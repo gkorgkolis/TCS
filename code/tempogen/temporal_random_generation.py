@@ -9,7 +9,7 @@ import seaborn as sns
 import torch
 from tqdm import trange
 
-from tempogen.functional_utils import (_torch_identity, _torch_sigmoid)
+from tempogen.functional_utils import _torch_identity, _torch_sigmoid
 from tempogen.temporal_scm import TempSCM
 
 sys.path.append(".")

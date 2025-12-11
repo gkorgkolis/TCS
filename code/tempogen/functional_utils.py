@@ -1,5 +1,6 @@
 import torch
 
+
 def _safe_tensor(x):
     if isinstance(x, list):
         x = [i for i in x if i is not None]

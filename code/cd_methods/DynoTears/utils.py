@@ -1,24 +1,20 @@
 import string
+import sys
 import warnings
+from typing import Dict, List, Tuple, Union
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 
-import warnings
-from typing import Dict, List, Tuple, Union
-
-from utils import (_from_full_to_cp, 
-                   estimate_with_CP, 
-                   group_lagged_nodes,
+from utils import (_from_full_to_cp, estimate_with_CP, group_lagged_nodes,
                    regular_order_pd)
 
-
-import sys
 sys.path.append("..")
 
 
-from cd_methods.DynoTears.causalnex.structure.dynotears import from_pandas_dynamic
+from cd_methods.DynoTears.causalnex.structure.dynotears import \
+    from_pandas_dynamic
 
 """ _____________________________________________ DYNOTEARS _____________________________________________ """
 
