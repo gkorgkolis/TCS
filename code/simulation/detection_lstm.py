@@ -227,7 +227,7 @@ class ClassifierLSTM_V3(torch.nn.Module):
                 X = X.cuda()
                 y = y.cuda()
                 y_pred = self(X)
-                loss = criterion(y_pred.squeeze(), y)
+                loss = criterion(y_pred.view(-1), y.view(-1)) #loss = criterion(y_pred.squeeze(), y)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
