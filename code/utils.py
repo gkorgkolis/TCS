@@ -4,6 +4,7 @@ import string
 import time
 import warnings
 from functools import wraps
+from itertools import combinations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -13,6 +14,8 @@ import pandas as pd
 import torch
 import torchmetrics
 from statsmodels.tsa.stattools import adfuller
+from scipy.stats import wilcoxon
+
 from tigramite import data_processing as pp
 from tigramite.independence_tests.parcorr_wls import ParCorr
 from tigramite.pcmci import PCMCI
@@ -1003,6 +1006,7 @@ def check_non_stationarity(df: pd.DataFrame, verbose: bool=False):
             if verbose:
                 print(f"Time-series corresponding to variable {col} are not stationary.")
             return True
+
     return False 
 
 
@@ -1046,4 +1050,118 @@ def convert_data_to_stationary(df: pd.DataFrame, order: int=1, verbose=False):
     if check_non_stationarity(df, verbose=verbose):
         diff_df = to_stationary_with_finite_differences(df, order=order)
         return diff_df
+
     return df
+
+
+def create_random_intervention_dict(
+    scm, # TempSCM object
+    obs_data: pd.DataFrame,
+    n_samples: int,
+    warmup_steps: int=20,
+    interv_percent: float=0.3,
+    intervention_type: str="hard",
+    fallback_range: tuple=(-5, 5),
+):
+    rng = np.random.default_rng()
+    node_names = scm.causal_structure.node_names
+    n_vars = len(node_names)
+
+    if obs_data.shape[1] != n_vars:
+        raise ValueError("obs_data dimension mismatch")
+
+    start_time = scm.causal_structure.n_lags + warmup_steps
+    if n_samples <= start_time:
+        raise ValueError("n_samples too small")
+
+    interv_dict = {}
+
+    for i, node in enumerate(node_names):
+        interventions = []
+
+        if intervention_type == "hard":
+            min_val, max_val = obs_data.iloc[:, i].min(), obs_data.iloc[:, i].max()
+            if min_val == max_val:
+                min_val, max_val = fallback_range
+
+        for t in range(start_time, n_samples):
+            if rng.random() < interv_percent:
+                if intervention_type == "hard":
+                    val = rng.uniform(min_val, max_val)
+                elif intervention_type == "soft":
+                    raise NotImplementedError("Soft interventions not implemented yet.")
+
+        if interventions:
+            interv_dict[node] = interventions
+
+    return interv_dict
+
+
+def get_aligned_aucs(model_data_1: list, model_data_2: list) -> list:
+    """
+    Obtains aligned AUCs from two lists of two SCMs.
+
+    Args:
+        model_data_1: List of data for the first SCM.
+        model_data_2: List of data for the second SCM.
+
+    Returns:
+        List of aligned AUCs.
+    """
+    d1 = dict(model_data_1)
+    d2 = dict(model_data_2)
+
+    common_keys = sorted(set(d1.keys()) & set(d2.keys()))
+    return [d1[k] for k in common_keys], [d2[k] for k in common_keys]
+
+
+def perform_wilcoxon_test(per_sample_results: dict, metric: str="AUC", adjust_for_multiple_tests: bool=True, alpha: float=0.05) -> pd.DataFrame:
+    """
+    Performs the Wilcoxon test on per sample results, in order to obtain the test statistic.
+
+    Args:
+        per_sample_results: Dictionary of per sample results.
+        metric: Metric to use for the Wilcoxon test. Currently only supports AUC ("AUC").
+        adjust_for_multiple_tests: Whether to adjust p-values for multiple tests. Default value is True.
+        alpha: Significance level. Default is 0.05.
+
+    Returns:
+        Dictionary of pairwise results.
+    """
+    pairwise_results = []
+    model_pairs = list(combinations(per_sample_results.keys(), 2))
+    if len(model_pairs) == 0:
+        raise ValueError("No model pairs found.")
+
+    print(f'Number of model pairs: {len(model_pairs)}')
+    adjusted_alpha = alpha / len(model_pairs) if adjust_for_multiple_tests else alpha # Bonferonni correction for multiple tests
+
+    for model_a, model_b in model_pairs:
+        if metric == "AUC":
+            scores_a, scores_b = get_aligned_aucs(per_sample_results[model_a], per_sample_results[model_b])
+        else:
+            raise NotImplementedError
+
+        if len(scores_a) < 20 or len(scores_b) < 20: 
+            print(f"Too few shared samples for {model_a} vs {model_b} to obtain a significant result — skipping.")
+            continue
+
+        try:
+            stat, p_val = wilcoxon(scores_a, scores_b)
+        except ValueError:
+            p_val = np.nan
+
+        result = {
+            "SCM_a": model_a,
+            "SCM_b": model_b,
+            "mean_a ± std": f"{np.mean(scores_a):.4f} ± {np.std(scores_a):.4f}",
+            "mean_b ± std": f"{np.mean(scores_b):.4f} ± {np.std(scores_b):.4f}",
+            "raw_p_value": p_val,
+            "adjusted_alpha": adjusted_alpha,
+            "significant_after_correction": "Yes" if p_val < adjusted_alpha else "No"
+        }
+        pairwise_results.append(result)
+
+    pairwise_df = pd.DataFrame(pairwise_results)
+    
+    return pairwise_df
