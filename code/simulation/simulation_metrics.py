@@ -8,13 +8,12 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from simulation.detection_lstm import (ClassifierLSTM, ClassifierLSTM_V2,
+                                       ClassifierLSTM_V3, DiscDatasetLSTM)
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from tqdm import tqdm
-
-from simulation.detection_lstm import (ClassifierLSTM, ClassifierLSTM_V2,
-                                       ClassifierLSTM_V3, DiscDatasetLSTM)
 from utils import ts_to_lagged
 
 """ ___________________________________________ LSTM Discrimination ___________________________________________ """

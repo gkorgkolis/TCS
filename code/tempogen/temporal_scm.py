@@ -1,12 +1,11 @@
 import sys
-import torch
 
 import numpy as np
 import pandas as pd
-from tqdm import trange
-
+import torch
 from tempogen.temporal_causal_structure import TempCausalStructure
 from tempogen.temporal_node import TempNode
+from tqdm import trange
 
 sys.path.append(".")
 

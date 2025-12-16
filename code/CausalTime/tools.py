@@ -5,12 +5,11 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-from torch.utils.tensorboard import SummaryWriter
-
 from CausalTime.dataloader import load_data_h5py
 from CausalTime.generate import generate
 from CausalTime.models import NF_ResidualTransformerModel, Residual_model
 from CausalTime.train import train
+from torch.utils.tensorboard import SummaryWriter
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 

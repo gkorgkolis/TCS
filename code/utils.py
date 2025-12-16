@@ -13,15 +13,13 @@ import numpy as np
 import pandas as pd
 import torch
 import torchmetrics
-from statsmodels.tsa.stattools import adfuller
+from cd_methods.CausalPretraining.helpers.tools import *
+from cd_methods.CausalPretraining.model.model_wrapper import Architecture_PL
 from scipy.stats import wilcoxon
-
+from statsmodels.tsa.stattools import adfuller
 from tigramite import data_processing as pp
 from tigramite.independence_tests.parcorr_wls import ParCorr
 from tigramite.pcmci import PCMCI
-
-from cd_methods.CausalPretraining.helpers.tools import *
-from cd_methods.CausalPretraining.model.model_wrapper import Architecture_PL
 
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 

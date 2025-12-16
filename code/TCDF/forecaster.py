@@ -1,9 +1,8 @@
 import numpy as np
 import torch
-from tqdm import trange
-
 from TCDF.model import ADDSTCN
 from TCDF.TCDF import train
+from tqdm import trange
 
 
 class TCDForecaster:

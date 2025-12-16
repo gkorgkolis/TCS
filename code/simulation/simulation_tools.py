@@ -4,13 +4,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import yaml
-from sklearn.metrics import roc_auc_score
-from tqdm import trange
-
 from simulation.simulation_metrics import (prepare_det_data,
                                            run_detection_metrics,
                                            run_detection_metrics_XY)
 from simulation.simulation_utils import simulate
+from sklearn.metrics import roc_auc_score
+from tqdm import trange
 from utils import _from_full_to_cp, ts_to_lagged
 
 with open('../configs/simulation/cd_configs.yaml','r') as f:

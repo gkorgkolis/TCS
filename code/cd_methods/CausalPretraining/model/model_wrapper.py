@@ -2,14 +2,13 @@ import lightning.pytorch as pl
 import torch
 import torch.nn as nn
 import torch.optim as opt
-from torchmetrics import MeanAbsoluteError, MeanSquaredError
-
 from cd_methods.CausalPretraining.helpers.tools import (
     binary_metrics, custom_corr_regularization, weighted_mse)
 from cd_methods.CausalPretraining.model.conv import conv_mixer
 from cd_methods.CausalPretraining.model.gru import gru
 from cd_methods.CausalPretraining.model.informer import transformer
 from cd_methods.CausalPretraining.model.mlp import mlp
+from torchmetrics import MeanAbsoluteError, MeanSquaredError
 
 
 class Architecture_PL(pl.LightningModule):

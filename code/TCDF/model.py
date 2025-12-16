@@ -9,7 +9,6 @@ References
 
 import torch
 import torch.nn.functional as F
-
 from TCDF.depthwise import DepthwiseNet
 
 
