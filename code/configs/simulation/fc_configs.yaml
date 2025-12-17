@@ -1,23 +1,23 @@
 ---
-# # random forests (timelagged)
-# RF_1:
-#     pred_method: "RF"
-#     pred_kwargs: 
-#         n_estimators: 100
-# RF_2: 
-#     pred_method: "RF"
-#     pred_kwargs: 
-#         n_estimators: 500
-# RF_3:
-#     pred_method: "RF"
-#     pred_kwargs:
-#         n_estimators: 1000
+# random forests (timelagged)
+#RF_1:
+#    pred_method: "RF"
+#    pred_kwargs: 
+#        n_estimators: 100
+#RF_2: 
+#    pred_method: "RF"
+#    pred_kwargs: 
+#        n_estimators: 500
+#RF_3:
+#    pred_method: "RF"
+#    pred_kwargs:
+#        n_estimators: 1000
 
-# # k-nearest neighbors (timelagged)
-# KNR_1:
-#     pred_method: "KNR"
-#     pred_kwargs: 
-#         n_neighbors: 5
+# k-nearest neighbors (timelagged)
+#KNR_1:
+#    pred_method: "KNR"
+#    pred_kwargs: 
+#        n_neighbors: 5
 
 # gradient boosting (time-lagged)
 GBR_1:
@@ -46,7 +46,7 @@ TCDF_1:
 #         dilation_c: 3   
 #         lr: 0.001
 
-# # Times FM
-# TimesFM: 
-#     pred_method: "TimesFM"
-#     pred_kwargs: {}
+# Times FM
+#TimesFM: 
+#    pred_method: "TimesFM"
+#    pred_kwargs: {}
