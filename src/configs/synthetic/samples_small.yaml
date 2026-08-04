@@ -1,0 +1,8 @@
+---
+d_space : [10]
+l_space : [2]
+i_space : [3]
+s_space : [250]
+save_dir : "../data/synthetic/samples/small"
+save_name : samples_small
+seed : 10

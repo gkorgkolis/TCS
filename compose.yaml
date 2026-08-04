@@ -1,0 +1,11 @@
+services:
+  tcs:
+    container_name: tcs_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/tcs
+    stdin_open: true 
+    tty: true    
+        

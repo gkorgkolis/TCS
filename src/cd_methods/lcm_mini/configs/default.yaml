@@ -1,0 +1,127 @@
+# Global Seed # https://lightning.ai/docs/pytorch/stable/common/trainer.html#reproducibility
+seed: 42
+ignore_warnings: True
+git_commit_before_fit: False
+
+#https://lightning.ai/docs/pytorch/stable/common/trainer.html
+trainer:
+  # Train, validate, test and predict
+  max_epochs: 20 # 200
+  max_steps: -1
+  min_steps: null
+  max_time: null
+
+  accelerator: auto
+  devices: auto
+  default_root_dir: "logs"
+
+  check_val_every_n_epoch: 1
+  log_every_n_steps: 1
+
+  # Gradient Accumulation https://lightning.ai/docs/pytorch/stable/common/trainer.html#accumulate-grad-batches
+  accumulate_grad_batches: 2 # looking for effective size of 64
+
+  # Gradient Clipping https://lightning.ai/docs/pytorch/stable/common/trainer.html#gradient-clip-val 
+  gradient_clip_val: null 
+  gradient_clip_algorithm: null
+  
+  # Precision https://lightning.ai/docs/pytorch/stable/common/trainer.html#precision
+  precision: 32
+
+  # Plugins https://lightning.ai/docs/pytorch/stable/common/trainer.html#plugins
+  plugins: null
+
+  early_stopping:
+    patience: 3
+    min_delta: 0.01
+
+  deterministic: False 
+
+  # Callbacks https://lightning.ai/docs/pytorch/latest/extensions/callbacks.html
+  callbacks:
+    # https://lightning.ai/docs/pytorch/latest/api/lightning.pytorch.callbacks.ModelCheckpoint.html#lightning.pytorch.callbacks.ModelCheckpoint
+    - _target_: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        monitor: "val_loss"
+        verbose: True
+        save_top_k: 1
+        save_last: True
+        mode: max
+        auto_insert_metric_name: False
+    # https://lightning.ai/docs/pytorch/latest/api/lightning.pytorch.callbacks.EarlyStopping.html#lightning.pytorch.callbacks.EarlyStopping
+    - _target_: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        monitor: "val_loss"
+        patience: 20
+        min_delta: 0.01
+        verbose: True
+        #mode: max
+        #strict: True
+    # https://lightning.ai/docs/pytorch/latest/api/lightning.pytorch.callbacks.LearningRateMonitor.html#lightning.pytorch.callbacks.LearningRateMonitor
+    - _target_: lightning.pytorch.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: "epoch"
+  logger:
+    type: None # options: "wandb", "tensorboard" or "None"
+    wandb:
+      project: "test_project"
+      name: "experiment"
+      save_dir: "logs"
+      log_model: "all"
+    tensorboard:
+      name: "training_run"
+      log_dir: "tensorboard_logs"
+
+checkpoint_path: null
+freeze: False # whether to freeze all layers apart the final FC ones; applies when running fine_tuning.py
+
+# Model-specific params
+model:
+  _target_: src.modules.informer_module.InformerModule
+
+  init_args:
+    n_vars: 12
+    max_lag: 3
+    max_seq_len: 500
+    d_model: 256 
+    n_heads: 4
+    n_blocks: 4
+    d_ff: 256
+    dropout_coeff: 0.05
+    attention_distilation: True
+    optimizer: "AdamW"  # for Lion, use "Lion"
+    learning_rate: 0.001  # 0.0001
+    betas: [0.9, 0.999] 
+    weight_decay: 0.01 
+    scheduler_factor: 0.1 
+    scheduler_patience: 10
+    training_aids: True 
+    loss_balancing: null 
+
+# Data-specific params
+data:
+  _target_: src.data_modules.data_module.MainDataModule
+  init_args:  
+    batch_size: 32
+    n_vars: ${model.init_args.n_vars}
+    max_lag: ${model.init_args.max_lag}
+    data_directory_path: "data/mix_partial_100k_p3_pt" # "data/synth_230k_sim_45k_permuted_3_pt"
+    use_shards: True 
+    training_dataset_name: 'train' #  when using shards, only use the dir, e.g. 'train' instead of 'train/train.pt'
+    test_dataset_name: 'test' 
+    validation_dataset_name: 'val'
+    binarize_labels: True
+    training_aids: True 
+
+#fast_dev_run: false # https://lightning.ai/docs/pytorch/stable/common/trainer.html#fast-dev-run
+profiler: null # https://lightning.ai/docs/pytorch/stable/api_references.html#profiler
+barebones: False
+detect_anomaly: True
+reload_dataloaders_every_n_epochs: 0
+
+# Misc
+default_root_dir: null
+benchmark: null
+enable_progress_bar: True
+enable_checkpointing: True
+enable_model_summary: True 

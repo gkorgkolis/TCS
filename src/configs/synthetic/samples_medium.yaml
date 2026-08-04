@@ -1,0 +1,8 @@
+---
+d_space : [10]
+l_space : [2]
+i_space : [3]
+s_space : [500]
+save_dir : "../data/synthetic/samples/medium"
+save_name : samples_medium
+seed : 20

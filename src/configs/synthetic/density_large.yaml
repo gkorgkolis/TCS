@@ -1,0 +1,8 @@
+---
+d_space : [10]
+l_space : [2]
+i_space : [4]
+s_space : [500]
+save_dir : "../data/synthetic/density/large"
+save_name : density_large
+seed : 1000

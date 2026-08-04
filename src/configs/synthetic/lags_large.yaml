@@ -1,0 +1,8 @@
+---
+d_space : [10]
+l_space : [3]
+i_space : [3]
+s_space : [500]
+save_dir : "../data/synthetic/lags/large"
+save_name : lags_large
+seed : 1000
