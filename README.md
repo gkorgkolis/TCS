@@ -1,4 +1,4 @@
-# Temporal Causal-based Simulation (TCS)
+# Adversarial Causal Tuning (ACT)
 
 ![Python 3.10](https://img.shields.io/badge/Python-3.10-blue?logo=python)
 ![PyTorch](https://img.shields.io/badge/PyTorch-black?logo=PyTorch)
