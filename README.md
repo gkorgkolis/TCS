@@ -70,10 +70,10 @@ The first model corresponds to $16.1M$ parameters, while the other to $391M$.
 If the codebase has proven useful, please consider citing the following article:
 
 ```bibtex
-@misc{gkorgkolis2025temporal,
-      title={Temporal Causal-based Simulation for Realistic Time-series Generation}, 
+@misc{gkorgkolis2026adversarialcausaltuningrealistic,
+      title={Adversarial Causal Tuning for Realistic Time-series Generation}, 
       author={Nikolaos Gkorgkolis and Nikolaos Kougioulis and MingXue Wang and Bora Caglayan and Andrea Tonon and Dario Simionato and Ioannis Tsamardinos},
-      year={2025},
+      year={2026},
       eprint={2506.02084},
       archivePrefix={arXiv},
       primaryClass={cs.LG},
