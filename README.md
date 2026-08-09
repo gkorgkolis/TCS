@@ -7,7 +7,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2506.02084-b31b1b.svg?style=flat)](https://arxiv.org/abs/2506.02084)
 [![CodeFactor](https://www.codefactor.io/repository/github/gkorgkolis/tcs/badge/main)](https://www.codefactor.io/repository/github/gkorgkolis/tcs/overview/main)
 
-Code for the paper "Temporal Causal-based Simulation for Realistic Time-series Generation", Gkorgkolis et al., 2025.  
+Code for the paper "Adversarial Causal Tuning for Realistic Time-series Generation", Gkorgkolis et al., 2026.  
 
 ## 📌 Overview
 
